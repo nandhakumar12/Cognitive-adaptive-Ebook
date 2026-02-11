@@ -1,0 +1,236 @@
+/**
+ * BOOK DETAIL STYLES
+ */
+
+.book-detail {
+    min-height: 100vh;
+    padding: var(--space-xl);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.back-button {
+    background: none;
+    border: none;
+    color: var(--audible-orange);
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    padding: var(--space-sm) 0;
+    margin-bottom: var(--space-lg);
+    transition: color var(--transition-fast);
+}
+
+.back-button:hover {
+    color: var(--audible-orange-light);
+    text-decoration: underline;
+}
+
+.book-detail-header {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: var(--space-2xl);
+    margin-bottom: var(--space-2xl);
+}
+
+.book-detail-cover {
+    width: 100%;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+}
+
+.book-detail-cover img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 2/3;
+    object-fit: cover;
+}
+
+.book-detail-info {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-md);
+}
+
+.book-detail-title {
+    font-size: 2.5rem;
+    margin-bottom: var(--space-sm);
+}
+
+.book-detail-author {
+    font-size: 1.3rem;
+    color: var(--text-secondary);
+}
+
+.book-detail-narrator {
+    font-size: 1.1rem;
+    color: var(--text-muted);
+}
+
+.book-detail-meta {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+    padding: var(--space-md) 0;
+    border-top: 1px solid var(--border-color);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+}
+
+.rating-count {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.meta-label {
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.meta-value {
+    color: var(--text-primary);
+}
+
+.book-detail-progress {
+    background: var(--bg-card);
+    padding: var(--space-md);
+    border-radius: var(--radius-md);
+}
+
+.progress-header {
+    margin-bottom: var(--space-sm);
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+}
+
+.play-large-btn {
+    font-size: 1.2rem;
+    padding: 16px 32px;
+}
+
+.book-detail-genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+}
+
+.genre-tag {
+    background: var(--bg-secondary);
+    color: var(--audible-orange);
+    padding: 6px 16px;
+    border-radius: var(--radius-lg);
+    font-size: 0.9rem;
+    font-weight: 600;
+    border: 1px solid var(--audible-orange);
+}
+
+.book-detail-description,
+.book-detail-chapters {
+    margin-bottom: var(--space-2xl);
+}
+
+.book-detail-description h2,
+.book-detail-chapters h2 {
+    font-size: 1.8rem;
+    margin-bottom: var(--space-lg);
+    border-bottom: 2px solid var(--audible-orange);
+    padding-bottom: var(--space-sm);
+}
+
+.book-detail-description p {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: var(--text-secondary);
+}
+
+.chapters-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm);
+}
+
+.chapter-item {
+    display: flex;
+    gap: var(--space-md);
+    align-items: center;
+    padding: var(--space-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 2px solid transparent;
+}
+
+.chapter-item:hover {
+    border-color: var(--audible-orange);
+    background: var(--bg-hover);
+}
+
+.chapter-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--audible-orange);
+    min-width: 40px;
+    text-align: center;
+}
+
+.chapter-info {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chapter-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.chapter-duration {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+}
+
+@media (max-width: 968px) {
+    .book-detail-header {
+        grid-template-columns: 1fr;
+        gap: var(--space-xl);
+    }
+
+    .book-detail-cover {
+        max-width: 300px;
+        margin: 0 auto;
+    }
+
+    .book-detail-title {
+        font-size: 2rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .book-detail {
+        padding: var(--space-md);
+    }
+
+    .book-detail-title {
+        font-size: 1.8rem;
+    }
+
+    .chapter-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .chapter-info {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+}

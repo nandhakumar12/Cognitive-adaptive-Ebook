@@ -1,0 +1,8 @@
+# Placeholder for sample audio file
+# In production, replace with actual audiobook content
+# For demo purposes, you can:
+# 1. Generate speech using text-to-speech (TTS)
+# 2. Use public domain audiobooks
+# 3. Record sample narration
+
+# This file is a placeholder - the actual file should be an MP3

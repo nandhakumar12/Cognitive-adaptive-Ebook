@@ -1,0 +1,58 @@
+version: '3.8'
+
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:3001
+    depends_on:
+      - gateway
+
+  gateway:
+    build: ./backend/services/gateway
+    ports:
+      - "3001:3001"
+    environment:
+      - EVENT_SERVICE_URL=http://event-service:3002
+      - COGNITIVE_SERVICE_URL=http://cognitive-service:3003
+      - ADAPTATION_SERVICE_URL=http://adaptation-service:3004
+      - PORT=3001
+    depends_on:
+      - event-service
+      - cognitive-service
+      - adaptation-service
+
+  data-service:
+    build: ./backend/services/data-service
+    ports:
+      - "3005:3005"
+    environment:
+      - PORT=3005
+
+  event-service:
+    build: ./backend/services/event-service
+    ports:
+      - "3002:3002"
+    environment:
+      - DATA_SERVICE_URL=http://data-service:3005
+      - COGNITIVE_SERVICE_URL=http://cognitive-service:3003
+      - ADAPTATION_SERVICE_URL=http://adaptation-service:3004
+      - PORT=3002
+    depends_on:
+      - data-service
+
+  cognitive-service:
+    build: ./backend/services/cognitive-service
+    ports:
+      - "3003:3003"
+    environment:
+      - PORT=3003
+
+  adaptation-service:
+    build: ./backend/services/adaptation-service
+    ports:
+      - "3004:3004"
+    environment:
+      - PORT=3004

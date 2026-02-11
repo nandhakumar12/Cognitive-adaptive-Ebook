@@ -1,0 +1,218 @@
+/**
+ * BOOK LIBRARY STYLES
+ * Audible-inspired library layout
+ */
+
+.book-library {
+    min-height: 100vh;
+    padding-bottom: var(--space-2xl);
+}
+
+/* Header */
+.library-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--space-lg) var(--space-xl);
+    background: var(--bg-secondary);
+    box-shadow: var(--shadow-md);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: var(--space-lg);
+}
+
+.library-logo {
+    display: flex;
+    align-items: center;
+    gap: var(--space-md);
+    flex-shrink: 0;
+}
+
+.logo-icon {
+    font-size: 2rem;
+}
+
+.logo-text {
+    font-size: 1.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--audible-orange), var(--audible-orange-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.library-search {
+    flex: 1;
+    max-width: 600px;
+}
+
+.library-btn {
+    flex-shrink: 0;
+}
+
+/* Sections */
+.library-section {
+    padding: var(--space-2xl) var(--space-xl);
+}
+
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    margin-bottom: var(--space-lg);
+    color: var(--text-primary);
+}
+
+/* Continue Listening */
+.continue-listening-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--space-lg);
+    margin-bottom: var(--space-xl);
+}
+
+.continue-listening-card {
+    display: flex;
+    gap: var(--space-md);
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    padding: var(--space-md);
+    transition: all var(--transition-normal);
+    border: 2px solid transparent;
+}
+
+.continue-listening-card:hover {
+    border-color: var(--audible-orange);
+    box-shadow: var(--shadow-lg);
+}
+
+.continue-listening-cover {
+    flex-shrink: 0;
+    width: 100px;
+    height: 150px;
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+}
+
+.continue-listening-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.continue-listening-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.continue-listening-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+    color: var(--text-primary);
+}
+
+.continue-listening-author {
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+    margin-bottom: var(--space-sm);
+}
+
+.continue-listening-progress {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin-bottom: var(--space-sm);
+}
+
+.continue-listening-btn {
+    margin-top: auto;
+    align-self: flex-start;
+}
+
+/* Books Grid */
+.books-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: var(--space-lg);
+}
+
+.no-results {
+    text-align: center;
+    padding: var(--space-2xl);
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* Research Toggle */
+.research-toggle-wrapper {
+    position: fixed;
+    bottom: var(--space-lg);
+    right: var(--space-lg);
+    z-index: 1000;
+}
+
+.research-toggle-btn {
+    box-shadow: var(--shadow-lg);
+    background: var(--bg-card);
+    animation: pulse 2s infinite;
+}
+
+.research-toggle-btn:hover {
+    animation: none;
+    background: var(--audible-orange);
+    color: #000;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+    .books-grid {
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: var(--space-md);
+    }
+}
+
+@media (max-width: 768px) {
+    .library-header {
+        flex-direction: column;
+        align-items: stretch;
+        padding: var(--space-md);
+    }
+
+    .library-logo {
+        justify-content: center;
+    }
+
+    .library-search {
+        max-width: none;
+    }
+
+    .library-section {
+        padding: var(--space-lg) var(--space-md);
+    }
+
+    .section-title {
+        font-size: 1.5rem;
+    }
+
+    .continue-listening-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .books-grid {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: var(--space-sm);
+    }
+}
+
+@media (max-width: 640px) {
+    .continue-listening-card {
+        flex-direction: column;
+    }
+
+    .continue-listening-cover {
+        width: 100%;
+        height: 200px;
+    }
+}

@@ -1,0 +1,217 @@
+{
+    "books": [
+        {
+            "id": "book-1",
+            "title": "The Great Gatsby",
+            "author": "F. Scott Fitzgerald",
+            "narrator": "Jake Gyllenhaal",
+            "duration": "4h 49m",
+            "rating": 4.8,
+            "ratingCount": 12453,
+            "coverUrl": "https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=400",
+            "description": "The Great Gatsby is a 1925 novel by American writer F. Scott Fitzgerald. Set in the Jazz Age on Long Island, the novel depicts narrator Nick Carraway's interactions with mysterious millionaire Jay Gatsby and Gatsby's obsession to reunite with his former lover, Daisy Buchanan.",
+            "chapters": [
+                {
+                    "id": "ch-1",
+                    "title": "Chapter 1: Introduction to Nick Carraway",
+                    "duration": "28:32",
+                    "startTime": 0
+                },
+                {
+                    "id": "ch-2",
+                    "title": "Chapter 2: The Valley of Ashes",
+                    "duration": "32:15",
+                    "startTime": 1712
+                },
+                {
+                    "id": "ch-3",
+                    "title": "Chapter 3: The Party",
+                    "duration": "41:20",
+                    "startTime": 3647
+                },
+                {
+                    "id": "ch-4",
+                    "title": "Chapter 4: Gatsby's Stories",
+                    "duration": "35:45",
+                    "startTime": 6127
+                },
+                {
+                    "id": "ch-5",
+                    "title": "Chapter 5: The Reunion",
+                    "duration": "29:18",
+                    "startTime": 8272
+                },
+                {
+                    "id": "ch-6",
+                    "title": "Chapter 6: The Truth About Gatsby",
+                    "duration": "33:50",
+                    "startTime": 10030
+                }
+            ],
+            "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            "genres": [
+                "Classic Literature",
+                "Fiction",
+                "Romance"
+            ],
+            "releaseDate": "1925-04-10",
+            "publisher": "Scribner"
+        },
+        {
+            "id": "book-2",
+            "title": "Pride and Prejudice",
+            "author": "Jane Austen",
+            "narrator": "Rosamund Pike",
+            "duration": "11h 35m",
+            "rating": 4.7,
+            "ratingCount": 18932,
+            "coverUrl": "https://images.unsplash.com/photo-1544947950-fa07a98d237f?w=400",
+            "description": "Pride and Prejudice is a romantic novel of manners written by Jane Austen. The novel follows the character development of Elizabeth Bennet, the dynamic protagonist who learns about the repercussions of hasty judgments and comes to appreciate the difference between superficial goodness and actual goodness.",
+            "chapters": [
+                {
+                    "id": "ch-1",
+                    "title": "Chapter 1: Mr. Bennet",
+                    "duration": "18:25",
+                    "startTime": 0
+                },
+                {
+                    "id": "ch-2",
+                    "title": "Chapter 2: The Ball",
+                    "duration": "22:40",
+                    "startTime": 1105
+                },
+                {
+                    "id": "ch-3",
+                    "title": "Chapter 3: Jane and Bingley",
+                    "duration": "26:15",
+                    "startTime": 2465
+                }
+            ],
+            "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            "genres": [
+                "Classic Literature",
+                "Romance",
+                "Fiction"
+            ],
+            "releaseDate": "1813-01-28",
+            "publisher": "T. Egerton"
+        },
+        {
+            "id": "book-4",
+            "title": "Moby Dick",
+            "author": "Herman Melville",
+            "narrator": "William Hootkins",
+            "duration": "24h 10m",
+            "rating": 4.5,
+            "ratingCount": 8734,
+            "coverUrl": "https://images.unsplash.com/photo-1497633762265-9d179a990aa6?w=400",
+            "description": "Moby-Dick; or, The Whale is an 1851 novel by American writer Herman Melville. The book is the sailor Ishmael's narrative of the obsessive quest of Ahab, captain of the whaling ship Pequod, for revenge on Moby Dick, the giant white sperm whale that on the ship's previous voyage bit off Ahab's leg at the knee.",
+            "chapters": [
+                {
+                    "id": "ch-1",
+                    "title": "Loomings",
+                    "duration": "15:42",
+                    "startTime": 0
+                },
+                {
+                    "id": "ch-2",
+                    "title": "The Carpet-Bag",
+                    "duration": "18:30",
+                    "startTime": 942
+                },
+                {
+                    "id": "ch-3",
+                    "title": "The Spouter-Inn",
+                    "duration": "28:15",
+                    "startTime": 2052
+                }
+            ],
+            "audioUrl": "/audio/moby-dick.mp3",
+            "genres": [
+                "Adventure",
+                "Classic Literature",
+                "Fiction"
+            ],
+            "releaseDate": "1851-10-18",
+            "publisher": "Harper & Brothers"
+        },
+        {
+            "id": "book-5",
+            "title": "Jane Eyre",
+            "author": "Charlotte Brontë",
+            "narrator": "Thandie Newton",
+            "duration": "19h 10m",
+            "rating": 4.6,
+            "ratingCount": 15234,
+            "coverUrl": "https://images.unsplash.com/photo-1512820790803-83ca734da794?w=400",
+            "description": "Jane Eyre is a novel by English writer Charlotte Brontë, published in 1847. It follows the experiences of its eponymous heroine, including her growth to adulthood and her love for Mr. Rochester, the brooding master of Thornfield Hall.",
+            "chapters": [
+                {
+                    "id": "ch-1",
+                    "title": "Chapter 1: Gateshead",
+                    "duration": "22:35",
+                    "startTime": 0
+                },
+                {
+                    "id": "ch-2",
+                    "title": "Chapter 2: The Red Room",
+                    "duration": "19:48",
+                    "startTime": 1355
+                },
+                {
+                    "id": "ch-3",
+                    "title": "Chapter 3: Mr. Lloyd",
+                    "duration": "25:12",
+                    "startTime": 2543
+                }
+            ],
+            "audioUrl": "/audio/jane-eyre.mp3",
+            "genres": [
+                "Gothic Fiction",
+                "Romance",
+                "Classic Literature"
+            ],
+            "releaseDate": "1847-10-16",
+            "publisher": "Smith, Elder & Co."
+        },
+        {
+            "id": "book-6",
+            "title": "Frankenstein",
+            "author": "Mary Shelley",
+            "narrator": "Dan Stevens",
+            "duration": "8h 35m",
+            "rating": 4.7,
+            "ratingCount": 11542,
+            "coverUrl": "https://images.unsplash.com/photo-1532012197267-da84d127e765?w=400",
+            "description": "Frankenstein; or, The Modern Prometheus is an 1818 novel written by English author Mary Shelley. It tells the story of Victor Frankenstein, a young scientist who creates a sapient creature in an unorthodox scientific experiment.",
+            "chapters": [
+                {
+                    "id": "ch-1",
+                    "title": "Letter 1",
+                    "duration": "12:20",
+                    "startTime": 0
+                },
+                {
+                    "id": "ch-2",
+                    "title": "Letter 2",
+                    "duration": "10:45",
+                    "startTime": 740
+                },
+                {
+                    "id": "ch-3",
+                    "title": "Chapter 1",
+                    "duration": "22:30",
+                    "startTime": 1385
+                }
+            ],
+            "audioUrl": "/audio/frankenstein.mp3",
+            "genres": [
+                "Gothic Fiction",
+                "Science Fiction",
+                "Horror"
+            ],
+            "releaseDate": "1818-01-01",
+            "publisher": "Lackington, Hughes, Harding, Mavor & Jones"
+        }
+    ]
+}

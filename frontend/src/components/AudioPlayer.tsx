@@ -32,6 +32,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
     const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
     const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
     const [announcement, setAnnouncement] = useState('');
+    const [activeAlert, setActiveAlert] = useState<{ message: string; strategy: string } | null>(null);
+    const [isSimplified, setIsSimplified] = useState(false);
     const idleTimerRef = useRef<number | null>(null);
 
     /**
@@ -60,22 +62,22 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     if (audioRef.current) {
                         audioRef.current.playbackRate = targetSpeed;
                     }
-                    announce(`Playback speed adjusted to ${Math.round(targetSpeed * 100)}% for better comprehension`);
+                    showAlert("Slowing narration for better comprehension", "SLOW_NARRATION");
                     break;
 
                 case 'AUTO_REPEAT':
-                    const targetTime = adaptation.parameters.targetTime || 0;
+                    const repeatTime = adaptation.parameters.targetTime || 0;
                     if (audioRef.current) {
-                        audioRef.current.currentTime = targetTime;
+                        audioRef.current.currentTime = repeatTime;
                     }
-                    announce('Replaying recent content for reinforcement');
+                    showAlert("Automatic repeat triggered for reinforcement", "AUTO_REPEAT");
                     break;
 
                 case 'SMART_PAUSE':
                     if (audioRef.current && isPlaying) {
                         audioRef.current.pause();
                         setIsPlaying(false);
-                        announce(adaptation.parameters.resumeMessage || 'Pausing for processing');
+                        showAlert(adaptation.parameters.resumeMessage || 'Pausing for processing', "SMART_PAUSE");
 
                         // Auto-resume after pause duration
                         setTimeout(() => {
@@ -89,19 +91,30 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     break;
 
                 case 'SUMMARY_INJECTION':
-                    // In a full implementation, this would play an audio summary
-                    announce(adaptation.parameters.summaryText || 'Section summary available');
+                    showAlert(adaptation.parameters.summaryText || 'Section summary available', "SUMMARY_INJECTION");
+                    break;
+
+                case 'SIMPLIFY_INTERACTION':
+                    setIsSimplified(true);
+                    showAlert("Enabling Simplified Mode to reduce cognitive load", "SIMPLIFY_INTERACTION");
+                    setTimeout(() => setIsSimplified(false), adaptation.parameters.duration || 60000);
                     break;
             }
         });
     };
 
     /**
-     * Announce to screen readers
+     * Announce to screen readers and show visual alert
      */
     const announce = (message: string) => {
         setAnnouncement(message);
-        setTimeout(() => setAnnouncement(''), 100); // Clear for next announcement
+        setTimeout(() => setAnnouncement(''), 100);
+    };
+
+    const showAlert = (message: string, strategy: string) => {
+        announce(message);
+        setActiveAlert({ message, strategy });
+        setTimeout(() => setActiveAlert(null), 8000); // 8 second visibility
     };
 
     /**
@@ -305,6 +318,16 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                 {announcement}
             </div>
 
+            {activeAlert && (
+                <div className={`adaptation-alert ${activeAlert.strategy.toLowerCase()}`}>
+                    <span className="alert-icon">⚖️</span>
+                    <div className="alert-content">
+                        <strong>ADAPTATION ACTIVE:</strong>
+                        <p>{activeAlert.message}</p>
+                    </div>
+                </div>
+            )}
+
             <div className="player-header">
                 <h2 id="section-title">{sectionTitle}</h2>
                 <p className="playback-info">
@@ -315,13 +338,15 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
             </div>
 
             <div className="player-controls">
-                <button
-                    onClick={() => handleSeek(-10)}
-                    aria-label="Rewind 10 seconds"
-                    className="control-btn"
-                >
-                    ⏪ -10s
-                </button>
+                {!isSimplified && (
+                    <button
+                        onClick={() => handleSeek(-10)}
+                        aria-label="Rewind 10 seconds"
+                        className="control-btn"
+                    >
+                        ⏪ -10s
+                    </button>
+                )}
 
                 <button
                     onClick={handlePlayPause}
@@ -331,31 +356,35 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     {isPlaying ? '⏸️ Pause' : '▶️ Play'}
                 </button>
 
-                <button
-                    onClick={() => handleSeek(10)}
-                    aria-label="Skip forward 10 seconds"
-                    className="control-btn"
-                >
-                    ⏩ +10s
-                </button>
+                {!isSimplified && (
+                    <button
+                        onClick={() => handleSeek(10)}
+                        aria-label="Skip forward 10 seconds"
+                        className="control-btn"
+                    >
+                        ⏩ +10s
+                    </button>
+                )}
             </div>
 
-            <div className="speed-controls">
-                <label htmlFor="speed-select">Playback Speed:</label>
-                <select
-                    id="speed-select"
-                    value={playbackSpeed}
-                    onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
-                    aria-label="Select playback speed"
-                >
-                    <option value="0.5">0.5x (Slow)</option>
-                    <option value="0.75">0.75x</option>
-                    <option value="1.0">1.0x (Normal)</option>
-                    <option value="1.25">1.25x</option>
-                    <option value="1.5">1.5x (Fast)</option>
-                    <option value="2.0">2.0x (Very Fast)</option>
-                </select>
-            </div>
+            {!isSimplified && (
+                <div className="speed-controls">
+                    <label htmlFor="speed-select">Playback Speed:</label>
+                    <select
+                        id="speed-select"
+                        value={playbackSpeed}
+                        onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
+                        aria-label="Select playback speed"
+                    >
+                        <option value="0.5">0.5x (Slow)</option>
+                        <option value="0.75">0.75x</option>
+                        <option value="1.0">1.0x (Normal)</option>
+                        <option value="1.25">1.25x</option>
+                        <option value="1.5">1.5x (Fast)</option>
+                        <option value="2.0">2.0x (Very Fast)</option>
+                    </select>
+                </div>
+            )}
 
             <div className="keyboard-hints" aria-label="Keyboard shortcuts">
                 <p>Keyboard shortcuts: Space/K = Play/Pause • ← = -10s • → = +10s • ↑↓ = Speed</p>

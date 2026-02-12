@@ -31,6 +31,67 @@
 }
 
 /* ENHANCED PLAYER CONTROLS - BIGGER & PURPLE */
+/* Adaptation Alerts */
+.adaptation-alert {
+    background: rgba(147, 51, 234, 0.9);
+    color: white;
+    padding: 12px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    animation: slideDown 0.4s ease-out;
+    border-left: 5px solid #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+.adaptation-alert.smart_pause {
+    background: #3b82f6;
+}
+
+.adaptation-alert.auto_repeat {
+    background: #10b981;
+}
+
+.adaptation-alert.summary_injection {
+    background: #f59e0b;
+}
+
+.adaptation-alert.simplify_interaction {
+    background: #ef4444;
+}
+
+.alert-icon {
+    font-size: 1.5rem;
+}
+
+.alert-content strong {
+    display: block;
+    font-size: 0.8rem;
+    opacity: 0.9;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+}
+
+.alert-content p {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+@keyframes slideDown {
+    from {
+        transform: translateY(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
 .player-controls {
     display: flex;
     justify-content: center;

@@ -81,6 +81,11 @@ app.get('/sessions/:sessionId/adaptations', async (req, res) => {
     res.json(adaptations);
 });
 
+app.get('/sessions/:sessionId/adaptations/active', async (req, res) => {
+    const adaptations = await getRecentAdaptations(req.params.sessionId, 5);
+    res.json({ activeAdaptations: adaptations });
+});
+
 // --- User Progress ---
 
 app.post('/users/:userId/progress', async (req, res) => {

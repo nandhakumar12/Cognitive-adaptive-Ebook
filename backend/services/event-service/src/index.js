@@ -107,6 +107,39 @@ app.post('/ingest', async (req, res) => {
     }
 });
 
+app.post('/batch', async (req, res) => {
+    try {
+        const { sessionId, events } = req.body;
+
+        if (!sessionId || !events || !Array.isArray(events)) {
+            return res.status(400).json({ error: 'Missing sessionId or events array' });
+        }
+
+        console.log(`[EVENT-SERVICE] Processing batch of ${events.length} events for ${sessionId}`);
+
+        for (const eventData of events) {
+            const event = {
+                eventId: uuidv4(),
+                sessionId,
+                eventType: eventData.eventType,
+                timestamp: eventData.metadata?.timestamp || Date.now(),
+                metadata: eventData.metadata || {}
+            };
+
+            // 1. Store event
+            await axios.post(`${DATA_SERVICE_URL}/sessions/${sessionId}/events`, event);
+
+            // 2. Trigger async processing
+            processEvent(event).catch(err => console.error(err));
+        }
+
+        res.json({ success: true, count: events.length });
+    } catch (error) {
+        console.error('Batch error:', error.message);
+        res.status(500).json({ error: 'Batch processing failed' });
+    }
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'healthy', service: 'event-service' });
 });

@@ -80,7 +80,7 @@ function calculateBehaviorMetrics(events) {
         replayCount: replayEvents.length,
         avgSpeed,
         idleTime: totalIdleTime,
-        navigationReversals: navReversals.length || (replayEvents.length > 2 ? replayEvents.length : 0), // Use replays as proxy if explicit events missing
+        navigationReversals: navReversals.length || replayEvents.length, // Use replays as proxy if explicit events missing
         totalEvents,
         timeWindowMinutes
     };

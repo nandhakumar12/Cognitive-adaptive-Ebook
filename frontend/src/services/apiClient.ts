@@ -43,7 +43,7 @@ export async function getAdaptationHistory(sessionId: string, limit: number = 20
         const response = await axios.get(`${API_BASE_URL}/api/adaptations/${sessionId}`, {
             params: { limit }
         });
-        return response.data.adaptations || [];
+        return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
         console.error('Failed to get adaptation history:', error);
         return [];
@@ -58,7 +58,7 @@ export async function getEventHistory(sessionId: string, limit: number = 50) {
         const response = await axios.get(`${API_BASE_URL}/api/events/${sessionId}`, {
             params: { limit }
         });
-        return response.data.events || [];
+        return Array.isArray(response.data) ? response.data : [];
     } catch (error) {
         console.error('Failed to get event history:', error);
         return [];

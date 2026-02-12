@@ -50,34 +50,31 @@ app.post('/api/events/batch', createProxyMiddleware({
     pathRewrite: { '^/api/events/batch': '/batch' }
 }));
 
-app.get('/api/events/:sessionId', (req, res, next) => {
-    const query = req.url.includes('?') ? '?' + req.url.split('?')[1] : '';
-    createProxyMiddleware({
-        target: DATA_SERVICE_URL,
-        changeOrigin: true,
-        pathRewrite: () => `/sessions/${req.params.sessionId}/events${query}`
-    })(req, res, next);
-});
+app.get('/api/events/:sessionId', createProxyMiddleware({
+    target: DATA_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: (path, req) => `/sessions/${req.params.sessionId}/events`
+}));
 
 // Cognitive: GET -> Data Service (Current State)
-app.get('/api/cognitive/:sessionId', (req, res, next) => {
-    createProxyMiddleware({
-        target: DATA_SERVICE_URL,
-        changeOrigin: true,
-        pathRewrite: () => `/sessions/${req.params.sessionId}/cognitive`
-    })(req, res, next);
-});
+app.get('/api/cognitive/:sessionId', createProxyMiddleware({
+    target: DATA_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: (path, req) => `/sessions/${req.params.sessionId}/cognitive`
+}));
 
 // Adaptations: GET -> Data Service (History/Active)
-app.get('/api/adaptations/:sessionId/:active?', (req, res, next) => {
-    const query = req.url.includes('?') ? '?' + req.url.split('?')[1] : '';
-    const suffix = req.params.active ? `/${req.params.active}` : '';
-    createProxyMiddleware({
-        target: DATA_SERVICE_URL,
-        changeOrigin: true,
-        pathRewrite: () => `/sessions/${req.params.sessionId}/adaptations${suffix}${query}`
-    })(req, res, next);
-});
+app.get('/api/adaptations/:sessionId/active', createProxyMiddleware({
+    target: DATA_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: (path, req) => `/sessions/${req.params.sessionId}/adaptations/active`
+}));
+
+app.get('/api/adaptations/:sessionId', createProxyMiddleware({
+    target: DATA_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: (path, req) => `/sessions/${req.params.sessionId}/adaptations`
+}));
 
 // Proxy root and other routes to frontend
 app.use(

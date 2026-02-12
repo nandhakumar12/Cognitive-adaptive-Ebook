@@ -20,11 +20,17 @@ export async function getSession(sessionId, userId = null) {
         const { Item } = await docClient.send(new GetCommand(params));
 
         if (Item) {
+            // Ensure essential arrays exist (resilience for schema evolution)
+            Item.events = Item.events || [];
+            Item.cognitiveStates = Item.cognitiveStates || [];
+            Item.adaptations = Item.adaptations || [];
+
             // Bind user if not bound
             if (userId && !Item.userId) {
                 await updateSessionUser(sessionId, userId);
                 Item.userId = userId;
             }
+            console.log(`[DATA] Fetched session ${sessionId} - Events: ${Item.events.length}`);
             return Item;
         }
 

@@ -7,7 +7,7 @@
 import axios from 'axios';
 import type { AdaptationDecision } from '../types';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || `http://${typeof window !== 'undefined' ? window.location.hostname : 'localhost'}:3001`;
+const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 
 /**
  * Poll for active adaptations

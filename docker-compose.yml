@@ -3,8 +3,8 @@ version: '3.8'
 services:
   frontend:
     build: ./frontend
-    ports:
-      - "3000:3000"
+    expose:
+      - "3000"
     environment:
       - VITE_API_URL=http://52.91.220.95:3001
       - VITE_AWS_REGION=us-east-1

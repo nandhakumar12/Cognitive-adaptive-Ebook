@@ -28,68 +28,69 @@ app.use((req, res, next) => {
 
 // --- Sessions & Context ---
 
-app.get('/sessions/:sessionId', (req, res) => {
-    const session = getSession(req.params.sessionId);
+app.get('/sessions/:sessionId', async (req, res) => {
+    const session = await getSession(req.params.sessionId);
     res.json(session);
 });
 
-app.post('/sessions/:sessionId/context', (req, res) => {
-    const session = updateSessionContext(req.params.sessionId, req.body);
+app.post('/sessions/:sessionId/context', async (req, res) => {
+    const session = await updateSessionContext(req.params.sessionId, req.body);
     res.json(session);
 });
 
-app.get('/sessions', (req, res) => {
-    res.json(getAllSessions());
+app.get('/sessions', async (req, res) => {
+    const sessions = await getAllSessions();
+    res.json(sessions);
 });
 
 // --- Events ---
 
-app.post('/sessions/:sessionId/events', (req, res) => {
-    const session = addEvent(req.params.sessionId, req.body);
+app.post('/sessions/:sessionId/events', async (req, res) => {
+    const session = await addEvent(req.params.sessionId, req.body);
     res.json({ success: true, count: session.events.length });
 });
 
-app.get('/sessions/:sessionId/events', (req, res) => {
+app.get('/sessions/:sessionId/events', async (req, res) => {
     const limit = parseInt(req.query.limit) || 20;
-    const events = getRecentEvents(req.params.sessionId, limit);
+    const events = await getRecentEvents(req.params.sessionId, limit);
     res.json(events);
 });
 
 // --- Cognitive State ---
 
-app.post('/sessions/:sessionId/cognitive', (req, res) => {
-    const session = updateCognitiveState(req.params.sessionId, req.body);
+app.post('/sessions/:sessionId/cognitive', async (req, res) => {
+    await updateCognitiveState(req.params.sessionId, req.body);
     res.json({ success: true });
 });
 
-app.get('/sessions/:sessionId/cognitive', (req, res) => {
-    const state = getCurrentCognitiveState(req.params.sessionId);
+app.get('/sessions/:sessionId/cognitive', async (req, res) => {
+    const state = await getCurrentCognitiveState(req.params.sessionId);
     res.json(state || {});
 });
 
 // --- Adaptations ---
 
-app.post('/sessions/:sessionId/adaptations', (req, res) => {
-    const session = addAdaptation(req.params.sessionId, req.body);
+app.post('/sessions/:sessionId/adaptations', async (req, res) => {
+    await addAdaptation(req.params.sessionId, req.body);
     res.json({ success: true });
 });
 
-app.get('/sessions/:sessionId/adaptations', (req, res) => {
+app.get('/sessions/:sessionId/adaptations', async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
-    const adaptations = getRecentAdaptations(req.params.sessionId, limit);
+    const adaptations = await getRecentAdaptations(req.params.sessionId, limit);
     res.json(adaptations);
 });
 
 // --- User Progress ---
 
-app.post('/users/:userId/progress', (req, res) => {
+app.post('/users/:userId/progress', async (req, res) => {
     const { bookId, progress } = req.body;
-    saveUserProgress(req.params.userId, bookId, progress);
+    await saveUserProgress(req.params.userId, bookId, progress);
     res.json({ success: true });
 });
 
-app.get('/users/:userId/progress/:bookId', (req, res) => {
-    const progress = getUserProgress(req.params.userId, req.params.bookId);
+app.get('/users/:userId/progress/:bookId', async (req, res) => {
+    const progress = await getUserProgress(req.params.userId, req.params.bookId);
     res.json(progress || {});
 });
 

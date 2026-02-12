@@ -35,6 +35,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
     const [activeAlert, setActiveAlert] = useState<{ message: string; strategy: string } | null>(null);
     const [isSimplified, setIsSimplified] = useState(false);
     const idleTimerRef = useRef<number | null>(null);
+    const seenAdaptationIds = useRef<Set<string>>(new Set());
 
     /**
      * Poll for adaptations every 2 seconds
@@ -53,6 +54,10 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
      */
     const applyAdaptations = (adaptations: AdaptationDecision[]) => {
         adaptations.forEach(adaptation => {
+            // Only apply if we haven't seen this specific adaptation instance before
+            if (seenAdaptationIds.current.has(adaptation.adaptationId)) return;
+            seenAdaptationIds.current.add(adaptation.adaptationId);
+
             console.log('[ADAPTATION RECEIVED]', adaptation.strategy);
 
             switch (adaptation.strategy) {

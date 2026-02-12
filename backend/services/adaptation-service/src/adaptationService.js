@@ -198,7 +198,7 @@ function generateSummary(sectionId) {
  */
 export function shouldApplyAdaptation(recentAdaptations, strategy) {
     const now = Date.now();
-    const cooldownPeriod = 60000; // 1 minute cooldown per strategy
+    const cooldownPeriod = 5000; // REDUCED TO 5 SECONDS FOR RAPID TESTING
 
     // Check if same strategy was recently applied
     const recentSameStrategy = recentAdaptations.filter(a =>
@@ -211,12 +211,12 @@ export function shouldApplyAdaptation(recentAdaptations, strategy) {
         return false;
     }
 
-    // Prevent too many adaptations in short time (max 3 per minute)
+    // Prevent excessive spam (increased for testing)
     const veryRecentAdaptations = recentAdaptations.filter(a =>
         (now - a.timestamp) < 60000
     );
 
-    if (veryRecentAdaptations.length >= 3) {
+    if (veryRecentAdaptations.length >= 20) { // Limit to 20 per minute for testing
         console.log(`[ADAPTATION] Skipping ${strategy} - too many recent adaptations`);
         return false;
     }

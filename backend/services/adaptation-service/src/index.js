@@ -16,25 +16,25 @@ app.use((req, res, next) => {
 
 app.post('/decide', (req, res) => {
     try {
-        const { cognitiveState, context } = req.body;
+        const { cognitiveState, context, recentAdaptations } = req.body;
 
         if (!cognitiveState) {
             return res.status(400).json({ error: 'Missing cognitiveState' });
         }
 
-        // 1. Get recommendations
-        const recommendedStrategies = recommendAdaptations(cognitiveState);
+        // 1. Get raw recommendations
+        const rawStrategies = recommendAdaptations(cognitiveState);
+
+        // 2. Filter using cooldown logic
+        const recommendedStrategies = rawStrategies.filter(strategy =>
+            shouldApplyAdaptation(recentAdaptations || [], strategy)
+        );
 
         if (recommendedStrategies.length === 0) {
             return res.json([]);
         }
 
-        console.log(`Recommended for session ${cognitiveState.sessionId}: ${recommendedStrategies.join(', ')}`);
-
-        // 2. Filter (TODO: In a real system, we'd check history here, but history is in Data Service.
-        // For now, we'll assume filtering happens or is skipped, OR we pass history in body.
-        // Let's implement a basic stateless filter or accept history in body.
-        // To keep it simple, we will proceed with recommendations.)
+        console.log(`Final recommendations for session ${cognitiveState.sessionId}: ${recommendedStrategies.join(', ')}`);
 
         // 3. Execute (generate adaptation objects)
         const adaptations = executeAdaptations(cognitiveState, recommendedStrategies, context || {});

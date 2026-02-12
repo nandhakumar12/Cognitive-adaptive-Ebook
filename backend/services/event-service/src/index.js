@@ -46,8 +46,19 @@ async function processEvent(event) {
 
         // 4. Call Adaptation Service for recommendations
         console.log(`[ORCHESTRATOR] Requesting adaptation recommendations...`);
+
+        // Fetch recent adaptations to support cooldown logic
+        const historyResponse = await axios.get(`${DATA_SERVICE_URL}/sessions/${sessionId}/adaptations?limit=10`);
+        const recentAdaptations = historyResponse.data || [];
+
         const adaptationResponse = await axios.post(`${ADAPTATION_SERVICE_URL}/decide`, {
-            cognitiveState
+            cognitiveState,
+            recentAdaptations,
+            context: {
+                currentTime: event.metadata?.currentTime,
+                currentSpeed: event.metadata?.speed,
+                currentSection: event.metadata?.sectionId
+            }
         });
         const adaptations = adaptationResponse.data;
 

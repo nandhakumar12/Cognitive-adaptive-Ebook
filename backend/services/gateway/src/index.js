@@ -50,31 +50,41 @@ app.post('/api/events/batch', createProxyMiddleware({
     pathRewrite: { '^/api/events/batch': '/batch' }
 }));
 
-app.get('/api/events/:sessionId', createProxyMiddleware({
-    target: DATA_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: (path, req) => `/sessions/${req.params.sessionId}/events`
-}));
+app.get('/api/events/:sessionId', (req, res, next) => {
+    const query = req.url.includes('?') ? '?' + req.url.split('?')[1] : '';
+    createProxyMiddleware({
+        target: DATA_SERVICE_URL,
+        changeOrigin: true,
+        pathRewrite: () => `/sessions/${req.params.sessionId}/events${query}`
+    })(req, res, next);
+});
 
 // Cognitive: GET -> Data Service (Current State)
-app.get('/api/cognitive/:sessionId', createProxyMiddleware({
-    target: DATA_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: (path, req) => `/sessions/${req.params.sessionId}/cognitive`
-}));
+app.get('/api/cognitive/:sessionId', (req, res, next) => {
+    createProxyMiddleware({
+        target: DATA_SERVICE_URL,
+        changeOrigin: true,
+        pathRewrite: () => `/sessions/${req.params.sessionId}/cognitive`
+    })(req, res, next);
+});
 
 // Adaptations: GET -> Data Service (History/Active)
-app.get('/api/adaptations/:sessionId/active', createProxyMiddleware({
-    target: DATA_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: (path, req) => `/sessions/${req.params.sessionId}/adaptations/active`
-}));
+app.get('/api/adaptations/:sessionId/active', (req, res, next) => {
+    createProxyMiddleware({
+        target: DATA_SERVICE_URL,
+        changeOrigin: true,
+        pathRewrite: () => `/sessions/${req.params.sessionId}/adaptations/active`
+    })(req, res, next);
+});
 
-app.get('/api/adaptations/:sessionId', createProxyMiddleware({
-    target: DATA_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: (path, req) => `/sessions/${req.params.sessionId}/adaptations`
-}));
+app.get('/api/adaptations/:sessionId', (req, res, next) => {
+    const query = req.url.includes('?') ? '?' + req.url.split('?')[1] : '';
+    createProxyMiddleware({
+        target: DATA_SERVICE_URL,
+        changeOrigin: true,
+        pathRewrite: () => `/sessions/${req.params.sessionId}/adaptations${query}`
+    })(req, res, next);
+});
 
 // Proxy root and other routes to frontend
 app.use(

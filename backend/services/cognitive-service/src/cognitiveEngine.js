@@ -80,7 +80,7 @@ function calculateBehaviorMetrics(events) {
         replayCount: replayEvents.length,
         avgSpeed,
         idleTime: totalIdleTime,
-        navigationReversals: navReversals.length,
+        navigationReversals: navReversals.length || (replayEvents.length > 2 ? replayEvents.length : 0), // Use replays as proxy if explicit events missing
         totalEvents,
         timeWindowMinutes
     };
@@ -186,10 +186,12 @@ function calculateConfidence(eventCount, patterns) {
 export function recommendAdaptations(cognitiveState) {
     const recommendations = [];
 
-    // High cognitive load -> Multiple adaptations
+    // High cognitive load -> Baseline + Patterns
     if (cognitiveState.cognitiveLoad === 'high') {
+        recommendations.push('SLOW_NARRATION'); // Baseline for high load
+        recommendations.push('SMART_PAUSE');     // Baseline for high load
+
         if (cognitiveState.patterns.includes('overload')) {
-            recommendations.push('SMART_PAUSE');
             recommendations.push('SLOW_NARRATION');
         }
         if (cognitiveState.patterns.includes('confusion')) {
@@ -198,8 +200,10 @@ export function recommendAdaptations(cognitiveState) {
         }
     }
 
-    // Medium cognitive load -> Targeted adaptations
+    // Medium cognitive load -> Baseline + Targeted
     if (cognitiveState.cognitiveLoad === 'medium') {
+        recommendations.push('SLOW_NARRATION'); // Baseline for medium load
+
         if (cognitiveState.patterns.includes('fatigue')) {
             recommendations.push('SLOW_NARRATION');
         }
@@ -211,8 +215,6 @@ export function recommendAdaptations(cognitiveState) {
         }
     }
 
-    // Low cognitive load -> No adaptations needed (or remove existing ones)
-    // This maintains the balance of the feedback loop
-
-    return recommendations;
+    // Return unique recommendations
+    return [...new Set(recommendations)];
 }

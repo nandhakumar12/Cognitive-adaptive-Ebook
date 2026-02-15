@@ -32,12 +32,24 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
             sessionId,
             strategy: 'SLOW_NARRATION',
             timestamp,
-            reason: 'High cognitive load detected - reducing narration speed to improve comprehension',
-            parameters: {
-                speedAdjustment: 0.75, // Reduce to 75% speed
-                targetSpeed: Math.max(0.5, (context.currentSpeed || 1.0) * 0.75),
-                duration: 10000 // Apply for 10 seconds (TESTING)
-            },
+            reason: 'High cognitive load detected - adjusting narration speed',
+            parameters: (() => {
+                const pauseCount = context.metrics?.pauseCount || 0;
+                let targetSpeed = context.currentSpeed || 1.0;
+
+                if (pauseCount >= 6) {
+                    targetSpeed = 0.50;
+                } else if (pauseCount >= 4) {
+                    targetSpeed = 0.56;
+                } else if (pauseCount >= 2) {
+                    targetSpeed = 0.75;
+                }
+
+                return {
+                    targetSpeed,
+                    duration: 10000 // Apply for 10 seconds (TESTING)
+                };
+            })(),
             triggeredBy
         },
 

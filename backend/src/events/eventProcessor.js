@@ -65,7 +65,8 @@ export async function processEvent(event) {
         const context = {
             currentTime: session.currentTime,
             currentSpeed: session.playbackSpeed,
-            currentSection: session.currentSection
+            currentSection: session.currentSection,
+            metrics: cognitiveState.behaviorSummary
         };
 
         const adaptations = executeAdaptations(cognitiveState, applicableStrategies, context);

@@ -77,6 +77,7 @@ function calculateBehaviorMetrics(events) {
 
     return {
         pauseFrequency: pauseEvents.length / timeWindowMinutes,
+        pauseCount: pauseEvents.length,
         replayCount: replayEvents.length,
         avgSpeed,
         idleTime: totalIdleTime,
@@ -141,15 +142,14 @@ function detectBehavioralPatterns(metrics, events) {
 function inferCognitiveLoad(patterns, metrics) {
     // High load indicators
     if (patterns.includes('overload') ||
-        (patterns.includes('confusion') && patterns.includes('fatigue'))) {
+        patterns.includes('confusion') ||
+        patterns.includes('fatigue') ||
+        patterns.length >= 2) {
         return 'high';
     }
 
     // Medium load indicators
-    if (patterns.includes('confusion') ||
-        patterns.includes('fatigue') ||
-        patterns.includes('navigation_difficulty') ||
-        metrics.pauseFrequency > 2) {
+    if (patterns.length > 0 || metrics.pauseFrequency > 1) {
         return 'medium';
     }
 

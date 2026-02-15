@@ -75,7 +75,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     if (audioRef.current) {
                         audioRef.current.playbackRate = targetSpeed;
                     }
-                    showAlert("Slowing narration for better comprehension", "SLOW_NARRATION");
+                    showAlert(`Slowing narration to ${Math.round(targetSpeed * 100)}% for better comprehension`, "SLOW_NARRATION");
                     break;
 
                 case 'AUTO_REPEAT':
@@ -88,18 +88,26 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
 
                 case 'SMART_PAUSE':
                     showAlert(adaptation.parameters.resumeMessage || 'Pausing for processing', "SMART_PAUSE");
-                    if (audioRef.current && isPlaying) {
-                        audioRef.current.pause();
-                        setIsPlaying(false);
+                    if (audioRef.current) {
+                        // Store the fact that the system paused the audio
+                        const wasPlaying = !audioRef.current.paused;
 
-                        // Auto-resume after pause duration
-                        setTimeout(() => {
-                            if (audioRef.current) {
-                                audioRef.current.play();
-                                setIsPlaying(true);
-                                announce('Resuming audio');
-                            }
-                        }, adaptation.parameters.pauseDuration || 5000);
+                        if (wasPlaying) {
+                            audioRef.current.pause();
+                            setIsPlaying(false);
+
+                            // Auto-resume after pause duration
+                            setTimeout(() => {
+                                if (audioRef.current) {
+                                    audioRef.current.play().then(() => {
+                                        setIsPlaying(true);
+                                        announce('Resuming audio');
+                                    }).catch(err => {
+                                        console.warn('[SYSTEM] Resume failed, waiting for user:', err);
+                                    });
+                                }
+                            }, adaptation.parameters.pauseDuration || 3000);
+                        }
                     }
                     break;
 

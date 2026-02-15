@@ -24,6 +24,11 @@ export function recommendAdaptations(cognitiveState) {
         recommendations.push('SLOW_NARRATION'); // Baseline for high load
         recommendations.push('SMART_PAUSE');     // Baseline for high load
 
+        const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
+        if (pauseCount === 2 || pauseCount === 4 || pauseCount === 6) {
+            recommendations.push('SLOW_NARRATION');
+        }
+
         if (cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle')) {
             recommendations.push('SLOW_NARRATION');
             recommendations.push('SMART_PAUSE');
@@ -38,6 +43,11 @@ export function recommendAdaptations(cognitiveState) {
     if (cognitiveState.cognitiveLoad === 'medium') {
         recommendations.push('SLOW_NARRATION'); // Baseline for medium load
         recommendations.push('SMART_PAUSE');     // Added to medium for visibility
+
+        const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
+        if (pauseCount === 2 || pauseCount === 4 || pauseCount === 6) {
+            recommendations.push('SLOW_NARRATION');
+        }
 
         if (cognitiveState.patterns.includes('fatigue')) {
             recommendations.push('SLOW_NARRATION');
@@ -73,12 +83,24 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
             sessionId,
             strategy: 'SLOW_NARRATION',
             timestamp,
-            reason: 'High cognitive load detected - reducing narration speed to improve comprehension',
-            parameters: {
-                speedAdjustment: 0.75, // Reduce to 75% speed
-                targetSpeed: Math.max(0.5, (context.currentSpeed || 1.0) * 0.75),
-                duration: 60000 // Apply for 60 seconds
-            },
+            reason: 'High cognitive load detected - adjusting narration speed',
+            parameters: (() => {
+                const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
+                let targetSpeed = context.currentSpeed || 1.0;
+
+                if (pauseCount >= 6) {
+                    targetSpeed = 0.50;
+                } else if (pauseCount >= 4) {
+                    targetSpeed = 0.56;
+                } else if (pauseCount >= 2) {
+                    targetSpeed = 0.75;
+                }
+
+                return {
+                    targetSpeed,
+                    duration: 10000 // 10 seconds for testing
+                };
+            })(),
             triggeredBy
         },
 
@@ -103,7 +125,7 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
             timestamp,
             reason: 'Cognitive overload detected - providing pause for processing',
             parameters: {
-                pauseDuration: 5000, // 5 second pause
+                pauseDuration: 3000, // 3 second pause
                 audioCue: true, // Gentle chime to indicate pause
                 resumeMessage: 'Resuming audio in 3 seconds...'
             },
@@ -200,7 +222,7 @@ function generateSummary(sectionId) {
  */
 export function shouldApplyAdaptation(recentAdaptations, strategy) {
     const now = Date.now();
-    const cooldownPeriod = 5000; // REDUCED TO 5 SECONDS FOR RAPID TESTING
+    const cooldownPeriod = 5000; // REDUCED TO 5 SECONDS FOR RAPID TESTING (GLOBAL)
 
     // Check if same strategy was recently applied
     const recentSameStrategy = recentAdaptations.filter(a =>

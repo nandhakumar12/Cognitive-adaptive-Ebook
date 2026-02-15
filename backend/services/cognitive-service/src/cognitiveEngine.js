@@ -77,6 +77,7 @@ function calculateBehaviorMetrics(events) {
 
     return {
         pauseFrequency: pauseEvents.length / timeWindowMinutes,
+        pauseCount: pauseEvents.length,
         replayCount: replayEvents.length,
         avgSpeed,
         idleTime: totalIdleTime,

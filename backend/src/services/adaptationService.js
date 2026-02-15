@@ -36,7 +36,7 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
             parameters: {
                 speedAdjustment: 0.75, // Reduce to 75% speed
                 targetSpeed: Math.max(0.5, (context.currentSpeed || 1.0) * 0.75),
-                duration: 60000 // Apply for 60 seconds
+                duration: 10000 // Apply for 10 seconds (TESTING)
             },
             triggeredBy
         },
@@ -78,7 +78,7 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
             parameters: {
                 summaryText: generateSummary(context.currentSection),
                 insertBefore: true, // Insert before continuing
-                summaryDuration: 10000 // 10 seconds for summary
+                summaryDuration: 5000 // 5 seconds for summary (TESTING)
             },
             triggeredBy
         },
@@ -92,7 +92,7 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
             parameters: {
                 hideControls: ['skip', 'rewind', 'chapters'], // Hide non-essential controls
                 showEssentialOnly: ['play', 'pause'],
-                duration: 120000 // Apply for 2 minutes
+                duration: 10000 // Apply for 10 seconds (TESTING)
             },
             triggeredBy
         }
@@ -159,7 +159,7 @@ function generateSummary(sectionId) {
  */
 export function shouldApplyAdaptation(recentAdaptations, strategy) {
     const now = Date.now();
-    const cooldownPeriod = 60000; // 1 minute cooldown per strategy
+    const cooldownPeriod = 5000; // 5 second cooldown per strategy (TESTING MODE)
 
     // Check if same strategy was recently applied
     const recentSameStrategy = recentAdaptations.filter(a =>
@@ -172,12 +172,12 @@ export function shouldApplyAdaptation(recentAdaptations, strategy) {
         return false;
     }
 
-    // Prevent too many adaptations in short time (max 3 per minute)
+    // Prevent too many adaptations in short time (max 5 per 5 seconds for testing)
     const veryRecentAdaptations = recentAdaptations.filter(a =>
-        (now - a.timestamp) < 60000
+        (now - a.timestamp) < 5000
     );
 
-    if (veryRecentAdaptations.length >= 3) {
+    if (veryRecentAdaptations.length >= 5) {
         console.log(`[ADAPTATION] Skipping ${strategy} - too many recent adaptations`);
         return false;
     }

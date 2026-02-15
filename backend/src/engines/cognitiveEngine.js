@@ -100,25 +100,25 @@ function detectBehavioralPatterns(metrics, events) {
 
     // PATTERN 1: Confusion
     // Indicators: Navigation reversals + replay events
-    if (metrics.navigationReversals >= 2 && metrics.replayCount >= 2) {
+    if (metrics.navigationReversals >= 1 && metrics.replayCount >= 1) {
         patterns.push('confusion');
     }
 
     // PATTERN 2: Cognitive Overload
-    // Indicators: High pause frequency + slow speed + replays
-    if (metrics.pauseFrequency > 3 && metrics.avgSpeed < 0.9 && metrics.replayCount >= 1) {
+    // Indicators: High pause frequency + slow speed
+    if (metrics.pauseFrequency > 2 || (metrics.pauseFrequency > 1 && metrics.avgSpeed < 0.9)) {
         patterns.push('overload');
     }
 
     // PATTERN 3: Fatigue
     // Indicators: Increasing idle periods + speed reduction over time
-    if (metrics.idleTime > 30000 && metrics.avgSpeed < 0.85) { // 30 seconds idle
+    if (metrics.idleTime > 20000 && metrics.avgSpeed < 0.9) { // 20 seconds idle
         patterns.push('fatigue');
     }
 
     // PATTERN 4: Navigation Difficulty
     // Indicators: Multiple navigation reversals
-    if (metrics.navigationReversals >= 3) {
+    if (metrics.navigationReversals >= 2) {
         patterns.push('navigation_difficulty');
     }
 

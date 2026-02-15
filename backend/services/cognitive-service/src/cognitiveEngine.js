@@ -100,7 +100,7 @@ function detectBehavioralPatterns(metrics, events) {
 
     // PATTERN 1: Confusion
     // Indicators: Navigation reversals + replay events
-    if (metrics.navigationReversals >= 2 && metrics.replayCount >= 2) {
+    if (metrics.navigationReversals >= 1 && metrics.replayCount >= 1) {
         patterns.push('confusion');
     }
 
@@ -128,6 +128,12 @@ function detectBehavioralPatterns(metrics, events) {
         patterns.push('engagement');
     }
 
+    // PATTERN 6: Struggle
+    // Indicators: Extreme pausing (even without other markers)
+    if (metrics.pauseFrequency > 6) {
+        patterns.push('struggle');
+    }
+
     return patterns;
 }
 
@@ -141,6 +147,7 @@ function detectBehavioralPatterns(metrics, events) {
 function inferCognitiveLoad(patterns, metrics) {
     // High load indicators
     if (patterns.includes('overload') ||
+        patterns.includes('struggle') ||
         (patterns.includes('confusion') && patterns.includes('fatigue'))) {
         return 'high';
     }

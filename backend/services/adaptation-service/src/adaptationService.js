@@ -24,8 +24,9 @@ export function recommendAdaptations(cognitiveState) {
         recommendations.push('SLOW_NARRATION'); // Baseline for high load
         recommendations.push('SMART_PAUSE');     // Baseline for high load
 
-        if (cognitiveState.patterns.includes('overload')) {
+        if (cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle')) {
             recommendations.push('SLOW_NARRATION');
+            recommendations.push('SMART_PAUSE');
         }
         if (cognitiveState.patterns.includes('confusion')) {
             recommendations.push('AUTO_REPEAT');
@@ -36,6 +37,7 @@ export function recommendAdaptations(cognitiveState) {
     // Medium cognitive load -> Baseline + Targeted
     if (cognitiveState.cognitiveLoad === 'medium') {
         recommendations.push('SLOW_NARRATION'); // Baseline for medium load
+        recommendations.push('SMART_PAUSE');     // Added to medium for visibility
 
         if (cognitiveState.patterns.includes('fatigue')) {
             recommendations.push('SLOW_NARRATION');

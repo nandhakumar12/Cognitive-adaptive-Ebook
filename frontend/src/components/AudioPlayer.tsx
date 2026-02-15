@@ -34,6 +34,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
     const [announcement, setAnnouncement] = useState('');
     const [activeAlert, setActiveAlert] = useState<{ message: string; strategy: string } | null>(null);
     const [isSimplified, setIsSimplified] = useState(false);
+    const [pendingAdaptation, setPendingAdaptation] = useState<AdaptationDecision | null>(null);
     const idleTimerRef = useRef<number | null>(null);
     const seenAdaptationIds = useRef<Set<string>>(new Set());
 
@@ -63,6 +64,13 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
             switch (adaptation.strategy) {
                 case 'SLOW_NARRATION':
                     const targetSpeed = adaptation.parameters.targetSpeed || 0.75;
+
+                    // User requested confirmation for significant speed reduction (e.g. 56%)
+                    if (targetSpeed < 0.75) {
+                        setPendingAdaptation(adaptation);
+                        return; // Wait for confirmation
+                    }
+
                     setPlaybackSpeed(targetSpeed);
                     if (audioRef.current) {
                         audioRef.current.playbackRate = targetSpeed;
@@ -79,10 +87,10 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     break;
 
                 case 'SMART_PAUSE':
+                    showAlert(adaptation.parameters.resumeMessage || 'Pausing for processing', "SMART_PAUSE");
                     if (audioRef.current && isPlaying) {
                         audioRef.current.pause();
                         setIsPlaying(false);
-                        showAlert(adaptation.parameters.resumeMessage || 'Pausing for processing', "SMART_PAUSE");
 
                         // Auto-resume after pause duration
                         setTimeout(() => {
@@ -106,6 +114,27 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     break;
             }
         });
+    };
+
+    /**
+     * Handle user confirmation for adaptation
+     */
+    const handleConfirmAdaptation = (accepted: boolean) => {
+        if (!pendingAdaptation) return;
+
+        if (accepted) {
+            const targetSpeed = pendingAdaptation.parameters.targetSpeed || 0.56;
+            setPlaybackSpeed(targetSpeed);
+            if (audioRef.current) {
+                audioRef.current.playbackRate = targetSpeed;
+            }
+            showAlert("Applying requested speed reduction", "SLOW_NARRATION");
+        } else {
+            announce("Speed reduction declined");
+        }
+
+        setPendingAdaptation(null);
+        setLastInteractionTime(Date.now());
     };
 
     /**
@@ -177,6 +206,17 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
      */
     useEffect(() => {
         if (onSeekToTime !== undefined && audioRef.current) {
+            const previousTime = audioRef.current.currentTime;
+
+            // Detect navigation reversal if seeking to an earlier time via chapter list
+            if (onSeekToTime < previousTime - 5) {
+                eventEmitter.emit('NAVIGATION_REVERSAL', {
+                    fromTime: previousTime,
+                    toTime: onSeekToTime,
+                    sectionId
+                });
+            }
+
             audioRef.current.currentTime = onSeekToTime;
         }
     }, [onSeekToTime]);
@@ -329,6 +369,19 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     <div className="alert-content">
                         <strong>ADAPTATION ACTIVE:</strong>
                         <p>{activeAlert.message}</p>
+                    </div>
+                </div>
+            )}
+
+            {pendingAdaptation && (
+                <div className="adaptation-confirmation-overlay">
+                    <div className="confirmation-dialog">
+                        <h3>Adjust Playback Speed?</h3>
+                        <p>We've noticed you might be having some difficulty. Would you like to reduce the playback speed to {Math.round((pendingAdaptation.parameters.targetSpeed || 0.56) * 100)}% for better comprehension?</p>
+                        <div className="confirmation-actions">
+                            <button className="confirm-btn yes" onClick={() => handleConfirmAdaptation(true)}>Yes, slow down</button>
+                            <button className="confirm-btn no" onClick={() => handleConfirmAdaptation(false)}>No, keep current</button>
+                        </div>
                     </div>
                 </div>
             )}

@@ -87,7 +87,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     break;
 
                 case 'SMART_PAUSE':
-                    showAlert(adaptation.parameters.resumeMessage || 'Pausing for processing', "SMART_PAUSE");
+                    showAlert(adaptation.parameters.resumeMessage || 'Pausing for processing', "SMART_PAUSE", adaptation.parameters.pauseDuration || 3000);
                     if (audioRef.current) {
                         // Store the fact that the system paused the audio
                         const wasPlaying = !audioRef.current.paused;
@@ -153,10 +153,10 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
         setTimeout(() => setAnnouncement(''), 100);
     };
 
-    const showAlert = (message: string, strategy: string) => {
+    const showAlert = (message: string, strategy: string, customDuration?: number) => {
         announce(message);
         setActiveAlert({ message, strategy });
-        setTimeout(() => setActiveAlert(null), 8000); // 8 second visibility
+        setTimeout(() => setActiveAlert(null), customDuration || 8000);
     };
 
     /**

@@ -19,18 +19,17 @@ import { v4 as uuidv4 } from 'uuid';
 export function recommendAdaptations(cognitiveState) {
     const recommendations = [];
 
-    // High cognitive load -> Baseline + Patterns
+    // High cognitive load -> Targeted Patterns
     if (cognitiveState.cognitiveLoad === 'high') {
-        recommendations.push('SLOW_NARRATION'); // Baseline for high load
         recommendations.push('SMART_PAUSE');     // Baseline for high load
 
         const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
+        // Trigger SLOW_NARRATION specifically on 2nd, 4th, 6th pauses
         if (pauseCount === 2 || pauseCount === 4 || pauseCount === 6) {
             recommendations.push('SLOW_NARRATION');
         }
 
         if (cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle')) {
-            recommendations.push('SLOW_NARRATION');
             recommendations.push('SMART_PAUSE');
         }
         if (cognitiveState.patterns.includes('confusion')) {
@@ -39,12 +38,10 @@ export function recommendAdaptations(cognitiveState) {
         }
     }
 
-    // Medium cognitive load -> Baseline + Targeted
+    // Medium cognitive load -> Targeted Patterns
     if (cognitiveState.cognitiveLoad === 'medium') {
-        recommendations.push('SLOW_NARRATION'); // Baseline for medium load
-        recommendations.push('SMART_PAUSE');     // Added to medium for visibility
-
         const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
+        // Trigger SLOW_NARRATION specifically on 2nd, 4th, 6th pauses
         if (pauseCount === 2 || pauseCount === 4 || pauseCount === 6) {
             recommendations.push('SLOW_NARRATION');
         }

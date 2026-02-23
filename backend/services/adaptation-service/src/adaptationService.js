@@ -138,8 +138,9 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
                 : 'Disorientation detected - providing section summary',
             parameters: {
                 summaryText: generateSummary(context.currentSection),
-                insertBefore: true, // Insert before continuing
-                summaryDuration: 10000 // 10 seconds for summary
+                insertBefore: true,
+                seekToStart: false, // Resume from current point as requested
+                duration: 10000
             },
             triggeredBy
         },
@@ -203,12 +204,11 @@ export function executeAdaptations(cognitiveState, strategies, context) {
  * (In production, this would use actual content analysis or pre-generated summaries)
  */
 function generateSummary(sectionId) {
-    // Placeholder - in real system, fetch from content database
     const summaries = {
-        'chapter-1': 'Summary: This chapter introduced the main character and setting.',
-        'chapter-2': 'Summary: The conflict was established and key relationships formed.',
-        'chapter-3': 'Summary: The protagonist faced their first major challenge.',
-        'default': 'Summary: Let\'s recap what we\'ve covered so far in this section.'
+        'intro': 'Recap: In this section, we set the scene and introduce the key themes of the book. You might want to pay attention to the narrator\'s tone.',
+        'chapter-1': 'Recap: We meet Nick Carraway as he moves to West Egg and visits his cousin Daisy. The mysterious Jay Gatsby is mentioned for the first time.',
+        'chapter-2': 'Recap: Nick travels to the Valley of Ashes with Tom Buchanan and meets Tom\'s mistress, Myrtle Wilson, at a chaotic party in New York.',
+        'default': 'Recap: You\'ve listened to most of this section. We\'re restarting it now to help you catch the details you might have missed during the rewinds.'
     };
 
     return summaries[sectionId] || summaries.default;

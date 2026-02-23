@@ -112,7 +112,35 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     break;
 
                 case 'SUMMARY_INJECTION':
-                    showAlert(adaptation.parameters.summaryText || 'Section summary available', "SUMMARY_INJECTION");
+                    const summaryDuration = adaptation.parameters.duration || 10000;
+                    showAlert(adaptation.parameters.summaryText || 'Section summary available', "SUMMARY_INJECTION", summaryDuration);
+
+                    if (audioRef.current) {
+                        const wasPlayingSummary = !audioRef.current.paused;
+
+                        // Seek to start if requested ("start from first")
+                        if (adaptation.parameters.seekToStart) {
+                            audioRef.current.currentTime = 0;
+                            setCurrentTime(0);
+                        }
+
+                        if (wasPlayingSummary) {
+                            audioRef.current.pause();
+                            setIsPlaying(false);
+
+                            // Auto-resume after summary duration
+                            setTimeout(() => {
+                                if (audioRef.current) {
+                                    audioRef.current.play().then(() => {
+                                        setIsPlaying(true);
+                                        announce('Resuming audio after recap');
+                                    }).catch(err => {
+                                        console.warn('[SYSTEM] Summary resume failed:', err);
+                                    });
+                                }
+                            }, summaryDuration);
+                        }
+                    }
                     break;
 
                 case 'SIMPLIFY_INTERACTION':

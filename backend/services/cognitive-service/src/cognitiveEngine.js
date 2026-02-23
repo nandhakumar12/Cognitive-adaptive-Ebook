@@ -131,7 +131,7 @@ function detectBehavioralPatterns(metrics, events) {
 
     // PATTERN 6: Struggle
     // Indicators: Extreme pausing (even without other markers)
-    if (metrics.pauseFrequency > 6) {
+    if (metrics.pauseFrequency > 4) { // Reduced from 6 for better responsiveness
         patterns.push('struggle');
     }
 

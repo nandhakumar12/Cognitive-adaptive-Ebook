@@ -24,8 +24,8 @@ export function recommendAdaptations(cognitiveState) {
         recommendations.push('SMART_PAUSE');     // Baseline for high load
 
         const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
-        // Trigger SLOW_NARRATION specifically on 2nd, 4th, 6th pauses
-        if (pauseCount === 2 || pauseCount === 4 || pauseCount === 6) {
+        // Trigger SLOW_NARRATION if load is high and user is pausing or struggling
+        if (pauseCount >= 2 || cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle')) {
             recommendations.push('SLOW_NARRATION');
         }
 
@@ -41,12 +41,8 @@ export function recommendAdaptations(cognitiveState) {
     // Medium cognitive load -> Targeted Patterns
     if (cognitiveState.cognitiveLoad === 'medium') {
         const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
-        // Trigger SLOW_NARRATION specifically on 2nd, 4th, 6th pauses
-        if (pauseCount === 2 || pauseCount === 4 || pauseCount === 6) {
-            recommendations.push('SLOW_NARRATION');
-        }
-
-        if (cognitiveState.patterns.includes('fatigue')) {
+        // Trigger SLOW_NARRATION if pausing frequently or showing fatigue
+        if (pauseCount >= 3 || cognitiveState.patterns.includes('fatigue')) {
             recommendations.push('SLOW_NARRATION');
         }
         if (cognitiveState.patterns.includes('confusion')) {
@@ -64,13 +60,14 @@ export function recommendAdaptations(cognitiveState) {
 /**
  * Create adaptation decision based on strategy and cognitive state
  * 
- * @param {string} sessionId - Current listening session
+ * @param {Object} cognitiveState - Current inferred cognitive state
  * @param {string} strategy - Adaptation strategy to apply
  * @param {Array} triggeredBy - Behavioral patterns that triggered this
  * @param {Object} context - Additional context (current time, section, etc.)
  * @returns {Object} Adaptation decision object
  */
-export function createAdaptation(sessionId, strategy, triggeredBy, context = {}) {
+export function createAdaptation(cognitiveState, strategy, triggeredBy, context = {}) {
+    const sessionId = cognitiveState.sessionId;
     const adaptationId = uuidv4();
     const timestamp = Date.now();
 
@@ -174,7 +171,7 @@ export function executeAdaptations(cognitiveState, strategies, context) {
 
     for (const strategy of strategies) {
         const adaptation = createAdaptation(
-            cognitiveState.sessionId,
+            cognitiveState,
             strategy,
             cognitiveState.patterns,
             context

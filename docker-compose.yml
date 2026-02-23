@@ -3,10 +3,10 @@ version: '3.8'
 services:
   frontend:
     build: ./frontend
-    expose:
-      - "3000"
+    ports:
+      - "3000:3000"
     environment:
-      - VITE_API_URL=
+      - VITE_API_URL=http://3.92.20.84:3001
       - VITE_AWS_REGION=us-east-1
       - VITE_COGNITO_USER_POOL_ID=us-east-1_GNr6QxV7t
       - VITE_COGNITO_CLIENT_ID=1hs80fmchi3rucp67b0devpo0q
@@ -21,13 +21,11 @@ services:
       - EVENT_SERVICE_URL=http://event-service:3002
       - COGNITIVE_SERVICE_URL=http://cognitive-service:3003
       - ADAPTATION_SERVICE_URL=http://adaptation-service:3004
-      - DATA_SERVICE_URL=http://data-service:3005
       - PORT=3001
     depends_on:
       - event-service
       - cognitive-service
       - adaptation-service
-      - data-service
 
   data-service:
     build: ./backend/services/data-service
@@ -35,8 +33,6 @@ services:
       - "3005:3005"
     environment:
       - PORT=3005
-      - AWS_REGION=us-east-1
-      # Credentials will be auto-detected from EC2 IAM Role
 
   event-service:
     build: ./backend/services/event-service

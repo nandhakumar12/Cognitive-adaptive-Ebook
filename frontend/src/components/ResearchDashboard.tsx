@@ -138,7 +138,7 @@ export const ResearchDashboard: React.FC = () => {
                                 <div className="adaptation-details">
                                     <strong>{(adaptation.strategy || '').replace(/_/g, ' ')}</strong>
                                     <p>{adaptation.reason || 'No reason provided'}</p>
-                                    <small>Triggered by: {(adaptation.triggeredBy || []).join(', ') || 'Unknown'}</small>
+                                    <small>Triggered by: {adaptation.triggeredBy && adaptation.triggeredBy.length > 0 ? adaptation.triggeredBy.join(', ') : 'behavioral signals'}</small>
                                 </div>
                             </div>
                         ))

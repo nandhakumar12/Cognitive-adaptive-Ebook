@@ -186,6 +186,23 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
     }, [lastInteractionTime]);
 
     /**
+     * ENFORCE PLAYBACK SPEED SYNC
+     * 
+     * Essential for ensuring the audio element matches React state
+     * especially when the system auto-resumes or adaptations kick in
+     */
+    useEffect(() => {
+        const audio = audioRef.current;
+        if (!audio) return;
+
+        // Force the rate whenever the speed state changes
+        if (audio.playbackRate !== playbackSpeed) {
+            audio.playbackRate = playbackSpeed;
+            console.log(`[SYNC] Forced audio playbackRate to ${playbackSpeed}`);
+        }
+    }, [playbackSpeed, isPlaying]); // Re-sync on speed change OR play/pause
+
+    /**
      * Track time updates
      */
     useEffect(() => {
@@ -442,12 +459,24 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                         onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
                         aria-label="Select playback speed"
                     >
+                        {/* Standard Presets */}
                         <option value="0.5">0.5x (Slow)</option>
                         <option value="0.75">0.75x</option>
                         <option value="1.0">1.0x (Normal)</option>
                         <option value="1.25">1.25x</option>
                         <option value="1.5">1.5x (Fast)</option>
                         <option value="2.0">2.0x (Very Fast)</option>
+
+                        {/*
+                              DYNAMIC ADAPTATION OPTION
+                              If the current speed isn't a preset (e.g. 0.56x), add it here
+                              so the dropdown shows the correct selected state.
+                            */}
+                        {![0.5, 0.75, 1.0, 1.25, 1.5, 2.0].includes(playbackSpeed) && (
+                            <option value={playbackSpeed}>
+                                {playbackSpeed.toFixed(2)}x (Adaptive)
+                            </option>
+                        )}
                     </select>
                 </div>
             )}

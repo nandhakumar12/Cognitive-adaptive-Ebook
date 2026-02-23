@@ -79,20 +79,21 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
             timestamp,
             reason: 'High cognitive load detected - adjusting narration speed',
             parameters: (() => {
-                const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
-                let targetSpeed = context.currentSpeed || 1.0;
+                const currentSpeed = context.currentSpeed || 1.0;
+                let targetSpeed = currentSpeed;
 
-                if (pauseCount >= 6) {
-                    targetSpeed = 0.50;
-                } else if (pauseCount >= 4) {
-                    targetSpeed = 0.56;
-                } else if (pauseCount >= 2) {
+                // TWO-STAGE SLOWDOWN LOGIC
+                // Stage 1: Automatic drop to 0.75x (silent in frontend if > 0.75)
+                // Stage 2: Prompted drop to 0.50x (if already at 0.75 or lower)
+                if (currentSpeed > 0.75) {
                     targetSpeed = 0.75;
+                } else {
+                    targetSpeed = 0.50;
                 }
 
                 return {
                     targetSpeed,
-                    duration: 10000 // 10 seconds for testing
+                    duration: 15000 // 15 seconds for testing
                 };
             })(),
             triggeredBy
@@ -169,11 +170,15 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
 export function executeAdaptations(cognitiveState, strategies, context) {
     const adaptations = [];
 
+    const patterns = (cognitiveState.patterns && cognitiveState.patterns.length > 0)
+        ? cognitiveState.patterns
+        : ['behavioral-signals'];
+
     for (const strategy of strategies) {
         const adaptation = createAdaptation(
             cognitiveState,
             strategy,
-            cognitiveState.patterns,
+            patterns,
             context
         );
 
@@ -183,7 +188,7 @@ export function executeAdaptations(cognitiveState, strategies, context) {
             // Log for research purposes
             console.log(`[ADAPTATION] ${strategy} triggered for session ${cognitiveState.sessionId}`);
             console.log(`  Reason: ${adaptation.reason}`);
-            console.log(`  Patterns: ${cognitiveState.patterns.join(', ')}`);
+            console.log(`  Patterns: ${patterns.join(', ')}`);
         }
     }
 
@@ -216,7 +221,7 @@ function generateSummary(sectionId) {
  */
 export function shouldApplyAdaptation(recentAdaptations, strategy) {
     const now = Date.now();
-    const cooldownPeriod = 5000; // REDUCED TO 5 SECONDS FOR RAPID TESTING (GLOBAL)
+    const cooldownPeriod = 5000; // 5 seconds as requested
 
     // Check if same strategy was recently applied
     const recentSameStrategy = recentAdaptations.filter(a =>

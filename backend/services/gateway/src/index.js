@@ -3,7 +3,7 @@ import cors from 'cors';
 import proxy from 'express-http-proxy';
 
 const app = express();
-const PORT = 3001;
+const PORT = process.env.PORT || 3001;
 
 // Service URLs
 const EVENT_SERVICE_URL = process.env.EVENT_SERVICE_URL || 'http://localhost:3002';
@@ -13,7 +13,15 @@ const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || 'http://localhost:3005'
 
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
-app.use(cors());
+app.use(cors({
+    origin: [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        process.env.FRONTEND_URL || 'http://localhost:3000'
+    ],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 
 // Logging middleware
 app.use((req, res, next) => {
@@ -86,16 +94,7 @@ app.get('/api/adaptations/:sessionId', (req, res, next) => {
     })(req, res, next);
 });
 
-// Proxy root and other routes to frontend
-app.use(
-    '/',
-    createProxyMiddleware({
-        target: 'http://frontend:3000',
-        changeOrigin: true
-    })
-);
-
-// Fallback
+// Fallback 404
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found at Gateway', path: req.path });
 });

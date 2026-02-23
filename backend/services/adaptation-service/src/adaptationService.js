@@ -32,7 +32,7 @@ export function recommendAdaptations(cognitiveState) {
         if (cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle')) {
             recommendations.push('SMART_PAUSE');
         }
-        if (cognitiveState.patterns.includes('confusion')) {
+        if (cognitiveState.patterns.includes('confusion') || cognitiveState.patterns.includes('repetition_spike')) {
             recommendations.push('AUTO_REPEAT');
             recommendations.push('SUMMARY_INJECTION');
         }
@@ -133,7 +133,9 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
             sessionId,
             strategy: 'SUMMARY_INJECTION',
             timestamp,
-            reason: 'Disorientation detected - providing section summary',
+            reason: triggeredBy.includes('repetition_spike')
+                ? 'Multiple rewinds detected - providing section summary for clarity'
+                : 'Disorientation detected - providing section summary',
             parameters: {
                 summaryText: generateSummary(context.currentSection),
                 insertBefore: true, // Insert before continuing

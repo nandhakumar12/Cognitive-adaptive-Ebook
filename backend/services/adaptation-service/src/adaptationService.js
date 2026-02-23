@@ -48,8 +48,9 @@ export function recommendAdaptations(cognitiveState) {
         if (cognitiveState.patterns.includes('confusion')) {
             recommendations.push('AUTO_REPEAT');
         }
-        if (cognitiveState.patterns.includes('navigation_difficulty')) {
+        if (cognitiveState.patterns.includes('navigation_difficulty') || cognitiveState.patterns.includes('repetition_spike')) {
             recommendations.push('SIMPLIFY_INTERACTION');
+            recommendations.push('SUMMARY_INJECTION');
         }
     }
 

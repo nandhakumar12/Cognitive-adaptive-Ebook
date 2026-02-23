@@ -131,8 +131,14 @@ function detectBehavioralPatterns(metrics, events) {
 
     // PATTERN 6: Struggle
     // Indicators: Extreme pausing (even without other markers)
-    if (metrics.pauseFrequency > 6) { // Increased from 4 to reduce noise
+    if (metrics.pauseFrequency > 6) {
         patterns.push('struggle');
+    }
+
+    // PATTERN 7: Repetition Spike
+    // Indicators: Multiple rapid replays/rewinds
+    if (metrics.replayCount >= 2) {
+        patterns.push('repetition_spike');
     }
 
     return patterns;
@@ -157,6 +163,7 @@ function inferCognitiveLoad(patterns, metrics) {
     if (patterns.includes('confusion') ||
         patterns.includes('fatigue') ||
         patterns.includes('navigation_difficulty') ||
+        patterns.includes('repetition_spike') ||
         metrics.pauseFrequency > 2) {
         return 'medium';
     }

@@ -54,14 +54,12 @@ class EventEmitter {
         }
     }
 
-    /**
-     * Check if event is critical and should be sent immediately
-     */
     private isCriticalEvent(eventType: BehavioralEventType): boolean {
         return [
             'SESSION_START',
             'SESSION_END',
-            'AUDIO_PAUSE' // Important for cognitive load detection
+            'AUDIO_PAUSE',
+            'AUDIO_REPLAY' // IMMEDIATE SEND for Rapid Rewind detection
         ].includes(eventType);
     }
 

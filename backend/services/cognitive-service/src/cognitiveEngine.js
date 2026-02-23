@@ -61,11 +61,11 @@ function calculateBehaviorMetrics(events) {
     const timeWindow = events[events.length - 1].timestamp - events[0].timestamp;
     const timeWindowMinutes = timeWindow / 60000 || 1;
 
-    const pauseEvents = events.filter(e => e.eventType === 'AUDIO_PAUSE');
-    const replayEvents = events.filter(e => e.eventType === 'AUDIO_REPLAY');
-    const speedEvents = events.filter(e => e.eventType === 'AUDIO_SPEED_CHANGE');
-    const navReversals = events.filter(e => e.eventType === 'NAVIGATION_REVERSAL');
-    const idleEvents = events.filter(e => e.eventType === 'USER_IDLE');
+    const pauseEvents = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'AUDIO_PAUSE');
+    const replayEvents = events.filter(e => e.eventType && (e.eventType.toUpperCase() === 'AUDIO_REPLAY' || (e.eventType.toUpperCase() === 'AUDIO_SEEK' && e.metadata.seekDuration < 0)));
+    const speedEvents = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'AUDIO_SPEED_CHANGE');
+    const navReversals = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'NAVIGATION_REVERSAL');
+    const idleEvents = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'USER_IDLE');
 
     // Calculate average playback speed
     const avgSpeed = speedEvents.length > 0

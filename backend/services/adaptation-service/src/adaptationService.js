@@ -25,7 +25,7 @@ export function recommendAdaptations(cognitiveState) {
 
         const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
         // Trigger SLOW_NARRATION if load is high and user is pausing or struggling
-        if (pauseCount >= 2 || cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle')) {
+        if (pauseCount >= 2 || cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle') || cognitiveState.patterns.includes('repetition_spike')) {
             recommendations.push('SLOW_NARRATION');
         }
 

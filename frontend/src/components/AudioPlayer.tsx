@@ -37,6 +37,21 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
     const [pendingAdaptation, setPendingAdaptation] = useState<AdaptationDecision | null>(null);
     const idleTimerRef = useRef<number | null>(null);
     const seenAdaptationIds = useRef<Set<string>>(new Set());
+    const currentSectionIdRef = useRef<string>(sectionId);
+
+    /**
+     * RESET ADAPTATION HISTORY ON BOOK/SECTION CHANGE
+     * 
+     * Ensures techniques like SUMMARY_INJECTION can re-trigger
+     * when a user returns to a book they previously visited.
+     */
+    useEffect(() => {
+        if (currentSectionIdRef.current !== sectionId) {
+            console.log(`[AUDIO] Section changed from ${currentSectionIdRef.current} to ${sectionId}. Clearing adaptation cache.`);
+            seenAdaptationIds.current.clear();
+            currentSectionIdRef.current = sectionId;
+        }
+    }, [sectionId]);
 
     /**
      * Poll for adaptations every 2 seconds
@@ -87,27 +102,28 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     break;
 
                 case 'SMART_PAUSE':
-                    showAlert(adaptation.parameters.resumeMessage || 'Pausing for processing', "SMART_PAUSE", adaptation.parameters.pauseDuration || 3000);
-                    if (audioRef.current) {
-                        // Store the fact that the system paused the audio
-                        const wasPlaying = !audioRef.current.paused;
+                    const pauseDuration = adaptation.parameters.pauseDuration || 3000;
+                    showAlert(adaptation.parameters.resumeMessage || 'Pausing for processing', "SMART_PAUSE", pauseDuration);
 
-                        if (wasPlaying) {
+                    if (audioRef.current) {
+                        // Pause if playing
+                        if (!audioRef.current.paused) {
                             audioRef.current.pause();
                             setIsPlaying(false);
-
-                            // Auto-resume after pause duration
-                            setTimeout(() => {
-                                if (audioRef.current) {
-                                    audioRef.current.play().then(() => {
-                                        setIsPlaying(true);
-                                        announce('Resuming audio');
-                                    }).catch(err => {
-                                        console.warn('[SYSTEM] Resume failed, waiting for user:', err);
-                                    });
-                                }
-                            }, adaptation.parameters.pauseDuration || 3000);
                         }
+
+                        // ALWAYS auto-resume after pause duration, even if manually paused
+                        // This fulfills the "smart" aspect of the research goal
+                        setTimeout(() => {
+                            if (audioRef.current) {
+                                audioRef.current.play().then(() => {
+                                    setIsPlaying(true);
+                                    announce('Resuming audio');
+                                }).catch(err => {
+                                    console.warn('[SYSTEM] Resume failed, waiting for user:', err);
+                                });
+                            }
+                        }, pauseDuration);
                     }
                     break;
 

@@ -126,6 +126,16 @@ class EventEmitter {
     }
 
     /**
+     * Start a fresh session (used when switching books)
+     */
+    public refreshSession() {
+        this.endSession();
+        this.sessionId = this.generateSessionId();
+        this.startSession();
+        console.log(`[SESSION] Refreshed. New ID: ${this.sessionId}`);
+    }
+
+    /**
      * End session
      */
     public endSession() {

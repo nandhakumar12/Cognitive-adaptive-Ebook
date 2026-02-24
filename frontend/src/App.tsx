@@ -91,6 +91,8 @@ function App() {
     const handlePlayBook = () => {
         console.log('[DEBUG] Playing book:', selectedBook?.title);
         if (selectedBook) {
+            // Start a fresh research session for this specific book
+            eventEmitter.refreshSession();
             setCurrentView('player');
         }
     };

@@ -29,8 +29,14 @@ async function processEvent(event) {
         console.log(`[ORCHESTRATOR] Processing event: ${event.eventType} for session ${sessionId}`);
 
         // 1. Get recent events from Data Service
-        const eventsResponse = await axios.get(`${DATA_SERVICE_URL}/sessions/${sessionId}/events?limit=20`);
-        const recentEvents = eventsResponse.data;
+        // RESEARCH NOTE: Scoping by section ensures adaptations are context-aware
+        const sectionId = event.metadata?.sectionId;
+        const eventsResponse = await axios.get(`${DATA_SERVICE_URL}/sessions/${sessionId}/events?limit=50`);
+        const allEvents = eventsResponse.data || [];
+
+        const recentEvents = allEvents
+            .filter(e => !sectionId || e.metadata?.sectionId === sectionId)
+            .slice(-20);
 
         // 2. Call Cognitive Service to analyze
         console.log(`[ORCHESTRATOR] Requesting cognitive analysis...`);

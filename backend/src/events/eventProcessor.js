@@ -28,7 +28,14 @@ export async function processEvent(event) {
         console.log(`[COGNITIVE LOOP] Processing event: ${event.eventType} for session ${sessionId}`);
 
         // Step 1: Get recent behavioral events for analysis
-        const recentEvents = getRecentEvents(sessionId, 20);
+        // RESEARCH NOTE: Scoping by section ensures adaptations are context-aware
+        const allRecentEvents = getRecentEvents(sessionId, 50); // Get larger pool
+        const session = getSession(sessionId);
+        const sectionId = session.currentSection;
+
+        const recentEvents = allRecentEvents
+            .filter(e => !sectionId || e.metadata.sectionId === sectionId)
+            .slice(-20); // Keep the 20 most recent for this section
 
         // Step 2: Analyze patterns and infer cognitive state
         const cognitiveState = inferCognitiveState(recentEvents, sessionId);
@@ -61,7 +68,6 @@ export async function processEvent(event) {
         }
 
         // Step 5: Execute adaptations
-        const session = getSession(sessionId);
         const context = {
             currentTime: session.currentTime,
             currentSpeed: session.playbackSpeed,

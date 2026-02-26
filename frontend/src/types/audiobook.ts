@@ -7,6 +7,7 @@ export interface Chapter {
     title: string;
     duration: string; // Format: "28:32"
     startTime: number; // Seconds from start
+    audioUrl?: string; // Optional URL for individual chapter file
 }
 
 export interface Audiobook {

@@ -37,8 +37,9 @@ function App() {
         'book-3': 78
     });
 
-    // Seek state for chapter navigation
+    // Seek and Source state for chapter navigation
     const [seekToTime, setSeekToTime] = useState<number | undefined>(undefined);
+    const [currentAudioUrl, setCurrentAudioUrl] = useState<string>('');
 
     useEffect(() => {
         // Start cognitive feedback session
@@ -81,6 +82,7 @@ function App() {
         console.log('[DEBUG] Found book:', book);
         if (book) {
             setSelectedBook(book as Audiobook);
+            setCurrentAudioUrl(book.audioUrl);
             setCurrentView('bookDetail');
             console.log('[DEBUG] Changed view to bookDetail');
         } else {
@@ -106,7 +108,10 @@ function App() {
         setCurrentView('bookDetail');
     };
 
-    const handleChapterClick = (startTime: number) => {
+    const handleChapterClick = (startTime: number, audioUrl?: string) => {
+        if (audioUrl) {
+            setCurrentAudioUrl(audioUrl);
+        }
         setSeekToTime(startTime);
         // Reset after brief delay to allow multiple clicks
         setTimeout(() => setSeekToTime(undefined), 100);
@@ -198,7 +203,7 @@ function App() {
                                 </div>
 
                                 <AudioPlayer
-                                    audioSrc={selectedBook.audioUrl}
+                                    audioSrc={currentAudioUrl || selectedBook.audioUrl}
                                     sectionId={selectedBook.id}
                                     sectionTitle={selectedBook.title}
                                     onSeekToTime={seekToTime}
@@ -212,13 +217,13 @@ function App() {
                                             <div
                                                 key={chapter.id}
                                                 className="chapter-item"
-                                                onClick={() => handleChapterClick(chapter.startTime)}
+                                                onClick={() => handleChapterClick(chapter.startTime, chapter.audioUrl)}
                                                 role="button"
                                                 tabIndex={0}
                                                 onKeyPress={(e) => {
                                                     if (e.key === 'Enter' || e.key === ' ') {
                                                         e.preventDefault();
-                                                        handleChapterClick(chapter.startTime);
+                                                        handleChapterClick(chapter.startTime, chapter.audioUrl);
                                                     }
                                                 }}
                                                 aria-label={`Jump to ${chapter.title}`}

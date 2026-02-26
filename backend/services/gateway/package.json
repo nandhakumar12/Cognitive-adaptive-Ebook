@@ -7,7 +7,8 @@
     "scripts": {
         "start": "node src/index.js",
         "dev": "node --watch src/index.js",
-        "health": "curl -f http://localhost:3001/health || exit 1"
+        "health": "curl -f http://localhost:3001/health || exit 1",
+        "verify": "node verify_services.js"
     },
     "dependencies": {
         "cors": "^2.8.5",

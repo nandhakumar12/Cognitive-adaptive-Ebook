@@ -4,7 +4,7 @@ services:
   frontend:
     build: ./frontend
     ports:
-      - "3000:3000"
+      - "80:3000"
     environment:
       - VITE_API_URL=
       - VITE_PROXY_TARGET=http://gateway:3001
@@ -26,7 +26,7 @@ services:
       - PORT=3001
       - AWS_REGION=us-east-1
       - COGNITO_USER_POOL_ID=us-east-1_GNr6QxV7t
-      - FRONTEND_URL=http://localhost:3000
+      - FRONTEND_URL=http://18.208.74.60
     depends_on:
       - event-service
       - cognitive-service

@@ -1,14 +1,10 @@
 import axios from 'axios';
 
 const endpoints = [
-    'http://localhost:3000/health',
-    'http://localhost:3001/health',
-    'http://localhost:3002/health', // Event Service direct
-    'http://localhost:3003/health', // Cognitive Service direct
-    'http://localhost:3004/health', // Adaptation Service direct
-    'http://localhost:3000/api/events/health', // Via Gateway
-    'http://localhost:3000/api/cognitive/health', // Via Gateway
-    'http://localhost:3000/api/adaptations/health' // Via Gateway
+    'http://localhost:3001/health', // Gateway (self)
+    process.env.EVENT_SERVICE_URL ? `${process.env.EVENT_SERVICE_URL}/health` : 'http://localhost:3002/health',
+    process.env.COGNITIVE_SERVICE_URL ? `${process.env.COGNITIVE_SERVICE_URL}/health` : 'http://localhost:3003/health',
+    process.env.ADAPTATION_SERVICE_URL ? `${process.env.ADAPTATION_SERVICE_URL}/health` : 'http://localhost:3004/health',
 ];
 
 async function checkHealth() {

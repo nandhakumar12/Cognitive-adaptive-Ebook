@@ -48,7 +48,7 @@
                     "startTime": 10030
                 }
             ],
-            "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            "audioUrl": "https://creative-adaptive-audiobooks.s3.amazonaws.com/book-1/the-great-gatsby.mp3",
             "genres": [
                 "Classic Literature",
                 "Fiction",
@@ -87,7 +87,7 @@
                     "startTime": 2465
                 }
             ],
-            "audioUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            "audioUrl": "https://creative-adaptive-audiobooks.s3.amazonaws.com/book-2/pride-and-prejudice.mp3",
             "genres": [
                 "Classic Literature",
                 "Romance",
@@ -126,7 +126,7 @@
                     "startTime": 2052
                 }
             ],
-            "audioUrl": "/audio/moby-dick.mp3",
+            "audioUrl": "https://creative-adaptive-audiobooks.s3.amazonaws.com/book-4/moby-dick.mp3",
             "genres": [
                 "Adventure",
                 "Classic Literature",
@@ -165,7 +165,7 @@
                     "startTime": 2543
                 }
             ],
-            "audioUrl": "/audio/jane-eyre.mp3",
+            "audioUrl": "https://creative-adaptive-audiobooks.s3.amazonaws.com/book-5/jane-eyre.mp3",
             "genres": [
                 "Gothic Fiction",
                 "Romance",
@@ -204,7 +204,7 @@
                     "startTime": 1385
                 }
             ],
-            "audioUrl": "/audio/frankenstein.mp3",
+            "audioUrl": "https://creative-adaptive-audiobooks.s3.amazonaws.com/book-6/frankenstein.mp3",
             "genres": [
                 "Gothic Fiction",
                 "Science Fiction",

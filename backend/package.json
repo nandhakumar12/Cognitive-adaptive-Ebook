@@ -7,7 +7,8 @@
     "scripts": {
         "start": "node src/server.js",
         "dev": "node --watch src/server.js",
-        "test": "node --test"
+        "test": "node --test",
+        "verify": "node verify_services.js"
     },
     "dependencies": {
         "axios": "^1.13.4",

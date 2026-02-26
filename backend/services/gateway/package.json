@@ -6,7 +6,8 @@
     "type": "module",
     "scripts": {
         "start": "node src/index.js",
-        "dev": "node --watch src/index.js"
+        "dev": "node --watch src/index.js",
+        "health": "curl -f http://localhost:3001/health || exit 1"
     },
     "dependencies": {
         "cors": "^2.8.5",

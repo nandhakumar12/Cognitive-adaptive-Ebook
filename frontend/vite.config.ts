@@ -8,7 +8,7 @@ export default defineConfig(({ mode }) => {
     plugins: [react()],
     server: {
       port: 3000,
-      allowedHosts: ["frontend"],
+      allowedHosts: true,
       host: true,
       proxy: {
         '/api': {

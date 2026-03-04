@@ -118,24 +118,27 @@
             "chapters": [
                 {
                     "id": "ch-1",
-                    "title": "Loomings",
+                    "title": "Chapter 1: Loomings",
                     "duration": "15:42",
-                    "startTime": 0
+                    "startTime": 0,
+                    "audioUrl": "https://creative-adaptive-audiobooks.s3.amazonaws.com/book-4/mobydick_000_melville_64kb.mp3"
                 },
                 {
                     "id": "ch-2",
-                    "title": "The Carpet-Bag",
+                    "title": "Chapters 2-3: The Carpet-Bag & Spouter-Inn",
                     "duration": "18:30",
-                    "startTime": 942
+                    "startTime": 0,
+                    "audioUrl": "https://creative-adaptive-audiobooks.s3.amazonaws.com/book-4/mobydick_001_002_melville_64kb.mp3"
                 },
                 {
                     "id": "ch-3",
-                    "title": "The Spouter-Inn",
+                    "title": "Chapter 4: The Counterpane",
                     "duration": "28:15",
-                    "startTime": 2052
+                    "startTime": 0,
+                    "audioUrl": "https://creative-adaptive-audiobooks.s3.amazonaws.com/book-4/mobydick_003_melville_64kb.mp3"
                 }
             ],
-            "audioUrl": "https://creative-adaptive-audiobooks.s3.amazonaws.com/book-4/moby-dick.mp3",
+            "audioUrl": "https://creative-adaptive-audiobooks.s3.amazonaws.com/book-4/mobydick_000_melville_64kb.mp3",
             "genres": [
                 "Adventure",
                 "Classic Literature",

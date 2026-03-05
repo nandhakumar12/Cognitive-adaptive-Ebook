@@ -19,6 +19,7 @@ export const ResearchDashboard: React.FC = () => {
     const [cognitiveState, setCognitiveState] = useState<CognitiveState | null>(null);
     const [adaptations, setAdaptations] = useState<AdaptationDecision[]>([]);
     const [events, setEvents] = useState<BehavioralEvent[]>([]);
+    const [currentSessionId, setCurrentSessionId] = useState<string>(eventEmitter.getSessionId());
 
     useEffect(() => {
         const interval = setInterval(async () => {
@@ -30,6 +31,15 @@ export const ResearchDashboard: React.FC = () => {
                     getAdaptationHistory(sessionId, 10),
                     getEventHistory(sessionId, 20)
                 ]);
+
+                if (sessionId !== currentSessionId) {
+                    console.log(`[DASHBOARD] Session changed from ${currentSessionId} to ${sessionId}. Resetting local state.`);
+                    setCognitiveState(null);
+                    setAdaptations([]);
+                    setEvents([]);
+                    setCurrentSessionId(sessionId);
+                    return;
+                }
 
                 if (state) setCognitiveState(state);
                 setAdaptations(adaps || []);

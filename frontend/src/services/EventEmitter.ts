@@ -128,10 +128,17 @@ class EventEmitter {
     /**
      * Start a fresh session (used when switching books)
      */
-    public refreshSession() {
-        this.endSession();
+    public async refreshSession() {
+        console.log(`[SESSION] Refreshing... Flushing pending events for ${this.sessionId}`);
+        await this.processBatch(); // Ensure pending events are sent
+
+        if (this.batchTimer) {
+            clearInterval(this.batchTimer);
+        }
+
         this.sessionId = this.generateSessionId();
-        this.startSession();
+        this.startBatchProcessing(); // Restart the timer for the new session
+        this.emit('SESSION_START');
         console.log(`[SESSION] Refreshed. New ID: ${this.sessionId}`);
     }
 

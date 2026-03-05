@@ -22,9 +22,18 @@ interface AudioPlayerProps {
     sectionId: string;
     sectionTitle: string;
     onSeekToTime?: number; // Time in seconds to seek to
+    onNextChapter?: () => void;
+    onPreviousChapter?: () => void;
 }
 
-export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, sectionTitle, onSeekToTime }) => {
+export const AudioPlayer: React.FC<AudioPlayerProps> = ({
+    audioSrc,
+    sectionId,
+    sectionTitle,
+    onSeekToTime,
+    onNextChapter,
+    onPreviousChapter
+}) => {
     const audioRef = useRef<HTMLAudioElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
@@ -435,6 +444,23 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                 </button>
 
                 <button
+                    onClick={onPreviousChapter}
+                    aria-label="Previous Chapter"
+                    className="control-btn nav-btn"
+                    disabled={!onPreviousChapter}
+                >
+                    ⏮️ Prev
+                </button>
+
+                <button
+                    onClick={() => handleSeek(-10)}
+                    aria-label="Rewind 10 seconds"
+                    className="control-btn"
+                >
+                    ⏪ -10s
+                </button>
+
+                <button
                     onClick={handlePlayPause}
                     aria-label={isPlaying ? 'Pause' : 'Play'}
                     className="control-btn primary"
@@ -448,6 +474,15 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     className="control-btn"
                 >
                     ⏩ +10s
+                </button>
+
+                <button
+                    onClick={onNextChapter}
+                    aria-label="Next Chapter"
+                    className="control-btn nav-btn"
+                    disabled={!onNextChapter}
+                >
+                    ⏭️ Next
                 </button>
             </div>
 

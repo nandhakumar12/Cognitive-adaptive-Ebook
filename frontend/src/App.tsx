@@ -40,6 +40,7 @@ function App() {
     // Seek and Source state for chapter navigation
     const [seekToTime, setSeekToTime] = useState<number | undefined>(undefined);
     const [currentAudioUrl, setCurrentAudioUrl] = useState<string>('');
+    const [currentChapterIndex, setCurrentChapterIndex] = useState<number>(0);
 
     useEffect(() => {
         // Start cognitive feedback session
@@ -95,6 +96,7 @@ function App() {
         if (selectedBook) {
             // Start a fresh research session for this specific book
             eventEmitter.refreshSession();
+            setCurrentChapterIndex(0);
             setCurrentView('player');
         }
     };
@@ -108,13 +110,34 @@ function App() {
         setCurrentView('bookDetail');
     };
 
-    const handleChapterClick = (startTime: number, audioUrl?: string) => {
+    const handleChapterClick = (index: number, startTime: number, audioUrl?: string) => {
         if (audioUrl) {
             setCurrentAudioUrl(audioUrl);
         }
+        setCurrentChapterIndex(index);
         setSeekToTime(startTime);
+
+        // Reset adaptation session for new chapter
+        eventEmitter.refreshSession();
+
         // Reset after brief delay to allow multiple clicks
         setTimeout(() => setSeekToTime(undefined), 100);
+    };
+
+    const handleNextChapter = () => {
+        if (selectedBook && currentChapterIndex < selectedBook.chapters.length - 1) {
+            const nextIndex = currentChapterIndex + 1;
+            const nextChapter = selectedBook.chapters[nextIndex];
+            handleChapterClick(nextIndex, nextChapter.startTime, nextChapter.audioUrl);
+        }
+    };
+
+    const handlePreviousChapter = () => {
+        if (selectedBook && currentChapterIndex > 0) {
+            const prevIndex = currentChapterIndex - 1;
+            const prevChapter = selectedBook.chapters[prevIndex];
+            handleChapterClick(prevIndex, prevChapter.startTime, prevChapter.audioUrl);
+        }
     };
 
     const handleToggleResearchDashboard = () => {
@@ -204,9 +227,11 @@ function App() {
 
                                 <AudioPlayer
                                     audioSrc={currentAudioUrl || selectedBook.audioUrl}
-                                    sectionId={selectedBook.id}
-                                    sectionTitle={selectedBook.title}
+                                    sectionId={`${selectedBook.id}-${selectedBook.chapters[currentChapterIndex].id}`}
+                                    sectionTitle={`${selectedBook.title} - ${selectedBook.chapters[currentChapterIndex].title}`}
                                     onSeekToTime={seekToTime}
+                                    onNextChapter={handleNextChapter}
+                                    onPreviousChapter={handlePreviousChapter}
                                 />
 
                                 {/* Chapter List */}
@@ -216,14 +241,14 @@ function App() {
                                         {selectedBook.chapters.map((chapter, index) => (
                                             <div
                                                 key={chapter.id}
-                                                className="chapter-item"
-                                                onClick={() => handleChapterClick(chapter.startTime, chapter.audioUrl)}
+                                                className={`chapter-item ${index === currentChapterIndex ? 'active' : ''}`}
+                                                onClick={() => handleChapterClick(index, chapter.startTime, chapter.audioUrl)}
                                                 role="button"
                                                 tabIndex={0}
                                                 onKeyPress={(e) => {
                                                     if (e.key === 'Enter' || e.key === ' ') {
                                                         e.preventDefault();
-                                                        handleChapterClick(chapter.startTime, chapter.audioUrl);
+                                                        handleChapterClick(index, chapter.startTime, chapter.audioUrl);
                                                     }
                                                 }}
                                                 aria-label={`Jump to ${chapter.title}`}

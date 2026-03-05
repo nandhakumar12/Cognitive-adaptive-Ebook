@@ -14,7 +14,7 @@ class EventEmitter {
     private sessionId: string;
     private eventQueue: Partial<BehavioralEvent>[] = [];
     private batchInterval: number = 2000; // Send batch every 2 seconds
-    private batchTimer: NodeJS.Timeout | null = null;
+    private batchTimer: any = null;
 
     constructor() {
         this.sessionId = this.generateSessionId();

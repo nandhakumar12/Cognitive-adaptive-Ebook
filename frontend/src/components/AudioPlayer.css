@@ -137,6 +137,20 @@
     box-shadow: 0 8px 30px rgba(123, 31, 162, 0.7);
 }
 
+/* Nav buttons (Next/Prev) */
+.control-btn.nav-btn {
+    min-width: 100px;
+    background: linear-gradient(135deg, #673AB7, #9575CD);
+    font-size: 1.1rem;
+}
+
+.control-btn.nav-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 /* Speed Controls */
 .speed-controls {
     display: flex;

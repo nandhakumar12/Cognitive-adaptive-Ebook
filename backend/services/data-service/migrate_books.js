@@ -19,15 +19,24 @@ async function migrate() {
 
         for (const book of books) {
             console.log(`Migrating: ${book.title} (ID: ${book.id})...`);
-            await axios.post(`${DATA_SERVICE_URL}/books`, book);
+
+            const response = await fetch(`${DATA_SERVICE_URL}/books`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(book)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                console.error(`Failed to migrate ${book.title}:`, errorData);
+            } else {
+                console.log(`Successfully migrated: ${book.title}`);
+            }
         }
 
         console.log('--- Migration Complete! ---');
     } catch (err) {
         console.error('Migration failed:', err.message);
-        if (err.response) {
-            console.error('Response data:', err.response.data);
-        }
     }
 }
 

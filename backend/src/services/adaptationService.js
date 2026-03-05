@@ -56,11 +56,12 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
             sessionId,
             strategy: 'AUTO_REPEAT',
             timestamp,
-            reason: 'Confusion pattern detected - replaying recent content for reinforcement',
+            reason: 'Confusion detected - replaying recent content slowly for reinforcement',
             parameters: {
-                replayDuration: 30, // Go back 30 seconds
-                currentTime: context.currentTime || 0,
-                targetTime: Math.max(0, (context.currentTime || 30) - 30)
+                replayDuration: 20, // 20 seconds
+                temporarySlowdown: true,
+                targetSpeed: 0.75,
+                resumeMessage: 'Let\'s review that part at a slower pace...'
             },
             triggeredBy
         },

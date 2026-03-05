@@ -7,7 +7,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || 'http://localhost:3005';
-const JSON_DATA_PATH = path.join(__dirname, '../frontend/src/data/audiobooks.json');
+const JSON_DATA_PATH = path.join(__dirname, 'audiobooks.json');
 
 async function migrate() {
     try {

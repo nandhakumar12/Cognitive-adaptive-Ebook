@@ -45,6 +45,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const [pendingAdaptation, setPendingAdaptation] = useState<AdaptationDecision | null>(null);
     const idleTimerRef = useRef<number | null>(null);
     const seenAdaptationIds = useRef<Set<string>>(new Set());
+    const hasPromptedSpeedReduction = useRef<boolean>(false);
     const currentSectionIdRef = useRef<string>(sectionId);
 
     /**
@@ -57,6 +58,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         if (currentSectionIdRef.current !== sectionId) {
             console.log(`[AUDIO] Section changed from ${currentSectionIdRef.current} to ${sectionId}. Clearing adaptation cache.`);
             seenAdaptationIds.current.clear();
+            hasPromptedSpeedReduction.current = false;
             currentSectionIdRef.current = sectionId;
         }
     }, [sectionId]);
@@ -80,7 +82,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         adaptations.forEach(adaptation => {
             // Only apply if we haven't seen this specific adaptation instance before
             if (seenAdaptationIds.current.has(adaptation.adaptationId)) return;
-            seenAdaptationIds.current.add(adaptation.adaptationId);
 
             console.log('[ADAPTATION RECEIVED]', adaptation.strategy);
 
@@ -88,12 +89,22 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 case 'SLOW_NARRATION':
                     const targetSpeed = adaptation.parameters.targetSpeed || 0.75;
 
-                    // User requested confirmation for significant speed reduction (e.g. 56%)
+                    // User requested confirmation for significant speed reduction (e.g. 56% or 50%)
                     if (targetSpeed < 0.75) {
+                        // FIX: Only prompt ONCE per chapter
+                        if (hasPromptedSpeedReduction.current) {
+                            console.log('[ADAPTATION] Skipping prompt - already prompted for this chapter');
+                            seenAdaptationIds.current.add(adaptation.adaptationId);
+                            return;
+                        }
+
                         setPendingAdaptation(adaptation);
+                        hasPromptedSpeedReduction.current = true;
+                        seenAdaptationIds.current.add(adaptation.adaptationId);
                         return; // Wait for confirmation
                     }
 
+                    seenAdaptationIds.current.add(adaptation.adaptationId);
                     setPlaybackSpeed(targetSpeed);
                     if (audioRef.current) {
                         audioRef.current.playbackRate = targetSpeed;
@@ -217,7 +228,22 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     }, [playbackSpeed, isPlaying]); // Re-sync on speed change OR play/pause
 
     /**
-     * Track time updates
+     * AUTOPLAY ON SOURCE CHANGE
+     */
+    useEffect(() => {
+        if (audioRef.current) {
+            console.log('[AUDIO] Source changed, attempting autoplay');
+            audioRef.current.play()
+                .then(() => setIsPlaying(true))
+                .catch(err => {
+                    console.warn('[AUDIO] Autoplay blocked or failed:', err);
+                    setIsPlaying(false);
+                });
+        }
+    }, [audioSrc]);
+
+    /**
+     * Track time updates and duration
      */
     useEffect(() => {
         const audio = audioRef.current;
@@ -228,17 +254,23 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         };
 
         const handleLoadedMetadata = () => {
+            console.log('[AUDIO] Metadata loaded, duration:', audio.duration);
             setDuration(audio.duration);
         };
 
         audio.addEventListener('timeupdate', handleTimeUpdate);
         audio.addEventListener('loadedmetadata', handleLoadedMetadata);
 
+        // Sometimes metadata is already loaded
+        if (audio.duration) {
+            setDuration(audio.duration);
+        }
+
         return () => {
             audio.removeEventListener('timeupdate', handleTimeUpdate);
             audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
         };
-    }, []);
+    }, [audioSrc]); // Re-attach when source changes
 
     /**
      * Expose seek method to parent (for chapter clicks)
@@ -436,20 +468,12 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
             <div className="player-controls">
                 <button
-                    onClick={() => handleSeek(-10)}
-                    aria-label="Rewind 10 seconds"
-                    className="control-btn"
-                >
-                    ⏪ -10s
-                </button>
-
-                <button
                     onClick={onPreviousChapter}
                     aria-label="Previous Chapter"
                     className="control-btn nav-btn"
                     disabled={!onPreviousChapter}
                 >
-                    ⏮️ Prev
+                    <span className="icon">⏮️</span> Prev
                 </button>
 
                 <button
@@ -482,7 +506,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                     className="control-btn nav-btn"
                     disabled={!onNextChapter}
                 >
-                    ⏭️ Next
+                    ⏭️ Next <span className="icon"></span>
                 </button>
             </div>
 

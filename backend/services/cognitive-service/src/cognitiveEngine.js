@@ -62,10 +62,18 @@ function calculateBehaviorMetrics(events) {
     const timeWindowMinutes = timeWindow / 60000 || 1;
 
     const pauseEvents = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'AUDIO_PAUSE');
-    const replayEvents = events.filter(e => e.eventType && (e.eventType.toUpperCase() === 'AUDIO_REPLAY' || (e.eventType.toUpperCase() === 'AUDIO_SEEK' && e.metadata.seekDuration < 0)));
     const speedEvents = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'AUDIO_SPEED_CHANGE');
     const navReversals = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'NAVIGATION_REVERSAL');
     const idleEvents = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'USER_IDLE');
+
+    // Explicitly identify forward vs backward seek events
+    const forwardSeekEvents = events.filter(e =>
+        e.eventType && e.eventType.toUpperCase() === 'AUDIO_SEEK' && e.metadata && e.metadata.seekDuration > 0
+    );
+    const backwardSeekEvents = events.filter(e =>
+        (e.eventType && e.eventType.toUpperCase() === 'AUDIO_SEEK' && e.metadata && e.metadata.seekDuration < 0) ||
+        (e.eventType && e.eventType.toUpperCase() === 'AUDIO_REPLAY')
+    );
 
     // Calculate average playback speed
     const avgSpeed = speedEvents.length > 0
@@ -78,10 +86,11 @@ function calculateBehaviorMetrics(events) {
     return {
         pauseFrequency: pauseEvents.length / timeWindowMinutes,
         pauseCount: pauseEvents.length,
-        replayCount: replayEvents.length,
+        replayCount: backwardSeekEvents.length,
+        forwardSeekCount: forwardSeekEvents.length,
         avgSpeed,
         idleTime: totalIdleTime,
-        navigationReversals: navReversals.length || replayEvents.length, // Use replays as proxy if explicit events missing
+        navigationReversals: navReversals.length, // Removed proxying
         totalEvents,
         timeWindowMinutes
     };
@@ -101,7 +110,10 @@ function detectBehavioralPatterns(metrics, events) {
 
     // PATTERN 1: Confusion
     // Indicators: Navigation reversals + replay events
+    // Required 3 replays if no explicit reversal
     if (metrics.navigationReversals >= 1 && metrics.replayCount >= 1) {
+        patterns.push('confusion');
+    } else if (metrics.replayCount >= 3) {
         patterns.push('confusion');
     }
 
@@ -119,13 +131,14 @@ function detectBehavioralPatterns(metrics, events) {
 
     // PATTERN 4: Navigation Difficulty
     // Indicators: Multiple navigation reversals
-    if (metrics.navigationReversals >= 3) {
+    if (metrics.navigationReversals >= 3 || metrics.replayCount >= 4) {
         patterns.push('navigation_difficulty');
     }
 
     // PATTERN 5: Engagement (positive pattern)
-    // Indicators: Low pauses, normal speed, few reversals
-    if (metrics.pauseFrequency < 1 && metrics.avgSpeed >= 0.9 && metrics.navigationReversals === 0) {
+    // Indicators: Low pauses, normal speed, few reversals, OR active forward seeking
+    if ((metrics.pauseFrequency < 1 && metrics.avgSpeed >= 0.9 && metrics.navigationReversals === 0) ||
+        metrics.forwardSeekCount >= 2) {
         patterns.push('engagement');
     }
 
@@ -137,7 +150,8 @@ function detectBehavioralPatterns(metrics, events) {
 
     // PATTERN 7: Repetition Spike
     // Indicators: Multiple rapid replays/rewinds
-    if (metrics.replayCount >= 2) {
+    // Increased threshold from 2 to 3
+    if (metrics.replayCount >= 3) {
         patterns.push('repetition_spike');
     }
 

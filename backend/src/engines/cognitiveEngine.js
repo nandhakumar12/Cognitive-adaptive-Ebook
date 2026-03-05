@@ -62,10 +62,17 @@ function calculateBehaviorMetrics(events) {
     const timeWindowMinutes = timeWindow / 60000 || 1;
 
     const pauseEvents = events.filter(e => e.eventType === 'AUDIO_PAUSE');
-    const replayEvents = events.filter(e => e.eventType === 'AUDIO_REPLAY');
-    const speedEvents = events.filter(e => e.eventType === 'AUDIO_SPEED_CHANGE');
     const navReversals = events.filter(e => e.eventType === 'NAVIGATION_REVERSAL');
     const idleEvents = events.filter(e => e.eventType === 'USER_IDLE');
+
+    // Explicitly identify forward vs backward seek events
+    const forwardSeekEvents = events.filter(e =>
+        e.eventType === 'AUDIO_SEEK' && e.metadata && e.metadata.seekDuration > 0
+    );
+    const backwardSeekEvents = events.filter(e =>
+        (e.eventType === 'AUDIO_SEEK' && e.metadata && e.metadata.seekDuration < 0) ||
+        (e.eventType === 'AUDIO_REPLAY')
+    );
 
     // Calculate average playback speed
     const avgSpeed = speedEvents.length > 0
@@ -78,10 +85,11 @@ function calculateBehaviorMetrics(events) {
     return {
         pauseFrequency: pauseEvents.length / timeWindowMinutes,
         pauseCount: pauseEvents.length,
-        replayCount: replayEvents.length,
+        replayCount: backwardSeekEvents.length, // Only count backward actions as replays
+        forwardSeekCount: forwardSeekEvents.length,
         avgSpeed,
         idleTime: totalIdleTime,
-        navigationReversals: navReversals.length,
+        navigationReversals: navReversals.length, // Stop using replayCount as proxy
         totalEvents,
         timeWindowMinutes
     };
@@ -101,31 +109,35 @@ function detectBehavioralPatterns(metrics, events) {
 
     // PATTERN 1: Confusion
     // Indicators: Navigation reversals + replay events
+    // Increased threshold: need multiple replays if no explicit reversal
     if (metrics.navigationReversals >= 1 && metrics.replayCount >= 1) {
+        patterns.push('confusion');
+    } else if (metrics.replayCount >= 3) {
         patterns.push('confusion');
     }
 
     // PATTERN 2: Cognitive Overload
     // Indicators: High pause frequency + slow speed
-    if (metrics.pauseFrequency > 2 || (metrics.pauseFrequency > 1 && metrics.avgSpeed < 0.9)) {
+    if (metrics.pauseFrequency > 3 || (metrics.pauseFrequency > 2 && metrics.avgSpeed < 0.9)) {
         patterns.push('overload');
     }
 
     // PATTERN 3: Fatigue
     // Indicators: Increasing idle periods + speed reduction over time
-    if (metrics.idleTime > 20000 && metrics.avgSpeed < 0.9) { // 20 seconds idle
+    if (metrics.idleTime > 30000 && metrics.avgSpeed < 0.9) {
         patterns.push('fatigue');
     }
 
     // PATTERN 4: Navigation Difficulty
     // Indicators: Multiple navigation reversals
-    if (metrics.navigationReversals >= 2) {
+    if (metrics.navigationReversals >= 2 || metrics.replayCount >= 4) {
         patterns.push('navigation_difficulty');
     }
 
     // PATTERN 5: Engagement (positive pattern)
-    // Indicators: Low pauses, normal speed, few reversals
-    if (metrics.pauseFrequency < 1 && metrics.avgSpeed >= 0.9 && metrics.navigationReversals === 0) {
+    // Indicators: Low pauses, normal speed, few reversals, OR active forward seeking
+    if ((metrics.pauseFrequency < 1 && metrics.avgSpeed >= 0.9 && metrics.navigationReversals === 0) ||
+        metrics.forwardSeekCount >= 2) {
         patterns.push('engagement');
     }
 

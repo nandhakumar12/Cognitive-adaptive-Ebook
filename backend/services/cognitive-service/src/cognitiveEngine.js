@@ -223,9 +223,6 @@ export function recommendAdaptations(cognitiveState) {
         if (cognitiveState.patterns.includes('overload')) {
             recommendations.push('SLOW_NARRATION');
         }
-        if (cognitiveState.patterns.includes('confusion')) {
-            recommendations.push('AUTO_REPEAT');
-        }
     }
 
     // Medium cognitive load -> Baseline + Targeted
@@ -234,9 +231,6 @@ export function recommendAdaptations(cognitiveState) {
 
         if (cognitiveState.patterns.includes('fatigue')) {
             recommendations.push('SLOW_NARRATION');
-        }
-        if (cognitiveState.patterns.includes('confusion')) {
-            recommendations.push('AUTO_REPEAT');
         }
     }
 

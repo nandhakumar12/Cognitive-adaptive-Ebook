@@ -204,18 +204,12 @@ export function recommendAdaptations(cognitiveState) {
             recommendations.push('SMART_PAUSE');
             recommendations.push('SLOW_NARRATION');
         }
-        if (cognitiveState.patterns.includes('confusion')) {
-            recommendations.push('AUTO_REPEAT');
-        }
     }
 
     // Medium cognitive load -> Targeted adaptations
     if (cognitiveState.cognitiveLoad === 'medium') {
         if (cognitiveState.patterns.includes('fatigue')) {
             recommendations.push('SLOW_NARRATION');
-        }
-        if (cognitiveState.patterns.includes('confusion')) {
-            recommendations.push('AUTO_REPEAT');
         }
     }
 

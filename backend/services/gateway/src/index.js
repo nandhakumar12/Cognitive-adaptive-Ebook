@@ -94,6 +94,13 @@ app.get('/api/adaptations/:sessionId', (req, res, next) => {
     })(req, res, next);
 });
 
+// Books CRUD
+app.use('/api/books', createProxyMiddleware({
+    target: DATA_SERVICE_URL,
+    changeOrigin: true,
+    pathRewrite: { '^/api/books': '/books' }
+}));
+
 // Fallback 404
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found at Gateway', path: req.path });

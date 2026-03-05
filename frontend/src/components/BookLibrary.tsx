@@ -11,7 +11,7 @@
 import React, { useState, useEffect } from 'react';
 import { BookCard } from './BookCard';
 import type { Audiobook } from '../types/audiobook';
-import audiobooksData from '../data/audiobooks.json';
+import { getAllBooks, createBook, updateBook, deleteBook } from '../services/apiClient';
 import './BookLibrary.css';
 
 interface BookLibraryProps {
@@ -23,6 +23,8 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
     const [audiobooks, setAudiobooks] = useState<Audiobook[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [filteredBooks, setFilteredBooks] = useState<Audiobook[]>([]);
+    const [isEditing, setIsEditing] = useState(false);
+    const [currentBook, setCurrentBook] = useState<Partial<Audiobook> | null>(null);
 
     // Simulated user progress (in a real app, fetch from backend)
     const [userProgress] = useState<{ [key: string]: number }>({
@@ -31,10 +33,18 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
         'book-3': 78
     });
 
+    const loadBooks = async () => {
+        try {
+            const data = await getAllBooks();
+            setAudiobooks(data);
+            setFilteredBooks(data);
+        } catch (err) {
+            console.error('Failed to load books:', err);
+        }
+    };
+
     useEffect(() => {
-        // Load audiobooks from JSON
-        setAudiobooks(audiobooksData.books as Audiobook[]);
-        setFilteredBooks(audiobooksData.books as Audiobook[]);
+        loadBooks();
     }, []);
 
     useEffect(() => {
@@ -56,6 +66,35 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
         .filter(book => userProgress[book.id] > 0)
         .sort((a, b) => userProgress[b.id] - userProgress[a.id])
         .slice(0, 3);
+
+    const handleSaveBook = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!currentBook) return;
+
+        try {
+            if (currentBook.id) {
+                await updateBook(currentBook.id, currentBook);
+            } else {
+                const newId = `book-${Date.now()}`;
+                await createBook({ ...currentBook, id: newId });
+            }
+            setIsEditing(false);
+            setCurrentBook(null);
+            loadBooks();
+        } catch (err) {
+            alert('Failed to save book');
+        }
+    };
+
+    const handleDeleteBook = async (id: string) => {
+        if (!window.confirm('Are you sure you want to delete this book?')) return;
+        try {
+            await deleteBook(id);
+            loadBooks();
+        } catch (err) {
+            alert('Failed to delete book');
+        }
+    };
 
     return (
         <div className="book-library" role="main">
@@ -83,10 +122,64 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
                     </div>
                 </div>
 
-                <button className="btn btn-secondary library-btn" onClick={() => setSearchQuery('')}>
-                    ↻ Refresh Library
+                <button className="btn btn-primary library-btn" onClick={() => { setCurrentBook({}); setIsEditing(true); }}>
+                    ➕ Add Book
+                </button>
+                <button className="btn btn-secondary library-btn" onClick={loadBooks}>
+                    ↻ Refresh
                 </button>
             </header>
+
+            {/* Edit/Add Modal */}
+            {isEditing && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>{currentBook?.id ? 'Edit Book' : 'Add New Book'}</h2>
+                        <form onSubmit={handleSaveBook}>
+                            <div className="form-group">
+                                <label>Title</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={currentBook?.title || ''}
+                                    onChange={e => setCurrentBook({ ...currentBook, title: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Author</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={currentBook?.author || ''}
+                                    onChange={e => setCurrentBook({ ...currentBook, author: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Cover URL (S3)</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={currentBook?.coverUrl || ''}
+                                    onChange={e => setCurrentBook({ ...currentBook, coverUrl: e.target.value })}
+                                />
+                            </div>
+                            <div className="form-group">
+                                <label>Audio URL (S3)</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={currentBook?.audioUrl || ''}
+                                    onChange={e => setCurrentBook({ ...currentBook, audioUrl: e.target.value })}
+                                />
+                            </div>
+                            <div className="modal-actions">
+                                <button type="submit" className="btn btn-primary">Save</button>
+                                <button type="button" className="btn btn-secondary" onClick={() => setIsEditing(false)}>Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
 
             {/* Continue Listening Section */}
             {continueListeningBooks.length > 0 && (
@@ -138,6 +231,8 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
                                 book={book}
                                 progress={userProgress[book.id]}
                                 onPlay={onSelectBook}
+                                onEdit={(book) => { setCurrentBook(book); setIsEditing(true); }}
+                                onDelete={handleDeleteBook}
                                 showProgress={!!userProgress[book.id]}
                             />
                         ))}

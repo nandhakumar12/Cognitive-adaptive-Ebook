@@ -11,7 +11,11 @@ import {
     updateSessionContext,
     getAllSessions,
     saveUserProgress,
-    getUserProgress
+    getUserProgress,
+    getAllBooks,
+    getBookById,
+    createOrUpdateBook,
+    deleteBook
 } from './dataStore.js';
 
 const app = express();

@@ -3,8 +3,7 @@
  * 
  * Implements the 5 adaptation strategies:
  * 1. Slow Narration - Reduce playback speed
- * 2. Auto-Repeat - Replay recent segments
- * 3. Smart Pause - Auto-pause with cue
+ * 2. Smart Pause - Auto-pause with cue
  * 
  * All adaptations occur WITHOUT user commands (key research innovation)
  */
@@ -30,9 +29,6 @@ export function recommendAdaptations(cognitiveState) {
         if (cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle')) {
             recommendations.push('SMART_PAUSE');
         }
-        if (cognitiveState.patterns.includes('confusion') || cognitiveState.patterns.includes('repetition_spike')) {
-            recommendations.push('AUTO_REPEAT');
-        }
     }
 
     // Medium cognitive load -> Targeted Patterns
@@ -41,9 +37,6 @@ export function recommendAdaptations(cognitiveState) {
         // Trigger SLOW_NARRATION if pausing frequently or showing fatigue
         if (pauseCount >= 3 || cognitiveState.patterns.includes('fatigue')) {
             recommendations.push('SLOW_NARRATION');
-        }
-        if (cognitiveState.patterns.includes('confusion')) {
-            recommendations.push('AUTO_REPEAT');
         }
     }
 
@@ -93,20 +86,6 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
             triggeredBy
         },
 
-        AUTO_REPEAT: {
-            adaptationId,
-            sessionId,
-            strategy: 'AUTO_REPEAT',
-            timestamp,
-            reason: 'Confusion detected - replaying recent content slowly for reinforcement',
-            parameters: {
-                replayDuration: 20, // 20 seconds
-                temporarySlowdown: true,
-                targetSpeed: 0.75,
-                resumeMessage: 'Let\'s review that part at a slower pace...'
-            },
-            triggeredBy
-        },
 
         SMART_PAUSE: {
             adaptationId,

@@ -124,56 +124,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                     showAlert(`Slowing narration to ${Math.round(targetSpeed * 100)}% for better comprehension`, "SLOW_NARRATION");
                     break;
 
-                case 'AUTO_REPEAT':
-                    const replayDuration = adaptation.parameters.replayDuration || 20;
-                    const resumeMessage = adaptation.parameters.resumeMessage || "Let's review that part at a slower pace...";
-                    const targetSpeedReinforcement = adaptation.parameters.targetSpeed || 0.75;
-
-                    showAlert(resumeMessage, "AUTO_REPEAT", 2000);
-
-                    if (audioRef.current) {
-                        // 1. Pause briefly (2s)
-                        const wasPlaying = !audioRef.current.paused;
-                        if (wasPlaying) {
-                            audioRef.current.pause();
-                            setIsPlaying(false);
-                        }
-
-                        if (reinforcementTimeoutRef.current) clearTimeout(reinforcementTimeoutRef.current);
-
-                        reinforcementTimeoutRef.current = setTimeout(() => {
-                            if (audioRef.current) {
-                                // 2. Jump back
-                                const newTime = Math.max(0, audioRef.current.currentTime - replayDuration);
-                                audioRef.current.currentTime = newTime;
-
-                                // 3. Set temporary slower speed
-                                if (adaptation.parameters.temporarySlowdown) {
-                                    audioRef.current.playbackRate = targetSpeedReinforcement;
-                                    setPlaybackSpeed(targetSpeedReinforcement);
-
-                                    // 4. Set restoration timeout
-                                    setTimeout(() => {
-                                        if (audioRef.current && audioRef.current.playbackRate === targetSpeedReinforcement) {
-                                            console.log('[ADAPTATION] Restoring normal speed after reinforcement');
-                                            audioRef.current.playbackRate = 1.0;
-                                            setPlaybackSpeed(1.0);
-                                        }
-                                    }, replayDuration * 1000 / targetSpeedReinforcement); // Adjusted for playback speed
-                                }
-
-                                // 5. Resume playback
-                                audioRef.current.play().then(() => {
-                                    setIsPlaying(true);
-                                    announce('Replaying segment at slower speed for reinforcement');
-                                }).catch(err => {
-                                    console.warn('[SYSTEM] Replay resume failed:', err);
-                                });
-                            }
-                        }, 2000);
-                    }
-                    seenAdaptationIds.current.add(adaptation.adaptationId);
-                    break;
 
                 case 'SMART_PAUSE':
                     if (isSmartPaused.current) {

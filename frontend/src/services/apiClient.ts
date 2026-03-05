@@ -70,3 +70,47 @@ export async function getEventHistory(sessionId: string, limit: number = 50) {
         return [];
     }
 }
+
+/**
+ * --- Books CRUD ---
+ */
+
+export const getAllBooks = async () => {
+    try {
+        const response = await axios.get(`${API_BASE_URL}/api/books`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching books:', error);
+        return [];
+    }
+};
+
+export const createBook = async (book: any) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/books`, book);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating book:', error);
+        throw error;
+    }
+};
+
+export const updateBook = async (id: string, book: any) => {
+    try {
+        const response = await axios.post(`${API_BASE_URL}/api/books`, { ...book, id });
+        return response.data;
+    } catch (error) {
+        console.error('Error updating book:', error);
+        throw error;
+    }
+};
+
+export const deleteBook = async (id: string) => {
+    try {
+        const response = await axios.delete(`${API_BASE_URL}/api/books/${id}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting book:', error);
+        throw error;
+    }
+};

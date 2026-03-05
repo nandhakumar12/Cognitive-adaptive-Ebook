@@ -13,6 +13,8 @@ interface BookCardProps {
     book: Audiobook;
     progress?: number; // 0-100
     onPlay: (bookId: string) => void;
+    onEdit?: (book: Audiobook) => void;
+    onDelete?: (bookId: string) => void;
     showProgress?: boolean;
 }
 
@@ -20,6 +22,8 @@ export const BookCard: React.FC<BookCardProps> = ({
     book,
     progress = 0,
     onPlay,
+    onEdit,
+    onDelete,
     showProgress = false
 }) => {
     const handleClick = () => {
@@ -56,6 +60,7 @@ export const BookCard: React.FC<BookCardProps> = ({
                         {showProgress ? '▶️ Resume' : '▶️ Play'}
                     </button>
                 </div>
+
                 {showProgress && progress > 0 && (
                     <div className="book-card-progress-wrapper">
                         <div className="book-card-progress-bar">
@@ -64,6 +69,30 @@ export const BookCard: React.FC<BookCardProps> = ({
                                 style={{ width: `${progress}%` }}
                             />
                         </div>
+                    </div>
+                )}
+
+                {/* Management Controls */}
+                {(onEdit || onDelete) && (
+                    <div className="book-card-mgmt-controls" onClick={e => e.stopPropagation()}>
+                        {onEdit && (
+                            <button
+                                className="mgmt-btn edit-btn"
+                                onClick={() => onEdit(book)}
+                                title="Edit Book"
+                            >
+                                ✏️
+                            </button>
+                        )}
+                        {onDelete && (
+                            <button
+                                className="mgmt-btn delete-btn"
+                                onClick={() => onDelete(book.id)}
+                                title="Delete Book"
+                            >
+                                🗑️
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
@@ -75,11 +104,11 @@ export const BookCard: React.FC<BookCardProps> = ({
                 <div className="book-card-meta">
                     <div className="book-card-rating">
                         <span className="rating-stars" aria-label={`${book.rating} out of 5 stars`}>
-                            {'⭐'.repeat(Math.round(book.rating))}
+                            {'⭐'.repeat(Math.round(book.rating || 0))}
                         </span>
-                        <span className="rating-number">{book.rating}</span>
+                        <span className="rating-number">{book.rating || 0}</span>
                     </div>
-                    <span className="book-card-duration">{book.duration}</span>
+                    <span className="book-card-duration">{book.duration || 'N/A'}</span>
                 </div>
             </div>
         </div>

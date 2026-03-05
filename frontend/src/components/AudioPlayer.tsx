@@ -33,7 +33,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
     const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
     const [announcement, setAnnouncement] = useState('');
     const [activeAlert, setActiveAlert] = useState<{ message: string; strategy: string } | null>(null);
-    const [isSimplified, setIsSimplified] = useState(false);
     const [pendingAdaptation, setPendingAdaptation] = useState<AdaptationDecision | null>(null);
     const idleTimerRef = useRef<number | null>(null);
     const seenAdaptationIds = useRef<Set<string>>(new Set());
@@ -125,44 +124,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                             }
                         }, pauseDuration);
                     }
-                    break;
-
-                case 'SUMMARY_INJECTION':
-                    const summaryDuration = adaptation.parameters.duration || 10000;
-                    showAlert(adaptation.parameters.summaryText || 'Section summary available', "SUMMARY_INJECTION", summaryDuration);
-
-                    if (audioRef.current) {
-                        const wasPlayingSummary = !audioRef.current.paused;
-
-                        // Seek to start if requested ("start from first")
-                        if (adaptation.parameters.seekToStart) {
-                            audioRef.current.currentTime = 0;
-                            setCurrentTime(0);
-                        }
-
-                        if (wasPlayingSummary) {
-                            audioRef.current.pause();
-                            setIsPlaying(false);
-
-                            // Auto-resume after summary duration
-                            setTimeout(() => {
-                                if (audioRef.current) {
-                                    audioRef.current.play().then(() => {
-                                        setIsPlaying(true);
-                                        announce('Resuming audio after recap');
-                                    }).catch(err => {
-                                        console.warn('[SYSTEM] Summary resume failed:', err);
-                                    });
-                                }
-                            }, summaryDuration);
-                        }
-                    }
-                    break;
-
-                case 'SIMPLIFY_INTERACTION':
-                    setIsSimplified(true);
-                    showAlert("Enabling Simplified Mode to reduce cognitive load", "SIMPLIFY_INTERACTION");
-                    setTimeout(() => setIsSimplified(false), adaptation.parameters.duration || 60000);
                     break;
             }
         });
@@ -465,15 +426,13 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
             </div>
 
             <div className="player-controls">
-                {!isSimplified && (
-                    <button
-                        onClick={() => handleSeek(-10)}
-                        aria-label="Rewind 10 seconds"
-                        className="control-btn"
-                    >
-                        ⏪ -10s
-                    </button>
-                )}
+                <button
+                    onClick={() => handleSeek(-10)}
+                    aria-label="Rewind 10 seconds"
+                    className="control-btn"
+                >
+                    ⏪ -10s
+                </button>
 
                 <button
                     onClick={handlePlayPause}
@@ -483,47 +442,43 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc, sectionId, s
                     {isPlaying ? '⏸️ Pause' : '▶️ Play'}
                 </button>
 
-                {!isSimplified && (
-                    <button
-                        onClick={() => handleSeek(10)}
-                        aria-label="Skip forward 10 seconds"
-                        className="control-btn"
-                    >
-                        ⏩ +10s
-                    </button>
-                )}
+                <button
+                    onClick={() => handleSeek(10)}
+                    aria-label="Skip forward 10 seconds"
+                    className="control-btn"
+                >
+                    ⏩ +10s
+                </button>
             </div>
 
-            {!isSimplified && (
-                <div className="speed-controls">
-                    <label htmlFor="speed-select">Playback Speed:</label>
-                    <select
-                        id="speed-select"
-                        value={playbackSpeed}
-                        onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
-                        aria-label="Select playback speed"
-                    >
-                        {/* Standard Presets */}
-                        <option value="0.5">0.5x (Slow)</option>
-                        <option value="0.75">0.75x</option>
-                        <option value="1.0">1.0x (Normal)</option>
-                        <option value="1.25">1.25x</option>
-                        <option value="1.5">1.5x (Fast)</option>
-                        <option value="2.0">2.0x (Very Fast)</option>
+            <div className="speed-controls">
+                <label htmlFor="speed-select">Playback Speed:</label>
+                <select
+                    id="speed-select"
+                    value={playbackSpeed}
+                    onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
+                    aria-label="Select playback speed"
+                >
+                    {/* Standard Presets */}
+                    <option value="0.5">0.5x (Slow)</option>
+                    <option value="0.75">0.75x</option>
+                    <option value="1.0">1.0x (Normal)</option>
+                    <option value="1.25">1.25x</option>
+                    <option value="1.5">1.5x (Fast)</option>
+                    <option value="2.0">2.0x (Very Fast)</option>
 
-                        {/*
-                              DYNAMIC ADAPTATION OPTION
-                              If the current speed isn't a preset (e.g. 0.56x), add it here
-                              so the dropdown shows the correct selected state.
+                    {/*
+                                DYNAMIC ADAPTATION OPTION
+                                If the current speed isn't a preset (e.g. 0.56x), add it here
+                                so the dropdown shows the correct selected state.
                             */}
-                        {![0.5, 0.75, 1.0, 1.25, 1.5, 2.0].includes(playbackSpeed) && (
-                            <option value={playbackSpeed}>
-                                {playbackSpeed.toFixed(2)}x (Adaptive)
-                            </option>
-                        )}
-                    </select>
-                </div>
-            )}
+                    {![0.5, 0.75, 1.0, 1.25, 1.5, 2.0].includes(playbackSpeed) && (
+                        <option value={playbackSpeed}>
+                            {playbackSpeed.toFixed(2)}x (Adaptive)
+                        </option>
+                    )}
+                </select>
+            </div>
 
             <div className="keyboard-hints" aria-label="Keyboard shortcuts">
                 <p>Keyboard shortcuts: Space/K = Play/Pause • ← = -10s • → = +10s • ↑↓ = Speed</p>

@@ -194,7 +194,6 @@ export function recommendAdaptations(cognitiveState) {
         }
         if (cognitiveState.patterns.includes('confusion')) {
             recommendations.push('AUTO_REPEAT');
-            recommendations.push('SUMMARY_INJECTION');
         }
     }
 
@@ -205,9 +204,6 @@ export function recommendAdaptations(cognitiveState) {
         }
         if (cognitiveState.patterns.includes('confusion')) {
             recommendations.push('AUTO_REPEAT');
-        }
-        if (cognitiveState.patterns.includes('navigation_difficulty')) {
-            recommendations.push('SIMPLIFY_INTERACTION');
         }
     }
 

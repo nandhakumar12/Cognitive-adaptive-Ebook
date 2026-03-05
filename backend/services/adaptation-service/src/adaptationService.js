@@ -5,8 +5,6 @@
  * 1. Slow Narration - Reduce playback speed
  * 2. Auto-Repeat - Replay recent segments
  * 3. Smart Pause - Auto-pause with cue
- * 4. Summary Injection - Provide recaps
- * 5. Simplify Interaction - Reduce control complexity
  * 
  * All adaptations occur WITHOUT user commands (key research innovation)
  */
@@ -34,7 +32,6 @@ export function recommendAdaptations(cognitiveState) {
         }
         if (cognitiveState.patterns.includes('confusion') || cognitiveState.patterns.includes('repetition_spike')) {
             recommendations.push('AUTO_REPEAT');
-            recommendations.push('SUMMARY_INJECTION');
         }
     }
 
@@ -47,10 +44,6 @@ export function recommendAdaptations(cognitiveState) {
         }
         if (cognitiveState.patterns.includes('confusion')) {
             recommendations.push('AUTO_REPEAT');
-        }
-        if (cognitiveState.patterns.includes('navigation_difficulty') || cognitiveState.patterns.includes('repetition_spike')) {
-            recommendations.push('SIMPLIFY_INTERACTION');
-            recommendations.push('SUMMARY_INJECTION');
         }
     }
 
@@ -126,37 +119,6 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
                 resumeMessage: 'Resuming audio in 3 seconds...'
             },
             triggeredBy
-        },
-
-        SUMMARY_INJECTION: {
-            adaptationId,
-            sessionId,
-            strategy: 'SUMMARY_INJECTION',
-            timestamp,
-            reason: triggeredBy.includes('repetition_spike')
-                ? 'Multiple rewinds detected - providing section summary for clarity'
-                : 'Disorientation detected - providing section summary',
-            parameters: {
-                summaryText: generateSummary(context.currentSection),
-                insertBefore: true,
-                seekToStart: false, // Resume from current point as requested
-                duration: 10000
-            },
-            triggeredBy
-        },
-
-        SIMPLIFY_INTERACTION: {
-            adaptationId,
-            sessionId,
-            strategy: 'SIMPLIFY_INTERACTION',
-            timestamp,
-            reason: 'High cognitive load - reducing interface complexity',
-            parameters: {
-                hideControls: ['skip', 'rewind', 'chapters'], // Hide non-essential controls
-                showEssentialOnly: ['play', 'pause'],
-                duration: 120000 // Apply for 2 minutes
-            },
-            triggeredBy
         }
     };
 
@@ -199,20 +161,6 @@ export function executeAdaptations(cognitiveState, strategies, context) {
     return adaptations;
 }
 
-/**
- * Generate contextual summary for current section
- * (In production, this would use actual content analysis or pre-generated summaries)
- */
-function generateSummary(sectionId) {
-    const summaries = {
-        'intro': 'Recap: In this section, we set the scene and introduce the key themes of the book. You might want to pay attention to the narrator\'s tone.',
-        'chapter-1': 'Recap: We meet Nick Carraway as he moves to West Egg and visits his cousin Daisy. The mysterious Jay Gatsby is mentioned for the first time.',
-        'chapter-2': 'Recap: Nick travels to the Valley of Ashes with Tom Buchanan and meets Tom\'s mistress, Myrtle Wilson, at a chaotic party in New York.',
-        'default': 'Recap: You\'ve listened to most of this section. We\'re restarting it now to help you catch the details you might have missed during the rewinds.'
-    };
-
-    return summaries[sectionId] || summaries.default;
-}
 
 /**
  * Check if an adaptation should be applied based on recent history

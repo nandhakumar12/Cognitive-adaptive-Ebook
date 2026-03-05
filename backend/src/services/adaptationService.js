@@ -5,8 +5,6 @@
  * 1. Slow Narration - Reduce playback speed
  * 2. Auto-Repeat - Replay recent segments
  * 3. Smart Pause - Auto-pause with cue
- * 4. Summary Injection - Provide recaps
- * 5. Simplify Interaction - Reduce control complexity
  * 
  * All adaptations occur WITHOUT user commands (key research innovation)
  */
@@ -79,34 +77,6 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
                 resumeMessage: 'Resuming audio in 3 seconds...'
             },
             triggeredBy
-        },
-
-        SUMMARY_INJECTION: {
-            adaptationId,
-            sessionId,
-            strategy: 'SUMMARY_INJECTION',
-            timestamp,
-            reason: 'Disorientation detected - providing section summary',
-            parameters: {
-                summaryText: generateSummary(context.currentSection),
-                insertBefore: true, // Insert before continuing
-                summaryDuration: 5000 // 5 seconds for summary (TESTING)
-            },
-            triggeredBy
-        },
-
-        SIMPLIFY_INTERACTION: {
-            adaptationId,
-            sessionId,
-            strategy: 'SIMPLIFY_INTERACTION',
-            timestamp,
-            reason: 'High cognitive load - reducing interface complexity',
-            parameters: {
-                hideControls: ['skip', 'rewind', 'chapters'], // Hide non-essential controls
-                showEssentialOnly: ['play', 'pause'],
-                duration: 10000 // Apply for 10 seconds (TESTING)
-            },
-            triggeredBy
         }
     };
 
@@ -145,21 +115,6 @@ export function executeAdaptations(cognitiveState, strategies, context) {
     return adaptations;
 }
 
-/**
- * Generate contextual summary for current section
- * (In production, this would use actual content analysis or pre-generated summaries)
- */
-function generateSummary(sectionId) {
-    // Placeholder - in real system, fetch from content database
-    const summaries = {
-        'chapter-1': 'Summary: This chapter introduced the main character and setting.',
-        'chapter-2': 'Summary: The conflict was established and key relationships formed.',
-        'chapter-3': 'Summary: The protagonist faced their first major challenge.',
-        'default': 'Summary: Let\'s recap what we\'ve covered so far in this section.'
-    };
-
-    return summaries[sectionId] || summaries.default;
-}
 
 /**
  * Check if an adaptation should be applied based on recent history

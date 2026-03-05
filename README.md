@@ -12,7 +12,7 @@ This system implements a **closed-loop cognitive feedback system** that:
 1. **Observes** behavioral interaction patterns (pauses, replays, speed changes)
 2. **Analyzes** patterns using cognitive inference engine
 3. **Infers** cognitive load states (low/medium/high) - NON-MEDICAL
-4. **Adapts** audio delivery automatically (speed, replay, pause, summary)
+4. **Adapts** audio delivery automatically (speed, replay, pause)
 5. **Loops** continuously without explicit user commands
 
 **Key Innovation**: Adaptations occur *automatically* based on behavioral patterns, requiring zero user configuration.
@@ -128,15 +128,13 @@ Based on detected patterns, the system infers:
 
 **IMPORTANT**: These are *behavioral* states for accessibility research, NOT medical diagnoses.
 
-### 4. Adaptation Strategies (5 Implemented)
+### 4. Adaptation Strategies (3 Implemented)
 
 | Strategy | Trigger | Action |
 |----------|---------|--------|
 | **Slow Narration** | High cognitive load | Reduce playback speed by 25% |
 | **Auto-Repeat** | Confusion detected | Replay last 30 seconds automatically |
 | **Smart Pause** | Cognitive overload | Auto-pause with gentle audio cue |
-| **Summary Injection** | Disorientation | Provide brief content recap |
-| **Simplify Interaction** | High load | Hide non-essential controls |
 
 **Cooldown Logic**: Prevents over-adaptation by limiting frequency (max 3 adaptations per minute).
 
@@ -336,7 +334,7 @@ npm test
 3. Start playing audio
 4. Simulate confusion: Pause frequently, replay multiple times
 5. Observe research dashboard showing cognitive load increase
-6. Observe automatic adaptations (speed reduction, auto-repeat)
+6. Observe automatic adaptations (speed reduction)
 
 ---
 

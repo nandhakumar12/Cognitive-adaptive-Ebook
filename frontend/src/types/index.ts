@@ -38,9 +38,7 @@ export type BehavioralPattern =
 export type AdaptationStrategy =
     | 'SLOW_NARRATION'
     | 'AUTO_REPEAT'
-    | 'SMART_PAUSE'
-    | 'SUMMARY_INJECTION'
-    | 'SIMPLIFY_INTERACTION';
+    | 'SMART_PAUSE';
 
 /**
  * Behavioral Event Schema

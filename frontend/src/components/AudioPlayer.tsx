@@ -63,6 +63,10 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             console.log(`[AUDIO] Section changed from ${currentSectionIdRef.current} to ${sectionId}. Clearing adaptation cache.`);
             seenAdaptationIds.current.clear();
             hasPromptedSpeedReduction.current = false;
+            setPlaybackSpeed(1.0); // Reset speed to fresh state for new chapter
+            if (audioRef.current) {
+                audioRef.current.playbackRate = 1.0;
+            }
             isSmartPaused.current = false;
             if (smartPauseTimeoutRef.current) clearTimeout(smartPauseTimeoutRef.current);
             currentSectionIdRef.current = sectionId;

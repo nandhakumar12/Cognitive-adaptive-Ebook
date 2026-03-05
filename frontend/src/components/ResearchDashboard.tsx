@@ -10,7 +10,7 @@
  * FOR RESEARCH DEMONSTRATION ONLY - Not for end users
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { eventEmitter } from '../services/EventEmitter';
 import { getCognitiveState, getAdaptationHistory, getEventHistory } from '../services/apiClient';
 import type { CognitiveState, AdaptationDecision, BehavioralEvent } from '../types';
@@ -19,7 +19,7 @@ export const ResearchDashboard: React.FC = () => {
     const [cognitiveState, setCognitiveState] = useState<CognitiveState | null>(null);
     const [adaptations, setAdaptations] = useState<AdaptationDecision[]>([]);
     const [events, setEvents] = useState<BehavioralEvent[]>([]);
-    const [currentSessionId, setCurrentSessionId] = useState<string>(eventEmitter.getSessionId());
+    const currentSessionIdRef = useRef<string>(eventEmitter.getSessionId());
 
     useEffect(() => {
         const interval = setInterval(async () => {
@@ -32,12 +32,12 @@ export const ResearchDashboard: React.FC = () => {
                     getEventHistory(sessionId, 20)
                 ]);
 
-                if (sessionId !== currentSessionId) {
-                    console.log(`[DASHBOARD] Session changed from ${currentSessionId} to ${sessionId}. Resetting local state.`);
+                if (sessionId !== currentSessionIdRef.current) {
+                    console.log(`[DASHBOARD] Session changed from ${currentSessionIdRef.current} to ${sessionId}. Resetting local state.`);
                     setCognitiveState(null);
                     setAdaptations([]);
                     setEvents([]);
-                    setCurrentSessionId(sessionId);
+                    currentSessionIdRef.current = sessionId;
                     return;
                 }
 

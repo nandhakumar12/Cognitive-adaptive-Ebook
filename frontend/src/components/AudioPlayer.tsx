@@ -24,6 +24,7 @@ interface AudioPlayerProps {
     onSeekToTime?: number; // Time in seconds to seek to
     onNextChapter?: () => void;
     onPreviousChapter?: () => void;
+    onDurationChange?: (duration: number) => void;
 }
 
 export const AudioPlayer: React.FC<AudioPlayerProps> = ({
@@ -32,7 +33,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     sectionTitle,
     onSeekToTime,
     onNextChapter,
-    onPreviousChapter
+    onPreviousChapter,
+    onDurationChange
 }) => {
     const audioRef = useRef<HTMLAudioElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -46,6 +48,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const idleTimerRef = useRef<number | null>(null);
     const seenAdaptationIds = useRef<Set<string>>(new Set());
     const hasPromptedSpeedReduction = useRef<boolean>(false);
+    const isSmartPaused = useRef<boolean>(false);
+    const smartPauseTimeoutRef = useRef<any>(null);
     const currentSectionIdRef = useRef<string>(sectionId);
 
     /**
@@ -59,6 +63,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             console.log(`[AUDIO] Section changed from ${currentSectionIdRef.current} to ${sectionId}. Clearing adaptation cache.`);
             seenAdaptationIds.current.clear();
             hasPromptedSpeedReduction.current = false;
+            isSmartPaused.current = false;
+            if (smartPauseTimeoutRef.current) clearTimeout(smartPauseTimeoutRef.current);
             currentSectionIdRef.current = sectionId;
         }
     }, [sectionId]);
@@ -121,19 +127,29 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                     break;
 
                 case 'SMART_PAUSE':
+                    if (isSmartPaused.current) {
+                        console.log('[ADAPTATION] Skipping SMART_PAUSE - already paused');
+                        seenAdaptationIds.current.add(adaptation.adaptationId);
+                        return;
+                    }
+
                     const pauseDuration = adaptation.parameters.pauseDuration || 3000;
                     showAlert(adaptation.parameters.resumeMessage || 'Pausing for processing', "SMART_PAUSE", pauseDuration);
 
                     if (audioRef.current) {
+                        isSmartPaused.current = true;
+
                         // Pause if playing
                         if (!audioRef.current.paused) {
                             audioRef.current.pause();
                             setIsPlaying(false);
                         }
 
-                        // ALWAYS auto-resume after pause duration, even if manually paused
-                        // This fulfills the "smart" aspect of the research goal
-                        setTimeout(() => {
+                        // ALWAYS auto-resume after pause duration
+                        if (smartPauseTimeoutRef.current) clearTimeout(smartPauseTimeoutRef.current);
+
+                        smartPauseTimeoutRef.current = setTimeout(() => {
+                            isSmartPaused.current = false;
                             if (audioRef.current) {
                                 audioRef.current.play().then(() => {
                                     setIsPlaying(true);
@@ -144,6 +160,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                             }
                         }, pauseDuration);
                     }
+                    seenAdaptationIds.current.add(adaptation.adaptationId);
                     break;
             }
         });
@@ -256,6 +273,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         const handleLoadedMetadata = () => {
             console.log('[AUDIO] Metadata loaded, duration:', audio.duration);
             setDuration(audio.duration);
+            if (onDurationChange) {
+                onDurationChange(audio.duration);
+            }
         };
 
         audio.addEventListener('timeupdate', handleTimeUpdate);

@@ -146,8 +146,8 @@ app.post('/batch', async (req, res) => {
             // 1. Store event
             await axios.post(`${DATA_SERVICE_URL}/sessions/${sessionId}/events`, event);
 
-            // 2. Trigger async processing
-            processEvent(event).catch(err => console.error(err));
+            // 2. Trigger sequential processing
+            await processEvent(event);
         }
 
         res.json({ success: true, count: events.length });

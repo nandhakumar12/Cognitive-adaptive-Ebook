@@ -128,10 +128,10 @@ export function shouldApplyAdaptation(recentAdaptations, strategy) {
     const now = Date.now();
     const cooldownPeriod = 5000; // 5 second cooldown per strategy (TESTING MODE)
 
-    // Check if same strategy was recently applied
+    const effectiveCooldown = strategy === 'SMART_PAUSE' ? 8000 : 5000;
     const recentSameStrategy = recentAdaptations.filter(a =>
         a.strategy === strategy &&
-        (now - a.timestamp) < cooldownPeriod
+        (now - a.timestamp) < effectiveCooldown
     );
 
     if (recentSameStrategy.length > 0) {

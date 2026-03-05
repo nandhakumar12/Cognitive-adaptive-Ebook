@@ -29,6 +29,7 @@ function App() {
     const [currentView, setCurrentView] = useState<AppView>('library');
     const [selectedBook, setSelectedBook] = useState<Audiobook | null>(null);
     const [showResearchDashboard, setShowResearchDashboard] = useState(false);
+    const [discoveredDurations, setDiscoveredDurations] = useState<Record<string, string>>({});
 
     // User progress state (linked to user session in future)
     const [userProgress] = useState<{ [key: string]: number }>({
@@ -140,6 +141,23 @@ function App() {
         }
     };
 
+    const handleDurationChange = (durationInSeconds: number) => {
+        if (!selectedBook) return;
+        const mins = Math.floor(durationInSeconds / 60);
+        const secs = Math.floor(durationInSeconds % 60);
+        const durationStr = `${mins}:${secs.toString().padStart(2, '0')}`;
+
+        const chapterId = selectedBook.chapters[currentChapterIndex].id;
+        const key = `${selectedBook.id}-${chapterId}`;
+
+        if (discoveredDurations[key] !== durationStr) {
+            setDiscoveredDurations(prev => ({
+                ...prev,
+                [key]: durationStr
+            }));
+        }
+    };
+
     const handleToggleResearchDashboard = () => {
         setShowResearchDashboard(!showResearchDashboard);
     };
@@ -232,6 +250,7 @@ function App() {
                                     onSeekToTime={seekToTime}
                                     onNextChapter={handleNextChapter}
                                     onPreviousChapter={handlePreviousChapter}
+                                    onDurationChange={handleDurationChange}
                                 />
 
                                 {/* Chapter List */}
@@ -255,7 +274,9 @@ function App() {
                                             >
                                                 <span className="chapter-number">{index + 1}</span>
                                                 <span className="chapter-title">{chapter.title}</span>
-                                                <span className="chapter-duration">{chapter.duration}</span>
+                                                <span className="chapter-duration">
+                                                    {discoveredDurations[`${selectedBook.id}-${chapter.id}`] || chapter.duration}
+                                                </span>
                                             </div>
                                         ))}
                                     </div>

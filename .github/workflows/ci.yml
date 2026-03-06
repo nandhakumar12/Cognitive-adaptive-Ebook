@@ -23,6 +23,11 @@ jobs:
       - name: Run tests with coverage
         working-directory: frontend
         run: npm run test:coverage
+      - name: Upload frontend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage/lcov.info
       - name: Security Check (npm audit)
         working-directory: frontend
         run: npm audit --audit-level=high
@@ -43,6 +48,11 @@ jobs:
       - name: Run tests with coverage
         working-directory: backend
         run: npm run test:coverage
+      - name: Upload backend coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage/lcov.info
       - name: Security Check (npm audit)
         working-directory: backend
         run: npm audit --audit-level=high
@@ -70,7 +80,17 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0 
+          fetch-depth: 0
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: frontend-coverage
+          path: frontend/coverage
+      - name: Download backend coverage
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-coverage
+          path: backend/coverage
       - name: SonarCloud Scan
         uses: SonarSource/sonarcloud-github-action@master
         env:

@@ -103,6 +103,29 @@ app.get('/users/:userId/progress/:bookId', async (req, res) => {
     res.json(progress || {});
 });
 
+// --- Books ---
+
+app.get('/books', async (req, res) => {
+    const books = await getAllBooks();
+    res.json(books);
+});
+
+app.get('/books/:id', async (req, res) => {
+    const book = await getBookById(req.params.id);
+    if (!book) return res.status(404).json({ error: 'Book not found' });
+    res.json(book);
+});
+
+app.post('/books', async (req, res) => {
+    const book = await createOrUpdateBook(req.body);
+    res.json(book);
+});
+
+app.delete('/books/:id', async (req, res) => {
+    await deleteBook(req.params.id);
+    res.json({ success: true });
+});
+
 app.get('/health', (req, res) => {
     res.json({ status: 'healthy', service: 'data-service' });
 });

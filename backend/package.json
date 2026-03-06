@@ -8,6 +8,7 @@
         "start": "node src/server.js",
         "dev": "node --watch src/server.js",
         "test": "node --test",
+        "test:coverage": "npx c8 node --test",
         "verify": "node verify_services.js"
     },
     "dependencies": {

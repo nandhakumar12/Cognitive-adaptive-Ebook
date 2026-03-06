@@ -95,11 +95,17 @@ app.get('/api/adaptations/:sessionId', (req, res, next) => {
 });
 
 // Books CRUD
-app.use('/api/books', createProxyMiddleware({
-    target: DATA_SERVICE_URL,
-    changeOrigin: true,
-    pathRewrite: { '^/api/books': '/books' }
+app.use('/api/books', proxy(DATA_SERVICE_URL, {
+    proxyReqPathResolver: (req) => {
+        return '/books' + (req.url === '/' ? '' : req.url);
+    }
 }));
+
+// Global error handler for Gateway
+app.use((err, req, res, next) => {
+    console.error('[GATEWAY ERROR]', err);
+    res.status(500).json({ error: 'Gateway Proxy Error', details: err.message });
+});
 
 // Fallback 404
 app.use((req, res) => {

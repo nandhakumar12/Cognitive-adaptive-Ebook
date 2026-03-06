@@ -118,6 +118,7 @@ app.get('/books/:id', async (req, res) => {
 
 app.post('/books', async (req, res) => {
     try {
+        console.log(`[DATA-SERVICE] POST /books - Body:`, JSON.stringify(req.body));
         console.log(`[DATA-SERVICE] Attempting to save book: ${req.body?.title} (ID: ${req.body?.id})`);
         const book = await createOrUpdateBook(req.body);
         console.log(`[DATA-SERVICE] Successfully saved book: ${req.body?.id}`);

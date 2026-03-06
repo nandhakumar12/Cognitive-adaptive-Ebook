@@ -81,8 +81,10 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
             setIsEditing(false);
             setCurrentBook(null);
             loadBooks();
-        } catch (err) {
-            alert('Failed to save book');
+        } catch (err: any) {
+            console.error('Save failed:', err);
+            const msg = err.response?.data?.error || err.response?.data?.details || 'Unknown server error';
+            alert(`Failed to save book: ${msg}`);
         }
     };
 

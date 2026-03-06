@@ -117,8 +117,15 @@ app.get('/books/:id', async (req, res) => {
 });
 
 app.post('/books', async (req, res) => {
-    const book = await createOrUpdateBook(req.body);
-    res.json(book);
+    try {
+        console.log(`[DATA-SERVICE] Attempting to save book: ${req.body?.title} (ID: ${req.body?.id})`);
+        const book = await createOrUpdateBook(req.body);
+        console.log(`[DATA-SERVICE] Successfully saved book: ${req.body?.id}`);
+        res.json(book);
+    } catch (err) {
+        console.error(`[DATA-SERVICE] ERROR saving book:`, err);
+        res.status(500).json({ error: 'Failed to save book to database', details: err.message });
+    }
 });
 
 app.delete('/books/:id', async (req, res) => {

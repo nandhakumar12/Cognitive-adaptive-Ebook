@@ -8,7 +8,7 @@
         "start": "node src/server.js",
         "dev": "node --watch src/server.js",
         "test": "node --test",
-        "test:coverage": "npx c8 node --test",
+        "test:coverage": "npx c8 --reporter=lcov --reporter=text node --test",
         "verify": "node verify_services.js"
     },
     "dependencies": {
@@ -20,6 +20,7 @@
         "uuid": "^9.0.0"
     },
     "devDependencies": {
+        "c8": "^8.0.0",
         "nodemon": "^3.0.0"
     }
 }

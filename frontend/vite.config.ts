@@ -18,5 +18,12 @@ export default defineConfig(({ mode }) => {
         }
       }
     },
+    test: {
+      coverage: {
+        provider: 'v8',
+        reporter: ['lcov', 'text'],
+        reportsDirectory: './coverage',
+      },
+    },
   };
 })

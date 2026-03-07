@@ -1,9 +1,9 @@
 /**
  * ACCESSIBLE AUDIO PLAYER COMPONENT
- * 
+ *
  * Voice-first, screen-reader friendly audio player
  * Emits behavioral cognitive indicators automatically
- * 
+ *
  * KEY FEATURES:
  * - Full keyboard navigation
  * - ARIA labels and live regions
@@ -11,7 +11,7 @@
  * - Adaptation reception and execution
  */
 
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { eventEmitter } from '../services/EventEmitter';
 import { getActiveAdaptations } from '../services/apiClient';
 import type { AdaptationDecision } from '../types';
@@ -21,11 +21,27 @@ interface AudioPlayerProps {
     audioSrc: string;
     sectionId: string;
     sectionTitle: string;
-    onSeekToTime?: number; // Time in seconds to seek to
+    onSeekToTime?: number;
     onNextChapter?: () => void;
     onPreviousChapter?: () => void;
     onDurationChange?: (duration: number) => void;
 }
+
+// ─── helpers ────────────────────────────────────────────────────────────────
+
+function formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '00')}`;
+}
+
+function safePlay(audio: HTMLAudioElement): Promise<void> {
+    return audio.play().catch((err: unknown) => {
+        console.warn('[SYSTEM] Playback failed:', err);
+    });
+}
+
+// ─── component ───────────────────────────────────────────────────────────────
 
 export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     audioSrc,
@@ -34,7 +50,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     onSeekToTime,
     onNextChapter,
     onPreviousChapter,
-    onDurationChange
+    onDurationChange,
 }) => {
     const audioRef = useRef<HTMLAudioElement>(null);
     const [isPlaying, setIsPlaying] = useState(false);
@@ -45,39 +61,152 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const [announcement, setAnnouncement] = useState('');
     const [activeAlert, setActiveAlert] = useState<{ message: string; strategy: string } | null>(null);
     const [pendingAdaptation, setPendingAdaptation] = useState<AdaptationDecision | null>(null);
-    const idleTimerRef = useRef<number | null>(null);
+
+    const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const seenAdaptationIds = useRef<Set<string>>(new Set());
     const hasPromptedSpeedReduction = useRef<boolean>(false);
     const isSmartPaused = useRef<boolean>(false);
-    const smartPauseTimeoutRef = useRef<any>(null);
-    const reinforcementTimeoutRef = useRef<any>(null);
+    const smartPauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const reinforcementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const currentSectionIdRef = useRef<string>(sectionId);
 
-    /**
-     * RESET ADAPTATION HISTORY ON BOOK/SECTION CHANGE
-     * 
-     * Ensures techniques like SUMMARY_INJECTION can re-trigger
-     * when a user returns to a book they previously visited.
-     */
-    useEffect(() => {
-        if (currentSectionIdRef.current !== sectionId) {
-            console.log(`[AUDIO] Section changed from ${currentSectionIdRef.current} to ${sectionId}. Clearing adaptation cache.`);
-            seenAdaptationIds.current.clear();
-            hasPromptedSpeedReduction.current = false;
-            setPlaybackSpeed(1.0); // Reset speed to fresh state for new chapter
-            if (audioRef.current) {
-                audioRef.current.playbackRate = 1.0;
+    // ── announce helpers ──────────────────────────────────────────────────────
+
+    const announce = useCallback((message: string) => {
+        setAnnouncement(message);
+        setTimeout(() => setAnnouncement(''), 100);
+    }, []);
+
+    const showAlert = useCallback(
+        (message: string, strategy: string, customDuration?: number) => {
+            announce(message);
+            setActiveAlert({ message, strategy });
+            setTimeout(() => setActiveAlert(null), customDuration ?? 8000);
+        },
+        [announce],
+    );
+
+    // ── adaptation handlers ───────────────────────────────────────────────────
+
+    /** Handle SLOW_NARRATION adaptation. Returns true when the id was consumed. */
+    const handleSlowNarration = useCallback(
+        (adaptation: AdaptationDecision): boolean => {
+            const targetSpeed: number = adaptation.parameters.targetSpeed ?? 0.75;
+
+            if (targetSpeed < 0.75) {
+                if (hasPromptedSpeedReduction.current) {
+                    console.log('[ADAPTATION] Skipping prompt – already prompted this chapter');
+                    seenAdaptationIds.current.add(adaptation.adaptationId);
+                    return true;
+                }
+                setPendingAdaptation(adaptation);
+                hasPromptedSpeedReduction.current = true;
+                seenAdaptationIds.current.add(adaptation.adaptationId);
+                return true;
             }
-            isSmartPaused.current = false;
-            if (smartPauseTimeoutRef.current) clearTimeout(smartPauseTimeoutRef.current);
-            if (reinforcementTimeoutRef.current) clearTimeout(reinforcementTimeoutRef.current);
-            currentSectionIdRef.current = sectionId;
-        }
-    }, [sectionId]);
+
+            seenAdaptationIds.current.add(adaptation.adaptationId);
+            setPlaybackSpeed(targetSpeed);
+            if (audioRef.current) {
+                audioRef.current.playbackRate = targetSpeed;
+            }
+            showAlert(
+                `Slowing narration to ${Math.round(targetSpeed * 100)}% for better comprehension`,
+                'SLOW_NARRATION',
+            );
+            return true;
+        },
+        [showAlert],
+    );
+
+    /** Handle SMART_PAUSE adaptation. Returns true when the id was consumed. */
+    const handleSmartPause = useCallback(
+        (adaptation: AdaptationDecision): boolean => {
+            if (isSmartPaused.current) {
+                console.log('[ADAPTATION] Skipping SMART_PAUSE – already paused');
+                seenAdaptationIds.current.add(adaptation.adaptationId);
+                return true;
+            }
+
+            const pauseDuration: number = adaptation.parameters.pauseDuration ?? 3000;
+            showAlert(
+                adaptation.parameters.resumeMessage ?? 'Pausing for processing',
+                'SMART_PAUSE',
+                pauseDuration,
+            );
+
+            const audio = audioRef.current;
+            if (audio) {
+                isSmartPaused.current = true;
+                if (!audio.paused) {
+                    audio.pause();
+                    setIsPlaying(false);
+                }
+
+                if (smartPauseTimeoutRef.current) {
+                    clearTimeout(smartPauseTimeoutRef.current);
+                }
+
+                smartPauseTimeoutRef.current = setTimeout(() => {
+                    isSmartPaused.current = false;
+                    if (audioRef.current) {
+                        safePlay(audioRef.current).then(() => {
+                            setIsPlaying(true);
+                            announce('Resuming audio');
+                        });
+                    }
+                }, pauseDuration);
+            }
+
+            seenAdaptationIds.current.add(adaptation.adaptationId);
+            return true;
+        },
+        [announce, showAlert],
+    );
 
     /**
-     * Poll for adaptations every 2 seconds
+     * Apply adaptation decisions automatically.
+     * Extracted per-strategy handlers keep cognitive complexity low.
      */
+    const applyAdaptations = useCallback(
+        (adaptations: AdaptationDecision[]) => {
+            adaptations.forEach((adaptation) => {
+                if (seenAdaptationIds.current.has(adaptation.adaptationId)) return;
+
+                console.log('[ADAPTATION RECEIVED]', adaptation.strategy);
+
+                if (adaptation.strategy === 'SLOW_NARRATION') {
+                    handleSlowNarration(adaptation);
+                } else if (adaptation.strategy === 'SMART_PAUSE') {
+                    handleSmartPause(adaptation);
+                }
+            });
+        },
+        [handleSlowNarration, handleSmartPause],
+    );
+
+    // ── reset on section change ───────────────────────────────────────────────
+
+    useEffect(() => {
+        if (currentSectionIdRef.current === sectionId) return;
+
+        console.log(
+            `[AUDIO] Section changed from ${currentSectionIdRef.current} to ${sectionId}. Clearing adaptation cache.`,
+        );
+        seenAdaptationIds.current.clear();
+        hasPromptedSpeedReduction.current = false;
+        setPlaybackSpeed(1.0);
+        if (audioRef.current) {
+            audioRef.current.playbackRate = 1.0;
+        }
+        isSmartPaused.current = false;
+        if (smartPauseTimeoutRef.current) clearTimeout(smartPauseTimeoutRef.current);
+        if (reinforcementTimeoutRef.current) clearTimeout(reinforcementTimeoutRef.current);
+        currentSectionIdRef.current = sectionId;
+    }, [sectionId]);
+
+    // ── poll for adaptations every 2 s ───────────────────────────────────────
+
     useEffect(() => {
         const adaptationInterval = setInterval(async () => {
             const adaptations = await getActiveAdaptations(eventEmitter.getSessionId());
@@ -85,236 +214,113 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         }, 2000);
 
         return () => clearInterval(adaptationInterval);
-    }, []);
+    }, [applyAdaptations]);
 
-    /**
-     * Apply adaptation decisions automatically
-     */
-    const applyAdaptations = (adaptations: AdaptationDecision[]) => {
-        adaptations.forEach(adaptation => {
-            // Only apply if we haven't seen this specific adaptation instance before
-            if (seenAdaptationIds.current.has(adaptation.adaptationId)) return;
+    // ── user confirmation for pending adaptation ──────────────────────────────
 
-            console.log('[ADAPTATION RECEIVED]', adaptation.strategy);
+    const handleConfirmAdaptation = useCallback(
+        (accepted: boolean) => {
+            if (!pendingAdaptation) return;
 
-            switch (adaptation.strategy) {
-                case 'SLOW_NARRATION':
-                    const targetSpeed = adaptation.parameters.targetSpeed || 0.75;
-
-                    // User requested confirmation for significant speed reduction (e.g. 56% or 50%)
-                    if (targetSpeed < 0.75) {
-                        // FIX: Only prompt ONCE per chapter
-                        if (hasPromptedSpeedReduction.current) {
-                            console.log('[ADAPTATION] Skipping prompt - already prompted for this chapter');
-                            seenAdaptationIds.current.add(adaptation.adaptationId);
-                            return;
-                        }
-
-                        setPendingAdaptation(adaptation);
-                        hasPromptedSpeedReduction.current = true;
-                        seenAdaptationIds.current.add(adaptation.adaptationId);
-                        return; // Wait for confirmation
-                    }
-
-                    seenAdaptationIds.current.add(adaptation.adaptationId);
-                    setPlaybackSpeed(targetSpeed);
-                    if (audioRef.current) {
-                        audioRef.current.playbackRate = targetSpeed;
-                    }
-                    showAlert(`Slowing narration to ${Math.round(targetSpeed * 100)}% for better comprehension`, "SLOW_NARRATION");
-                    break;
-
-
-                case 'SMART_PAUSE':
-                    if (isSmartPaused.current) {
-                        console.log('[ADAPTATION] Skipping SMART_PAUSE - already paused');
-                        seenAdaptationIds.current.add(adaptation.adaptationId);
-                        return;
-                    }
-
-                    const pauseDuration = adaptation.parameters.pauseDuration || 3000;
-                    showAlert(adaptation.parameters.resumeMessage || 'Pausing for processing', "SMART_PAUSE", pauseDuration);
-
-                    if (audioRef.current) {
-                        isSmartPaused.current = true;
-
-                        // Pause if playing
-                        if (!audioRef.current.paused) {
-                            audioRef.current.pause();
-                            setIsPlaying(false);
-                        }
-
-                        // ALWAYS auto-resume after pause duration
-                        if (smartPauseTimeoutRef.current) clearTimeout(smartPauseTimeoutRef.current);
-
-                        smartPauseTimeoutRef.current = setTimeout(() => {
-                            isSmartPaused.current = false;
-                            if (audioRef.current) {
-                                audioRef.current.play().then(() => {
-                                    setIsPlaying(true);
-                                    announce('Resuming audio');
-                                }).catch(err => {
-                                    console.warn('[SYSTEM] Resume failed, waiting for user:', err);
-                                });
-                            }
-                        }, pauseDuration);
-                    }
-                    seenAdaptationIds.current.add(adaptation.adaptationId);
-                    break;
+            if (accepted) {
+                const targetSpeed: number = pendingAdaptation.parameters.targetSpeed ?? 0.56;
+                setPlaybackSpeed(targetSpeed);
+                if (audioRef.current) {
+                    audioRef.current.playbackRate = targetSpeed;
+                }
+                showAlert('Applying requested speed reduction', 'SLOW_NARRATION');
+            } else {
+                announce('Speed reduction declined');
             }
-        });
-    };
 
-    /**
-     * Handle user confirmation for adaptation
-     */
-    const handleConfirmAdaptation = (accepted: boolean) => {
-        if (!pendingAdaptation) return;
+            setPendingAdaptation(null);
+            setLastInteractionTime(Date.now());
+        },
+        [announce, pendingAdaptation, showAlert],
+    );
 
-        if (accepted) {
-            const targetSpeed = pendingAdaptation.parameters.targetSpeed || 0.56;
-            setPlaybackSpeed(targetSpeed);
-            if (audioRef.current) {
-                audioRef.current.playbackRate = targetSpeed;
-            }
-            showAlert("Applying requested speed reduction", "SLOW_NARRATION");
-        } else {
-            announce("Speed reduction declined");
-        }
+    // ── idle detection ────────────────────────────────────────────────────────
 
-        setPendingAdaptation(null);
-        setLastInteractionTime(Date.now());
-    };
-
-    /**
-     * Announce to screen readers and show visual alert
-     */
-    const announce = (message: string) => {
-        setAnnouncement(message);
-        setTimeout(() => setAnnouncement(''), 100);
-    };
-
-    const showAlert = (message: string, strategy: string, customDuration?: number) => {
-        announce(message);
-        setActiveAlert({ message, strategy });
-        setTimeout(() => setActiveAlert(null), customDuration || 8000);
-    };
-
-    /**
-     * Idle detection
-     */
     useEffect(() => {
-        if (idleTimerRef.current) {
-            clearTimeout(idleTimerRef.current);
-        }
+        if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
 
         idleTimerRef.current = setTimeout(() => {
             const idleDuration = Date.now() - lastInteractionTime;
-            if (idleDuration > 10000) { // 10 seconds idle
-                eventEmitter.emit('USER_IDLE', {
-                    idleDuration,
-                    currentTime,
-                    sectionId
-                });
+            if (idleDuration > 10000) {
+                eventEmitter.emit('USER_IDLE', { idleDuration, currentTime, sectionId });
             }
         }, 10000);
 
         return () => {
-            if (idleTimerRef.current) {
-                clearTimeout(idleTimerRef.current);
-            }
+            if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
         };
-    }, [lastInteractionTime]);
+    }, [lastInteractionTime, currentTime, sectionId]);
 
-    /**
-     * ENFORCE PLAYBACK SPEED SYNC
-     * 
-     * Essential for ensuring the audio element matches React state
-     * especially when the system auto-resumes or adaptations kick in
-     */
+    // ── enforce playback speed sync ───────────────────────────────────────────
+
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
-
-        // Force the rate whenever the speed state changes
         if (audio.playbackRate !== playbackSpeed) {
             audio.playbackRate = playbackSpeed;
             console.log(`[SYNC] Forced audio playbackRate to ${playbackSpeed}`);
         }
-    }, [playbackSpeed, isPlaying]); // Re-sync on speed change OR play/pause
+    }, [playbackSpeed, isPlaying]);
 
-    /**
-     * AUTOPLAY ON SOURCE CHANGE
-     */
+    // ── autoplay on source change ─────────────────────────────────────────────
+
     useEffect(() => {
-        if (audioRef.current) {
-            console.log('[AUDIO] Source changed, attempting autoplay');
-            audioRef.current.play()
-                .then(() => setIsPlaying(true))
-                .catch(err => {
-                    console.warn('[AUDIO] Autoplay blocked or failed:', err);
-                    setIsPlaying(false);
-                });
-        }
+        if (!audioRef.current) return;
+        console.log('[AUDIO] Source changed, attempting autoplay');
+        safePlay(audioRef.current)
+            .then(() => setIsPlaying(true))
+            .catch(() => setIsPlaying(false));
     }, [audioSrc]);
 
-    /**
-     * Track time updates and duration
-     */
+    // ── track time updates and duration ──────────────────────────────────────
+
     useEffect(() => {
         const audio = audioRef.current;
         if (!audio) return;
 
-        const handleTimeUpdate = () => {
-            setCurrentTime(audio.currentTime);
-        };
+        const handleTimeUpdate = () => setCurrentTime(audio.currentTime);
 
         const handleLoadedMetadata = () => {
             console.log('[AUDIO] Metadata loaded, duration:', audio.duration);
             setDuration(audio.duration);
-            if (onDurationChange) {
-                onDurationChange(audio.duration);
-            }
+            onDurationChange?.(audio.duration);
         };
 
         audio.addEventListener('timeupdate', handleTimeUpdate);
         audio.addEventListener('loadedmetadata', handleLoadedMetadata);
 
-        // Sometimes metadata is already loaded
-        if (audio.duration) {
-            setDuration(audio.duration);
-        }
+        if (audio.duration) setDuration(audio.duration);
 
         return () => {
             audio.removeEventListener('timeupdate', handleTimeUpdate);
             audio.removeEventListener('loadedmetadata', handleLoadedMetadata);
         };
-    }, [audioSrc]); // Re-attach when source changes
+    }, [audioSrc, onDurationChange]);
 
-    /**
-     * Expose seek method to parent (for chapter clicks)
-     */
+    // ── seek to time from parent ──────────────────────────────────────────────
+
     useEffect(() => {
-        if (onSeekToTime !== undefined && audioRef.current) {
-            const previousTime = audioRef.current.currentTime;
+        if (onSeekToTime === undefined || !audioRef.current) return;
 
-            // Detect navigation reversal if seeking to an earlier time via chapter list
-            if (onSeekToTime < previousTime - 5) {
-                eventEmitter.emit('NAVIGATION_REVERSAL', {
-                    fromTime: previousTime,
-                    toTime: onSeekToTime,
-                    sectionId
-                });
-            }
-
-            audioRef.current.currentTime = onSeekToTime;
+        const previousTime = audioRef.current.currentTime;
+        if (onSeekToTime < previousTime - 5) {
+            eventEmitter.emit('NAVIGATION_REVERSAL', {
+                fromTime: previousTime,
+                toTime: onSeekToTime,
+                sectionId,
+            });
         }
-    }, [onSeekToTime]);
+        audioRef.current.currentTime = onSeekToTime;
+    }, [onSeekToTime, sectionId]);
 
-    /**
-     * Play/Pause handler
-     */
-    const handlePlayPause = () => {
+    // ── playback controls ─────────────────────────────────────────────────────
+
+    const handlePlayPause = useCallback(() => {
         const audio = audioRef.current;
         if (!audio) return;
 
@@ -324,114 +330,112 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             eventEmitter.emit('AUDIO_PAUSE', {
                 currentTime: audio.currentTime,
                 sectionId,
-                speed: playbackSpeed
+                speed: playbackSpeed,
             });
             announce('Audio paused');
         } else {
-            audio.play();
-            setIsPlaying(true);
-            eventEmitter.emit('AUDIO_PLAY', {
+            safePlay(audio).then(() => {
+                setIsPlaying(true);
+                eventEmitter.emit('AUDIO_PLAY', {
+                    currentTime: audio.currentTime,
+                    sectionId,
+                    speed: playbackSpeed,
+                });
+                announce('Audio playing');
+            });
+        }
+
+        setLastInteractionTime(Date.now());
+    }, [announce, isPlaying, playbackSpeed, sectionId]);
+
+    const handleSpeedChange = useCallback(
+        (newSpeed: number) => {
+            const audio = audioRef.current;
+            if (!audio) return;
+
+            const previousSpeed = playbackSpeed;
+            setPlaybackSpeed(newSpeed);
+            audio.playbackRate = newSpeed;
+
+            eventEmitter.emit('AUDIO_SPEED_CHANGE', {
+                speed: newSpeed,
+                previousSpeed,
                 currentTime: audio.currentTime,
                 sectionId,
-                speed: playbackSpeed
             });
-            announce('Audio playing');
-        }
 
-        setLastInteractionTime(Date.now());
-    };
+            announce(`Playback speed set to ${Math.round(newSpeed * 100)}%`);
+            setLastInteractionTime(Date.now());
+        },
+        [announce, playbackSpeed, sectionId],
+    );
 
-    /**
-     * Speed change handler
-     */
-    const handleSpeedChange = (newSpeed: number) => {
-        const audio = audioRef.current;
-        if (!audio) return;
+    const handleSeek = useCallback(
+        (seconds: number) => {
+            const audio = audioRef.current;
+            if (!audio) return;
 
-        const previousSpeed = playbackSpeed;
-        setPlaybackSpeed(newSpeed);
-        audio.playbackRate = newSpeed;
+            const previousTime = audio.currentTime;
+            const newTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
+            audio.currentTime = newTime;
 
-        eventEmitter.emit('AUDIO_SPEED_CHANGE', {
-            speed: newSpeed,
-            previousSpeed,
-            currentTime: audio.currentTime,
-            sectionId
-        });
+            if (seconds < 0) {
+                eventEmitter.emit('AUDIO_REPLAY', {
+                    currentTime: newTime,
+                    previousTime,
+                    replayDuration: Math.abs(seconds),
+                    sectionId,
+                });
+                announce(`Replayed ${Math.abs(seconds)} seconds`);
+            } else {
+                eventEmitter.emit('AUDIO_SEEK', {
+                    currentTime: newTime,
+                    previousTime,
+                    seekDuration: seconds,
+                    sectionId,
+                });
+                announce(`Skipped forward ${seconds} seconds`);
+            }
 
-        announce(`Playback speed set to ${Math.round(newSpeed * 100)}%`);
-        setLastInteractionTime(Date.now());
-    };
+            setLastInteractionTime(Date.now());
+        },
+        [announce, sectionId],
+    );
 
-    /**
-     * Seek handler (replay/skip)
-     */
-    const handleSeek = (seconds: number) => {
-        const audio = audioRef.current;
-        if (!audio) return;
+    // ── keyboard navigation ───────────────────────────────────────────────────
 
-        const previousTime = audio.currentTime;
-        const newTime = Math.max(0, Math.min(audio.duration, audio.currentTime + seconds));
-        audio.currentTime = newTime;
+    const handleKeyDown = useCallback(
+        (e: React.KeyboardEvent) => {
+            switch (e.key) {
+                case ' ':
+                case 'k':
+                    e.preventDefault();
+                    handlePlayPause();
+                    break;
+                case 'ArrowLeft':
+                    e.preventDefault();
+                    handleSeek(-10);
+                    break;
+                case 'ArrowRight':
+                    e.preventDefault();
+                    handleSeek(10);
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    handleSpeedChange(Math.min(2.0, playbackSpeed + 0.25));
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    handleSpeedChange(Math.max(0.5, playbackSpeed - 0.25));
+                    break;
+                default:
+                    break;
+            }
+        },
+        [handlePlayPause, handleSeek, handleSpeedChange, playbackSpeed],
+    );
 
-        if (seconds < 0) {
-            eventEmitter.emit('AUDIO_REPLAY', {
-                currentTime: newTime,
-                previousTime,
-                replayDuration: Math.abs(seconds),
-                sectionId
-            });
-            announce(`Replayed ${Math.abs(seconds)} seconds`);
-        } else {
-            eventEmitter.emit('AUDIO_SEEK', {
-                currentTime: newTime,
-                previousTime,
-                seekDuration: seconds,
-                sectionId
-            });
-            announce(`Skipped forward ${seconds} seconds`);
-        }
-
-        setLastInteractionTime(Date.now());
-    };
-
-    /**
-     * Keyboard navigation
-     */
-    const handleKeyDown = (e: React.KeyboardEvent) => {
-        switch (e.key) {
-            case ' ':
-            case 'k':
-                e.preventDefault();
-                handlePlayPause();
-                break;
-            case 'ArrowLeft':
-                e.preventDefault();
-                handleSeek(-10);
-                break;
-            case 'ArrowRight':
-                e.preventDefault();
-                handleSeek(10);
-                break;
-            case 'ArrowUp':
-                e.preventDefault();
-                handleSpeedChange(Math.min(2.0, playbackSpeed + 0.25));
-                break;
-            case 'ArrowDown':
-                e.preventDefault();
-                handleSpeedChange(Math.max(0.5, playbackSpeed - 0.25));
-                break;
-        }
-    };
-
-    /**
-     * Format time for display
-     */
-    const formatTime = (seconds: number): string => {
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${mins}:${secs.toString().padStart(2, '0')}`;
-    };
+    // ── render ────────────────────────────────────────────────────────────────
 
     return (
         <div
@@ -444,12 +448,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             <audio ref={audioRef} src={audioSrc} />
 
             {/* Screen reader announcements */}
-            <div
-                role="status"
-                aria-live="polite"
-                aria-atomic="true"
-                className="sr-only"
-            >
+            <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">
                 {announcement}
             </div>
 
@@ -467,10 +466,25 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 <div className="adaptation-confirmation-overlay">
                     <div className="confirmation-dialog">
                         <h3>Adjust Playback Speed?</h3>
-                        <p>We've noticed you might be having some difficulty. Would you like to reduce the playback speed to {Math.round((pendingAdaptation.parameters.targetSpeed || 0.56) * 100)}% for better comprehension?</p>
+                        <p>
+                            We&apos;ve noticed you might be having some difficulty. Would you like to
+                            reduce the playback speed to{' '}
+                            {Math.round((pendingAdaptation.parameters.targetSpeed ?? 0.56) * 100)}%
+                            for better comprehension?
+                        </p>
                         <div className="confirmation-actions">
-                            <button className="confirm-btn yes" onClick={() => handleConfirmAdaptation(true)}>Yes, slow down</button>
-                            <button className="confirm-btn no" onClick={() => handleConfirmAdaptation(false)}>No, keep current</button>
+                            <button
+                                className="confirm-btn yes"
+                                onClick={() => handleConfirmAdaptation(true)}
+                            >
+                                Yes, slow down
+                            </button>
+                            <button
+                                className="confirm-btn no"
+                                onClick={() => handleConfirmAdaptation(false)}
+                            >
+                                No, keep current
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -525,7 +539,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                     className="control-btn nav-btn"
                     disabled={!onNextChapter}
                 >
-                    ⏭️ Next <span className="icon"></span>
+                    ⏭️ Next <span className="icon" />
                 </button>
             </div>
 
@@ -537,7 +551,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                     onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
                     aria-label="Select playback speed"
                 >
-                    {/* Standard Presets */}
                     <option value="0.5">0.5x (Slow)</option>
                     <option value="0.75">0.75x</option>
                     <option value="1.0">1.0x (Normal)</option>
@@ -546,14 +559,12 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                     <option value="2.0">2.0x (Very Fast)</option>
 
                     {/*
-                                DYNAMIC ADAPTATION OPTION
-                                If the current speed isn't a preset (e.g. 0.56x), add it here
-                                so the dropdown shows the correct selected state.
-                            */}
+                        DYNAMIC ADAPTATION OPTION
+                        If the current speed isn't a preset (e.g. 0.56x), add it here
+                        so the dropdown shows the correct selected state.
+                    */}
                     {![0.5, 0.75, 1.0, 1.25, 1.5, 2.0].includes(playbackSpeed) && (
-                        <option value={playbackSpeed}>
-                            {playbackSpeed.toFixed(2)}x (Adaptive)
-                        </option>
+                        <option value={playbackSpeed}>{playbackSpeed.toFixed(2)}x (Adaptive)</option>
                     )}
                 </select>
             </div>

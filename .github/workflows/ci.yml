@@ -25,6 +25,7 @@ jobs:
         run: npm run test:coverage
       - name: Upload frontend coverage
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: frontend-coverage
           path: frontend/coverage/lcov.info
@@ -50,6 +51,7 @@ jobs:
         run: npm run test:coverage
       - name: Upload backend coverage
         uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: backend-coverage
           path: backend/coverage/lcov.info
@@ -59,19 +61,51 @@ jobs:
 
   docker-scan:
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write   # needed to upload SARIF to Security tab
     steps:
       - uses: actions/checkout@v4
+
       - name: Build Data Service Image
         run: docker build -t data-service ./backend/services/data-service
-      - name: Run Trivy vulnerability scanner
+
+      # ── 1. Human-readable table saved as a downloadable artifact ─────────────
+      - name: Run Trivy vulnerability scanner (table)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: 'data-service:latest'
           format: 'table'
-          exit-code: '1'
+          output: 'trivy-report.txt'
+          exit-code: '0'          # don't fail here — we fail on SARIF step below
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL,HIGH'
+
+      - name: Upload Trivy report artifact
+        uses: actions/upload-artifact@v4
+        if: always()              # upload even when vulnerabilities are found
+        with:
+          name: trivy-vulnerability-report
+          path: trivy-report.txt
+          retention-days: 30
+
+      # ── 2. SARIF upload → GitHub Security tab (persistent dashboard) ─────────
+      - name: Run Trivy vulnerability scanner (SARIF)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'data-service:latest'
+          format: 'sarif'
+          output: 'trivy-results.sarif'
+          exit-code: '1'          # this step fails the build on CRITICAL/HIGH
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Upload SARIF to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()              # upload even on failure so you can see findings
+        with:
+          sarif_file: 'trivy-results.sarif'
 
   sonarcloud:
     name: SonarCloud Scan

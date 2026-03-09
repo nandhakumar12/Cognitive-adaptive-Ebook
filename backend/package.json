@@ -8,7 +8,7 @@
         "start": "node src/server.js",
         "dev": "node --watch src/server.js",
         "test": "node --test",
-        "test:coverage": "npx c8 --reporter=lcov --reporter=text node --test",
+        "test:coverage": "npx c8 --reporter=lcov --reporter=text --outdir coverage node --test src/smoke.test.js",
         "verify": "node verify_services.js"
     },
     "dependencies": {

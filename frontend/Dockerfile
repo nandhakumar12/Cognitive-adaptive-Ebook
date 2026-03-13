@@ -9,5 +9,4 @@ COPY . .
 
 EXPOSE 3000
 
-# For dev/test environment (Phase 1)
 CMD ["npm", "run", "dev", "--", "--host"]

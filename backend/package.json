@@ -1,7 +1,7 @@
 {
     "name": "adaptive-cognitive-audio-backend",
     "version": "1.0.0",
-    "description": "Adaptive Cognitive-Aware Audio Reading Platform - Backend (MSc Research)",
+    "description": "Adaptive Cognitive-Aware Audio Reading Platform - Backend",
     "main": "src/server.js",
     "type": "module",
     "scripts": {

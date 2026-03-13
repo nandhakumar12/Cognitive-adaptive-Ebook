@@ -1,5 +1,5 @@
 /**
- * MSc RESEARCH PROJECT: Adaptive Cognitive-Aware Audio Reading Platform
+ * Adaptive Cognitive-Aware Audio Reading Platform
  * 
  * BACKEND SERVER - Event-Driven Architecture
  * 
@@ -58,7 +58,7 @@ app.listen(PORT, () => {
     console.log(`
 ╔═══════════════════════════════════════════════════════════╗
 ║  Adaptive Cognitive Audio Platform - Backend Server      ║
-║  MSc Research Project                                     ║
+║                                                           ║
 ╟───────────────────────────────────────────────────────────╢
 ║  Port: ${PORT}                                           ║
 ║  Environment: ${process.env.NODE_ENV || 'development'}   ║

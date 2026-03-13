@@ -5,7 +5,7 @@
 
 .player-view {
   min-height: 100vh;
-  background: linear-gradient(135deg, var(--bg-primary) 0%, #0F1435 100%);
+  background: linear-gradient(135deg, var(--bg-primary) 0%, #F1F3F5 100%);
   position: relative;
 }
 
@@ -72,7 +72,7 @@
   height: 60px;
   border-radius: 50%;
   background: var(--audible-orange);
-  color: #000;
+  color: #fff;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
@@ -252,7 +252,7 @@
 
 .confirm-btn.yes {
   background: var(--audible-orange);
-  color: #000;
+  color: #fff;
 }
 
 .confirm-btn.yes:hover {
@@ -262,9 +262,9 @@
 }
 
 .confirm-btn.no {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  background: rgba(0, 0, 0, 0.05);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
 }
 
 .confirm-btn.no:hover {
@@ -309,7 +309,7 @@
   min-width: 40px;
   height: 40px;
   background: var(--audible-orange);
-  color: #000;
+  color: #fff;
   font-weight: 700;
   border-radius: 50%;
   font-size: 1.1rem;

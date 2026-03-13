@@ -6,34 +6,34 @@
  */
 
 :root {
-    /* Audible Brand Colors */
-    --audible-orange: #FF9900;
-    --audible-orange-light: #FFB84D;
-    --audible-orange-dark: #E68A00;
+    /* Updated Brand Colors - Orange to Black */
+    --audible-orange: #000000;
+    --audible-orange-light: #333333;
+    --audible-orange-dark: #000000;
 
-    /* Background Colors */
-    --bg-primary: #0A0E27;
-    --bg-secondary: #1A1F3A;
-    --bg-card: #252B4A;
-    --bg-hover: #2E3555;
+    /* Background Colors - Blue to White/Light */
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F8F9FA;
+    --bg-card: #FFFFFF;
+    --bg-hover: #F1F3F5;
 
-    /* Text Colors */
-    --text-primary: #FFFFFF;
-    --text-secondary: #B8BFCC;
-    --text-muted: #8B93A7;
+    /* Text Colors - White to Dark */
+    --text-primary: #1A1A1A;
+    --text-secondary: #495057;
+    --text-muted: #868E96;
 
     /* Semantic Colors */
-    --success: #4CAF50;
-    --warning: #FFC107;
-    --error: #F44336;
-    --info: #2196F3;
+    --success: #2F9E44;
+    --warning: #F59F00;
+    --error: #E03131;
+    --info: #1971C2;
 
     /* UI Elements */
-    --border-color: #3A4259;
-    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-    --shadow-orange: 0 4px 20px rgba(255, 153, 0, 0.3);
+    --border-color: #DEE2E6;
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.15);
+    --shadow-orange: 0 4px 20px rgba(0, 0, 0, 0.1);
 
     /* Transitions */
     --transition-fast: 0.2s ease;
@@ -63,7 +63,7 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, #0F1435 100%);
+    background: linear-gradient(135deg, var(--bg-primary) 0%, #F1F3F5 100%);
     color: var(--text-primary);
     line-height: 1.6;
     font-size: 16px;
@@ -148,7 +148,7 @@ input:focus-visible {
 
 .btn-primary {
     background: var(--audible-orange);
-    color: #000;
+    color: #fff;
 }
 
 .btn-primary:hover {
@@ -235,7 +235,7 @@ input:focus-visible {
 
 .badge-new {
     background: var(--audible-orange);
-    color: #000;
+    color: #fff;
 }
 
 .badge-popular {

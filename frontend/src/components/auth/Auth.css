@@ -3,7 +3,7 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    background: linear-gradient(135deg, var(--bg-primary) 0%, #0F1435 100%);
+    background: linear-gradient(135deg, var(--bg-primary) 0%, #F1F3F5 100%);
     padding: 20px;
 }
 
@@ -13,8 +13,8 @@
     border-radius: 8px;
     width: 100%;
     max-width: 400px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-color);
 }
 
 .auth-logo {
@@ -48,10 +48,10 @@
 .auth-input {
     width: 100%;
     padding: 12px;
-    border: 1px solid #4a5568;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
-    background: var(--bg-primary);
-    color: white;
+    background: #fff;
+    color: var(--text-primary);
     font-size: 1rem;
     transition: border-color 0.2s;
 }
@@ -66,7 +66,7 @@
     width: 100%;
     padding: 12px;
     background: var(--audible-orange);
-    color: black;
+    color: #fff;
     font-weight: bold;
     border: none;
     border-radius: 4px;
@@ -77,7 +77,7 @@
 }
 
 .btn-auth-primary:hover {
-    background: #ffac33;
+    background: var(--audible-orange-light);
 }
 
 .btn-auth-primary:disabled {
@@ -88,7 +88,7 @@
 .auth-footer {
     margin-top: 30px;
     padding-top: 20px;
-    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-top: 1px solid var(--border-color);
     text-align: center;
 }
 

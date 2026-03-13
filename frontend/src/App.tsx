@@ -175,19 +175,20 @@ function App() {
                 gap: '10px',
                 alignItems: 'center'
             }}>
-                <span style={{ color: 'rgba(255,255,255,0.7)', fontSize: '0.9rem' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: '0.9rem', fontWeight: 500 }}>
                     Hello, {user?.username || 'User'}
                 </span>
                 <button
                     onClick={() => logout()}
                     style={{
-                        background: 'rgba(255,255,255,0.1)',
-                        border: '1px solid rgba(255,255,255,0.2)',
-                        color: 'white',
+                        background: 'rgba(0,0,0,0.05)',
+                        border: '1px solid var(--border-color)',
+                        color: 'var(--text-primary)',
                         padding: '6px 12px',
                         borderRadius: '4px',
                         cursor: 'pointer',
-                        fontSize: '0.85rem'
+                        fontSize: '0.85rem',
+                        fontWeight: 600
                     }}
                 >
                     Sign Out

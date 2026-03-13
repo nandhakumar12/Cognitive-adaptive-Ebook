@@ -130,3 +130,82 @@ jobs:
         env:
           SONAR_TOKEN: ${{ secrets.EBOOKTOKEN }}
           SONAR_HOST_URL: https://sonarcloud.io
+
+  build-and-push:
+    name: Build & Push Images to ECR
+    runs-on: ubuntu-latest
+    needs: [frontend-test, backend-test, docker-scan]
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build, Tag, and Push Images
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+        run: |
+          # Build and push frontend
+          docker build -t $ECR_REGISTRY/adaptive-cognitive-frontend:latest ./frontend
+          docker push $ECR_REGISTRY/adaptive-cognitive-frontend:latest
+          
+          # Build and push gateway
+          docker build -t $ECR_REGISTRY/adaptive-cognitive-gateway:latest ./backend/services/gateway
+          docker push $ECR_REGISTRY/adaptive-cognitive-gateway:latest
+          
+          # Build and push data-service
+          docker build -t $ECR_REGISTRY/adaptive-cognitive-data-service:latest ./backend/services/data-service
+          docker push $ECR_REGISTRY/adaptive-cognitive-data-service:latest
+          
+          # Build and push event-service
+          docker build -t $ECR_REGISTRY/adaptive-cognitive-event-service:latest ./backend/services/event-service
+          docker push $ECR_REGISTRY/adaptive-cognitive-event-service:latest
+          
+          # Build and push cognitive-service
+          docker build -t $ECR_REGISTRY/adaptive-cognitive-cognitive-service:latest ./backend/services/cognitive-service
+          docker push $ECR_REGISTRY/adaptive-cognitive-cognitive-service:latest
+          
+          # Build and push adaptation-service
+          docker build -t $ECR_REGISTRY/adaptive-cognitive-adaptation-service:latest ./backend/services/adaptation-service
+          docker push $ECR_REGISTRY/adaptive-cognitive-adaptation-service:latest
+
+  deploy:
+    name: Deploy to EC2
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Navigate to project directory
+            cd ~/Cognitive-adaptive-Ebook
+            
+            # Pull latest changes from git
+            git pull origin main
+            
+            # Authenticate Docker with Amazon ECR
+            aws ecr get-login-password --region ${{ secrets.AWS_REGION }} | docker login --username AWS --password-stdin ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+            
+            # Export the registry variable for docker-compose
+            export ECR_REGISTRY=${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.${{ secrets.AWS_REGION }}.amazonaws.com
+            
+            # Pull the new images
+            docker compose pull
+            
+            # Start/Restart containers detached
+            docker compose up -d

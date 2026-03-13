@@ -5,7 +5,6 @@ import proxy from 'express-http-proxy';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Service URLs
 const EVENT_SERVICE_URL = process.env.EVENT_SERVICE_URL || 'http://localhost:3002';
 const COGNITIVE_SERVICE_URL = process.env.COGNITIVE_SERVICE_URL || 'http://localhost:3003';
 const ADAPTATION_SERVICE_URL = process.env.ADAPTATION_SERVICE_URL || 'http://localhost:3004';
@@ -23,13 +22,11 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-// Logging middleware
 app.use((req, res, next) => {
     console.log(`[GATEWAY] ${req.method} ${req.path}`);
     next();
 });
 
-// Health check
 app.get('/health', (req, res) => {
     res.json({
         status: 'healthy',
@@ -38,14 +35,8 @@ app.get('/health', (req, res) => {
     });
 });
 
-// Wrapper to strip /api prefix when forwarding if needed, 
-// OR services can just handle the full path. 
-// Standard Proxy: 
-// /api/events/ingest -> Event Service /ingest
 
-// --- SMART ROUTING ---
 
-// Events: POST -> Event Service (Writes), GET -> Data Service (History)
 app.post('/api/events/ingest', createProxyMiddleware({
     target: EVENT_SERVICE_URL,
     changeOrigin: true,
@@ -67,7 +58,6 @@ app.get('/api/events/:sessionId', (req, res, next) => {
     })(req, res, next);
 });
 
-// Cognitive: GET -> Data Service (Current State)
 app.get('/api/cognitive/:sessionId', (req, res, next) => {
     createProxyMiddleware({
         target: DATA_SERVICE_URL,
@@ -76,7 +66,6 @@ app.get('/api/cognitive/:sessionId', (req, res, next) => {
     })(req, res, next);
 });
 
-// Adaptations: GET -> Data Service (History/Active)
 app.get('/api/adaptations/:sessionId/active', (req, res, next) => {
     createProxyMiddleware({
         target: DATA_SERVICE_URL,
@@ -94,20 +83,17 @@ app.get('/api/adaptations/:sessionId', (req, res, next) => {
     })(req, res, next);
 });
 
-// Books CRUD
 app.use('/api/books', proxy(DATA_SERVICE_URL, {
     proxyReqPathResolver: (req) => {
         return '/books' + (req.url === '/' ? '' : req.url);
     }
 }));
 
-// Global error handler for Gateway
 app.use((err, req, res, next) => {
     console.error('[GATEWAY ERROR]', err);
     res.status(500).json({ error: 'Gateway Proxy Error', details: err.message });
 });
 
-// Fallback 404
 app.use((req, res) => {
     res.status(404).json({ error: 'Route not found at Gateway', path: req.path });
 });

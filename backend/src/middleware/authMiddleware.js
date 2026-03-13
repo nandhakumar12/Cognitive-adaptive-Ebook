@@ -17,7 +17,6 @@ function getKey(header, callback) {
 }
 
 export const verifyToken = (req, res, next) => {
-    // If no Pool ID set, mock auth mode
     if (!process.env.COGNITO_USER_POOL_ID) {
         req.user = { sub: 'mock-user-123', email: 'mock@example.com' };
         return next();

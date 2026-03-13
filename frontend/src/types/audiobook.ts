@@ -5,9 +5,9 @@
 export interface Chapter {
     id: string;
     title: string;
-    duration: string; // Format: "28:32"
-    startTime: number; // Seconds from start
-    audioUrl?: string; // Optional URL for individual chapter file
+    duration: string;
+    startTime: number;
+    audioUrl?: string;
 }
 
 export interface Audiobook {
@@ -15,8 +15,8 @@ export interface Audiobook {
     title: string;
     author: string;
     narrator: string;
-    duration: string; // Format: "4h 49m"
-    rating: number; // 0-5
+    duration: string;
+    rating: number;
     ratingCount: number;
     coverUrl: string;
     description: string;
@@ -29,9 +29,9 @@ export interface Audiobook {
 
 export interface UserProgress {
     bookId: string;
-    currentTime: number; // Seconds
+    currentTime: number;
     currentChapter: number;
-    lastListened: number; // Timestamp
+    lastListened: number;
     completed: boolean;
     bookmarks: Bookmark[];
 }
@@ -39,14 +39,14 @@ export interface UserProgress {
 export interface Bookmark {
     id: string;
     bookId: string;
-    time: number; // Seconds
+    time: number;
     note?: string;
     createdAt: number;
 }
 
 export interface UserLibrary {
     userId: string;
-    books: string[]; // Book IDs
+    books: string[];
     progress: Record<string, UserProgress>;
     favorites: string[];
 }

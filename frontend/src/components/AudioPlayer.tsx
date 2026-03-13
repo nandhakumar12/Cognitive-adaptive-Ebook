@@ -27,7 +27,6 @@ interface AudioPlayerProps {
     onDurationChange?: (duration: number) => void;
 }
 
-// ─── helpers ────────────────────────────────────────────────────────────────
 
 function formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
@@ -41,7 +40,6 @@ function safePlay(audio: HTMLAudioElement): Promise<void> {
     });
 }
 
-// ─── component ───────────────────────────────────────────────────────────────
 
 export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     audioSrc,
@@ -70,7 +68,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const reinforcementTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const currentSectionIdRef = useRef<string>(sectionId);
 
-    // ── announce helpers ──────────────────────────────────────────────────────
 
     const announce = useCallback((message: string) => {
         setAnnouncement(message);
@@ -86,7 +83,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         [announce],
     );
 
-    // ── adaptation handlers ───────────────────────────────────────────────────
 
     /** Handle SLOW_NARRATION adaptation. Returns true when the id was consumed. */
     const handleSlowNarration = useCallback(
@@ -185,7 +181,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         [handleSlowNarration, handleSmartPause],
     );
 
-    // ── reset on section change ───────────────────────────────────────────────
 
     useEffect(() => {
         if (currentSectionIdRef.current === sectionId) return;
@@ -205,7 +200,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         currentSectionIdRef.current = sectionId;
     }, [sectionId]);
 
-    // ── poll for adaptations every 2 s ───────────────────────────────────────
 
     useEffect(() => {
         const adaptationInterval = setInterval(async () => {
@@ -216,7 +210,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         return () => clearInterval(adaptationInterval);
     }, [applyAdaptations]);
 
-    // ── user confirmation for pending adaptation ──────────────────────────────
 
     const handleConfirmAdaptation = useCallback(
         (accepted: boolean) => {
@@ -239,7 +232,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         [announce, pendingAdaptation, showAlert],
     );
 
-    // ── idle detection ────────────────────────────────────────────────────────
 
     useEffect(() => {
         if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
@@ -256,7 +248,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         };
     }, [lastInteractionTime, currentTime, sectionId]);
 
-    // ── enforce playback speed sync ───────────────────────────────────────────
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -267,7 +258,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         }
     }, [playbackSpeed, isPlaying]);
 
-    // ── autoplay on source change ─────────────────────────────────────────────
 
     useEffect(() => {
         if (!audioRef.current) return;
@@ -277,7 +267,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             .catch(() => setIsPlaying(false));
     }, [audioSrc]);
 
-    // ── track time updates and duration ──────────────────────────────────────
 
     useEffect(() => {
         const audio = audioRef.current;
@@ -302,7 +291,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         };
     }, [audioSrc, onDurationChange]);
 
-    // ── seek to time from parent ──────────────────────────────────────────────
 
     useEffect(() => {
         if (onSeekToTime === undefined || !audioRef.current) return;
@@ -318,7 +306,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         audioRef.current.currentTime = onSeekToTime;
     }, [onSeekToTime, sectionId]);
 
-    // ── playback controls ─────────────────────────────────────────────────────
 
     const handlePlayPause = useCallback(() => {
         const audio = audioRef.current;
@@ -402,7 +389,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         [announce, sectionId],
     );
 
-    // ── keyboard navigation ───────────────────────────────────────────────────
 
     const handleKeyDown = useCallback(
         (e: React.KeyboardEvent) => {
@@ -435,7 +421,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         [handlePlayPause, handleSeek, handleSpeedChange, playbackSpeed],
     );
 
-    // ── render ────────────────────────────────────────────────────────────────
 
     return (
         <div

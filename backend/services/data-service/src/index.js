@@ -24,13 +24,11 @@ const PORT = 3005;
 app.use(cors());
 app.use(express.json());
 
-// Logging middleware
 app.use((req, res, next) => {
     console.log(`[DATA-SERVICE] ${req.method} ${req.path}`);
     next();
 });
 
-// --- Sessions & Context ---
 
 app.get('/sessions/:sessionId', async (req, res) => {
     const session = await getSession(req.params.sessionId);
@@ -47,7 +45,6 @@ app.get('/sessions', async (req, res) => {
     res.json(sessions);
 });
 
-// --- Events ---
 
 app.post('/sessions/:sessionId/events', async (req, res) => {
     const session = await addEvent(req.params.sessionId, req.body);
@@ -60,7 +57,6 @@ app.get('/sessions/:sessionId/events', async (req, res) => {
     res.json(events);
 });
 
-// --- Cognitive State ---
 
 app.post('/sessions/:sessionId/cognitive', async (req, res) => {
     await updateCognitiveState(req.params.sessionId, req.body);
@@ -72,7 +68,6 @@ app.get('/sessions/:sessionId/cognitive', async (req, res) => {
     res.json(state || {});
 });
 
-// --- Adaptations ---
 
 app.post('/sessions/:sessionId/adaptations', async (req, res) => {
     await addAdaptation(req.params.sessionId, req.body);
@@ -90,7 +85,6 @@ app.get('/sessions/:sessionId/adaptations/active', async (req, res) => {
     res.json({ activeAdaptations: adaptations });
 });
 
-// --- User Progress ---
 
 app.post('/users/:userId/progress', async (req, res) => {
     const { bookId, progress } = req.body;
@@ -103,7 +97,6 @@ app.get('/users/:userId/progress/:bookId', async (req, res) => {
     res.json(progress || {});
 });
 
-// --- Books ---
 
 app.get('/books', async (req, res) => {
     const books = await getAllBooks();

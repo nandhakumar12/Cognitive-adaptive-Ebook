@@ -44,7 +44,7 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
 
                 return {
                     targetSpeed,
-                    duration: 10000 // Apply for 10 seconds (TESTING)
+                    duration: 10000
                 };
             })(),
             triggeredBy
@@ -58,8 +58,8 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
             timestamp,
             reason: 'Cognitive overload detected - providing pause for processing',
             parameters: {
-                pauseDuration: 5000, // 5 second pause
-                audioCue: true, // Gentle chime to indicate pause
+                pauseDuration: 5000,
+                audioCue: true,
                 resumeMessage: 'Resuming audio in 3 seconds...'
             },
             triggeredBy
@@ -91,7 +91,6 @@ export function executeAdaptations(cognitiveState, strategies, context) {
         if (adaptation) {
             adaptations.push(adaptation);
 
-            // Log for research purposes
             console.log(`[ADAPTATION] ${strategy} triggered for session ${cognitiveState.sessionId}`);
             console.log(`  Reason: ${adaptation.reason}`);
             console.log(`  Patterns: ${cognitiveState.patterns.join(', ')}`);
@@ -112,7 +111,7 @@ export function executeAdaptations(cognitiveState, strategies, context) {
  */
 export function shouldApplyAdaptation(recentAdaptations, strategy) {
     const now = Date.now();
-    const cooldownPeriod = 5000; // 5 second cooldown per strategy (TESTING MODE)
+    const cooldownPeriod = 5000;
 
     const effectiveCooldown = strategy === 'SMART_PAUSE' ? 8000 : 5000;
     const recentSameStrategy = recentAdaptations.filter(a =>
@@ -125,7 +124,6 @@ export function shouldApplyAdaptation(recentAdaptations, strategy) {
         return false;
     }
 
-    // Prevent too many adaptations in short time (max 5 per 5 seconds for testing)
     const veryRecentAdaptations = recentAdaptations.filter(a =>
         (now - a.timestamp) < 5000
     );

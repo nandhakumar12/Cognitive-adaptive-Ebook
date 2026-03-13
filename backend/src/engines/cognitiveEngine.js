@@ -31,16 +31,12 @@ export function inferCognitiveState(events, sessionId) {
         };
     }
 
-    // Calculate behavioral metrics
     const metrics = calculateBehaviorMetrics(events);
 
-    // Detect patterns using rule-based logic
     const patterns = detectBehavioralPatterns(metrics, events);
 
-    // Infer cognitive load level
     const cognitiveLoad = inferCognitiveLoad(patterns, metrics);
 
-    // Calculate confidence based on sample size and pattern consistency
     const confidence = calculateConfidence(events.length, patterns);
 
     return {
@@ -65,7 +61,6 @@ function calculateBehaviorMetrics(events) {
     const navReversals = events.filter(e => e.eventType === 'NAVIGATION_REVERSAL');
     const idleEvents = events.filter(e => e.eventType === 'USER_IDLE');
 
-    // Explicitly identify forward vs backward seek events
     const forwardSeekEvents = events.filter(e =>
         e.eventType === 'AUDIO_SEEK' && e.metadata && e.metadata.seekDuration > 0
     );
@@ -74,22 +69,20 @@ function calculateBehaviorMetrics(events) {
         (e.eventType === 'AUDIO_REPLAY')
     );
 
-    // Calculate average playback speed
     const avgSpeed = speedEvents.length > 0
         ? speedEvents.reduce((sum, e) => sum + (e.metadata.speed || 1.0), 0) / speedEvents.length
         : 1.0;
 
-    // Calculate total idle time
     const totalIdleTime = idleEvents.reduce((sum, e) => sum + (e.metadata.idleDuration || 0), 0);
 
     return {
         pauseFrequency: pauseEvents.length / timeWindowMinutes,
         pauseCount: pauseEvents.length,
-        replayCount: backwardSeekEvents.length, // Only count backward actions as replays
+        replayCount: backwardSeekEvents.length,
         forwardSeekCount: forwardSeekEvents.length,
         avgSpeed,
         idleTime: totalIdleTime,
-        navigationReversals: navReversals.length, // Stop using replayCount as proxy
+        navigationReversals: navReversals.length,
         totalEvents,
         timeWindowMinutes
     };
@@ -107,35 +100,24 @@ function calculateBehaviorMetrics(events) {
 function detectBehavioralPatterns(metrics, events) {
     const patterns = [];
 
-    // PATTERN 1: Confusion
-    // Indicators: Navigation reversals + replay events
-    // Increased threshold: need multiple replays if no explicit reversal
     if (metrics.navigationReversals >= 1 && metrics.replayCount >= 1) {
         patterns.push('confusion');
     } else if (metrics.replayCount >= 3) {
         patterns.push('confusion');
     }
 
-    // PATTERN 2: Cognitive Overload
-    // Indicators: High pause frequency + slow speed
     if (metrics.pauseFrequency > 3 || (metrics.pauseFrequency > 2 && metrics.avgSpeed < 0.9)) {
         patterns.push('overload');
     }
 
-    // PATTERN 3: Fatigue
-    // Indicators: Increasing idle periods + speed reduction over time
     if (metrics.idleTime > 30000 && metrics.avgSpeed < 0.9) {
         patterns.push('fatigue');
     }
 
-    // PATTERN 4: Navigation Difficulty
-    // Indicators: Multiple navigation reversals
     if (metrics.navigationReversals >= 2 || metrics.replayCount >= 4) {
         patterns.push('navigation_difficulty');
     }
 
-    // PATTERN 5: Engagement (positive pattern)
-    // Indicators: Low pauses, normal speed, few reversals, OR active forward seeking
     if ((metrics.pauseFrequency < 1 && metrics.avgSpeed >= 0.9 && metrics.navigationReversals === 0) ||
         metrics.forwardSeekCount >= 2) {
         patterns.push('engagement');
@@ -152,7 +134,6 @@ function detectBehavioralPatterns(metrics, events) {
  * HIGH: Multiple stress/overload patterns
  */
 function inferCognitiveLoad(patterns, metrics) {
-    // High load indicators
     if (patterns.includes('overload') ||
         patterns.includes('confusion') ||
         patterns.includes('fatigue') ||
@@ -160,12 +141,10 @@ function inferCognitiveLoad(patterns, metrics) {
         return 'high';
     }
 
-    // Medium load indicators
     if (patterns.length > 0 || metrics.pauseFrequency > 1) {
         return 'medium';
     }
 
-    // Low load (default or engagement)
     return 'low';
 }
 
@@ -175,15 +154,12 @@ function inferCognitiveLoad(patterns, metrics) {
  * Consistent patterns = higher confidence
  */
 function calculateConfidence(eventCount, patterns) {
-    // Base confidence on sample size
-    let confidence = Math.min(eventCount / 20, 0.8); // Max 0.8 from sample size
+    let confidence = Math.min(eventCount / 20, 0.8);
 
-    // Boost confidence if clear patterns detected
     if (patterns.length > 0) {
         confidence += 0.1;
     }
 
-    // Multiple patterns = higher confidence
     if (patterns.length >= 2) {
         confidence += 0.1;
     }
@@ -198,7 +174,6 @@ function calculateConfidence(eventCount, patterns) {
 export function recommendAdaptations(cognitiveState) {
     const recommendations = [];
 
-    // High cognitive load -> Multiple adaptations
     if (cognitiveState.cognitiveLoad === 'high') {
         if (cognitiveState.patterns.includes('overload')) {
             recommendations.push('SMART_PAUSE');
@@ -206,15 +181,12 @@ export function recommendAdaptations(cognitiveState) {
         }
     }
 
-    // Medium cognitive load -> Targeted adaptations
     if (cognitiveState.cognitiveLoad === 'medium') {
         if (cognitiveState.patterns.includes('fatigue')) {
             recommendations.push('SLOW_NARRATION');
         }
     }
 
-    // Low cognitive load -> No adaptations needed (or remove existing ones)
-    // This maintains the balance of the feedback loop
 
     return recommendations;
 }

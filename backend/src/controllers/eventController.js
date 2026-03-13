@@ -20,14 +20,12 @@ eventRouter.post('/ingest', async (req, res) => {
     try {
         const { sessionId, eventType, metadata } = req.body;
 
-        // Validate request
         if (!sessionId || !eventType) {
             return res.status(400).json({
                 error: 'Missing required fields: sessionId, eventType'
             });
         }
 
-        // Create event object
         const event = {
             eventId: uuidv4(),
             sessionId,
@@ -36,10 +34,8 @@ eventRouter.post('/ingest', async (req, res) => {
             metadata: metadata || {}
         };
 
-        // Store event
         addEvent(sessionId, event);
 
-        // Update session context if provided
         if (metadata.currentTime !== undefined ||
             metadata.speed !== undefined ||
             metadata.sectionId !== undefined) {
@@ -50,7 +46,6 @@ eventRouter.post('/ingest', async (req, res) => {
             });
         }
 
-        // Process event asynchronously (triggers cognitive loop)
         processEvent(event).catch(err => {
             console.error('Event processing error:', err);
         });
@@ -93,7 +88,6 @@ eventRouter.post('/batch', async (req, res) => {
             return event;
         });
 
-        // Process last event to trigger cognitive analysis
         if (processedEvents.length > 0) {
             const lastEvent = processedEvents[processedEvents.length - 1];
             processEvent(lastEvent).catch(err => {

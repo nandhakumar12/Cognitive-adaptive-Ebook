@@ -27,26 +27,21 @@ export async function processEvent(event) {
 
         console.log(`[COGNITIVE LOOP] Processing event: ${event.eventType} for session ${sessionId}`);
 
-        // Step 1: Get recent behavioral events for analysis
-        // RESEARCH NOTE: Scoping by section ensures adaptations are context-aware
-        const allRecentEvents = getRecentEvents(sessionId, 50); // Get larger pool
+        const allRecentEvents = getRecentEvents(sessionId, 50);
         const session = getSession(sessionId);
         const sectionId = session.currentSection;
 
         const recentEvents = allRecentEvents
             .filter(e => !sectionId || e.metadata.sectionId === sectionId)
-            .slice(-20); // Keep the 20 most recent for this section
+            .slice(-20);
 
-        // Step 2: Analyze patterns and infer cognitive state
         const cognitiveState = inferCognitiveState(recentEvents, sessionId);
 
-        // Store cognitive state
         updateCognitiveState(sessionId, cognitiveState);
 
         console.log(`[COGNITIVE LOOP] Cognitive Load: ${cognitiveState.cognitiveLoad}`);
         console.log(`[COGNITIVE LOOP] Patterns: ${cognitiveState.patterns.join(', ') || 'none'}`);
 
-        // Step 3: Get adaptation recommendations
         const recommendedStrategies = recommendAdaptations(cognitiveState);
 
         if (recommendedStrategies.length === 0) {
@@ -56,7 +51,6 @@ export async function processEvent(event) {
 
         console.log(`[COGNITIVE LOOP] Recommended adaptations: ${recommendedStrategies.join(', ')}`);
 
-        // Step 4: Filter based on cooldown and recent history
         const recentAdaptations = getRecentAdaptations(sessionId, 10);
         const applicableStrategies = recommendedStrategies.filter(strategy =>
             shouldApplyAdaptation(recentAdaptations, strategy)
@@ -67,7 +61,6 @@ export async function processEvent(event) {
             return;
         }
 
-        // Step 5: Execute adaptations
         const context = {
             currentTime: session.currentTime,
             currentSpeed: session.playbackSpeed,
@@ -77,18 +70,15 @@ export async function processEvent(event) {
 
         const adaptations = executeAdaptations(cognitiveState, applicableStrategies, context);
 
-        // Step 6: Store adaptation decisions
         adaptations.forEach(adaptation => {
             addAdaptation(sessionId, adaptation);
         });
 
         console.log(`[COGNITIVE LOOP] Applied ${adaptations.length} adaptation(s)`);
 
-        // LOOP CONTINUES with next event...
 
     } catch (error) {
         console.error('[COGNITIVE LOOP] Processing error:', error);
-        // Non-fatal - log but don't break the system
     }
 }
 

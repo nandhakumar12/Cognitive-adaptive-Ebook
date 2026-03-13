@@ -11,7 +11,7 @@ import './BookCard.css';
 
 interface BookCardProps {
     book: Audiobook;
-    progress?: number; // 0-100
+    progress?: number;
     onPlay: (bookId: string) => void;
     onEdit?: (book: Audiobook) => void;
     onDelete?: (bookId: string) => void;

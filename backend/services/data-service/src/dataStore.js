@@ -21,12 +21,10 @@ export async function getSession(sessionId, userId = null) {
         const { Item } = await docClient.send(new GetCommand(params));
 
         if (Item) {
-            // Ensure essential arrays exist (resilience for schema evolution)
             Item.events = Item.events || [];
             Item.cognitiveStates = Item.cognitiveStates || [];
             Item.adaptations = Item.adaptations || [];
 
-            // Bind user if not bound
             if (userId && !Item.userId) {
                 await updateSessionUser(sessionId, userId);
                 Item.userId = userId;
@@ -35,7 +33,6 @@ export async function getSession(sessionId, userId = null) {
             return Item;
         }
 
-        // Create new session
         const newSession = {
             sessionId,
             userId,
@@ -74,24 +71,11 @@ async function updateSessionUser(sessionId, userId) {
  * Add event to session
  */
 export async function addEvent(sessionId, event) {
-    // If event has userId, ensure session is bound (best effort)
     if (event.userId) {
-        // We don't await this to keep it fast, but in real app we might want to
         updateSessionUser(sessionId, event.userId).catch(() => { });
     }
 
-    // Append to events list
-    // Note: This naive list_append has a limit. For production, use a separate Events table.
-    // We limit to 100 on read/write logic in application or here.
-    // DynamoDB doesn't support "slice" natively in UpdateExpression easily without complex logic.
-    // For now, we allow growing.
 
-    // Actually, to respect the "last 100" logic, we should probably:
-    // 1. Get Session
-    // 2. Modify
-    // 3. Put Session
-    // This is safer for specific logic but slower/race-condition prone.
-    // Given the low traffic, we'll do Read-Modify-Write for now to maintain logic parity.
 
     const session = await getSession(sessionId);
     session.events.push(event);
@@ -173,7 +157,6 @@ export async function getRecentAdaptations(sessionId, limit = 10) {
  * Update session context
  */
 export async function updateSessionContext(sessionId, context) {
-    // Construct UpdateExpression dynamically
     let updateExp = "set ";
     const expAttrValues = {};
     const expAttrNames = {};
@@ -206,12 +189,10 @@ export async function updateSessionContext(sessionId, context) {
         await docClient.send(new UpdateCommand(params));
     }
 
-    const session = await getSession(sessionId); // Fetch updated
+    const session = await getSession(sessionId);
 
-    // Also update user progress if userId present
     if (session.userId && context.currentSection) {
         await saveUserProgress(session.userId, "book-default", context.currentSection, context.currentTime);
-        // Note: bookId hardcoded to 'book-default' for now as explicit bookId wasn't in original context
     }
 
     return session;
@@ -237,7 +218,7 @@ export async function saveUserProgress(userId, bookId = "default", sectionId, pr
         Item: {
             userId,
             bookId,
-            progress: sectionId, // Interpreting sectionId as 'progress' from original schema
+            progress: sectionId,
             lastUpdated: Date.now(),
             currentTime: progressTime
         }

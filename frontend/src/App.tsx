@@ -31,20 +31,17 @@ function App() {
     const [showResearchDashboard, setShowResearchDashboard] = useState(false);
     const [discoveredDurations, setDiscoveredDurations] = useState<Record<string, string>>({});
 
-    // User progress state (linked to user session in future)
     const [userProgress] = useState<{ [key: string]: number }>({
         'book-1': 45,
         'book-2': 12,
         'book-3': 78
     });
 
-    // Seek and Source state for chapter navigation
     const [seekToTime, setSeekToTime] = useState<number | undefined>(undefined);
     const [currentAudioUrl, setCurrentAudioUrl] = useState<string>('');
     const [currentChapterIndex, setCurrentChapterIndex] = useState<number>(0);
 
     useEffect(() => {
-        // Start cognitive feedback session
         if (isAuthenticated) {
             eventEmitter.startSession();
         }
@@ -54,7 +51,6 @@ function App() {
         };
     }, [isAuthenticated]);
 
-    // Show loading screen while checking auth
     if (isLoading) {
         return (
             <div className="loading-screen" style={{
@@ -73,7 +69,6 @@ function App() {
         );
     }
 
-    // Redirect to AuthPage if not logged in
     if (!isAuthenticated) {
         return <AuthPage />;
     }
@@ -95,7 +90,6 @@ function App() {
     const handlePlayBook = () => {
         console.log('[DEBUG] Playing book:', selectedBook?.title);
         if (selectedBook) {
-            // Start a fresh research session for this specific book
             eventEmitter.refreshSession();
             setCurrentChapterIndex(0);
             setCurrentView('player');
@@ -118,10 +112,8 @@ function App() {
         setCurrentChapterIndex(index);
         setSeekToTime(startTime);
 
-        // Reset adaptation session for new chapter
         eventEmitter.refreshSession();
 
-        // Reset after brief delay to allow multiple clicks
         setTimeout(() => setSeekToTime(undefined), 100);
     };
 

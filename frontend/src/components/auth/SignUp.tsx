@@ -48,7 +48,6 @@ export const SignUp: React.FC<SignUpProps> = ({ onSwitchToLogin }) => {
                 username: email,
                 confirmationCode: verificationCode
             });
-            // Auto sign in happens if configured, otherwise redirect to login
             onSwitchToLogin();
             alert('Account verified! Please sign in.');
         } catch (err: any) {

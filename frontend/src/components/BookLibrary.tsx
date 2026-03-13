@@ -26,9 +26,8 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
     const [isEditing, setIsEditing] = useState(false);
     const [currentBook, setCurrentBook] = useState<Partial<Audiobook> | null>(null);
 
-    // Simulated user progress (in a real app, fetch from backend)
     const [userProgress] = useState<{ [key: string]: number }>({
-        'book-1': 45, // 45% complete
+        'book-1': 45,
         'book-2': 12,
         'book-3': 78
     });
@@ -48,7 +47,6 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
     }, []);
 
     useEffect(() => {
-        // Filter books based on search query
         if (searchQuery.trim() === '') {
             setFilteredBooks(audiobooks);
         } else {

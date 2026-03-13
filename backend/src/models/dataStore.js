@@ -7,10 +7,8 @@
  * This design allows easy migration to cloud databases
  */
 
-// Session-based storage (NoSQL-ready structure)
 const sessions = new Map();
 
-// User progress storage (mock DynamoDB UserProgress table)
 const userProgress = new Map();
 
 /**
@@ -31,7 +29,6 @@ export function getSession(sessionId, userId = null) {
         });
     }
     const session = sessions.get(sessionId);
-    // Bind user to session if not already bound
     if (userId && !session.userId) {
         session.userId = userId;
     }
@@ -42,11 +39,9 @@ export function getSession(sessionId, userId = null) {
  * Add event to session
  */
 export function addEvent(sessionId, event) {
-    // If event has userId, pass it to getSession
     const session = getSession(sessionId, event.userId);
     session.events.push(event);
 
-    // Keep only last 100 events for performance (rolling window)
     if (session.events.length > 100) {
         session.events = session.events.slice(-100);
     }
@@ -69,7 +64,6 @@ export function updateCognitiveState(sessionId, cognitiveState) {
     const session = getSession(sessionId);
     session.cognitiveStates.push(cognitiveState);
 
-    // Keep only last 20 states
     if (session.cognitiveStates.length > 20) {
         session.cognitiveStates = session.cognitiveStates.slice(-20);
     }
@@ -111,7 +105,6 @@ export function updateSessionContext(sessionId, context) {
     if (context.playbackSpeed !== undefined) session.playbackSpeed = context.playbackSpeed;
     if (context.currentSection !== undefined) session.currentSection = context.currentSection;
 
-    // Also update user progress if userId present (for library view)
     if (session.userId && context.currentSection) {
         saveUserProgress(session.userId, context.currentSection, context.currentTime);
     }

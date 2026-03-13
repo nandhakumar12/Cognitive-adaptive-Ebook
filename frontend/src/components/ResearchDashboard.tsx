@@ -47,7 +47,7 @@ export const ResearchDashboard: React.FC = () => {
             } catch (error) {
                 console.warn('[Research Dashboard] Backend not responding:', error);
             }
-        }, 3000); // Update every 3 seconds
+        }, 3000);
 
         return () => clearInterval(interval);
     }, []);

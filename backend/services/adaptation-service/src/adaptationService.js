@@ -16,12 +16,10 @@ import { v4 as uuidv4 } from 'uuid';
 export function recommendAdaptations(cognitiveState) {
     const recommendations = [];
 
-    // High cognitive load -> Targeted Patterns
     if (cognitiveState.cognitiveLoad === 'high') {
-        recommendations.push('SMART_PAUSE');     // Baseline for high load
+        recommendations.push('SMART_PAUSE');
 
         const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
-        // Trigger SLOW_NARRATION if load is high and user is pausing or struggling
         if (pauseCount >= 2 || cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle') || cognitiveState.patterns.includes('repetition_spike')) {
             recommendations.push('SLOW_NARRATION');
         }
@@ -31,16 +29,13 @@ export function recommendAdaptations(cognitiveState) {
         }
     }
 
-    // Medium cognitive load -> Targeted Patterns
     if (cognitiveState.cognitiveLoad === 'medium') {
         const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
-        // Trigger SLOW_NARRATION if pausing frequently or showing fatigue
         if (pauseCount >= 3 || cognitiveState.patterns.includes('fatigue')) {
             recommendations.push('SLOW_NARRATION');
         }
     }
 
-    // Return unique recommendations
     return [...new Set(recommendations)];
 }
 
@@ -69,9 +64,6 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
                 const currentSpeed = context.currentSpeed || 1.0;
                 let targetSpeed = currentSpeed;
 
-                // TWO-STAGE SLOWDOWN LOGIC
-                // Stage 1: Automatic drop to 0.75x (silent in frontend if > 0.75)
-                // Stage 2: Prompted drop to 0.50x (if already at 0.75 or lower)
                 if (currentSpeed > 0.75) {
                     targetSpeed = 0.75;
                 } else {
@@ -80,7 +72,7 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
 
                 return {
                     targetSpeed,
-                    duration: 15000 // 15 seconds for testing
+                    duration: 15000
                 };
             })(),
             triggeredBy
@@ -94,8 +86,8 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
             timestamp,
             reason: 'Cognitive overload detected - providing pause for processing',
             parameters: {
-                pauseDuration: 3000, // 3 second pause
-                audioCue: true, // Gentle chime to indicate pause
+                pauseDuration: 3000,
+                audioCue: true,
                 resumeMessage: 'Resuming audio in 3 seconds...'
             },
             triggeredBy
@@ -131,7 +123,6 @@ export function executeAdaptations(cognitiveState, strategies, context) {
         if (adaptation) {
             adaptations.push(adaptation);
 
-            // Log for research purposes
             console.log(`[ADAPTATION] ${strategy} triggered for session ${cognitiveState.sessionId}`);
             console.log(`  Reason: ${adaptation.reason}`);
             console.log(`  Patterns: ${patterns.join(', ')}`);
@@ -152,7 +143,7 @@ export function executeAdaptations(cognitiveState, strategies, context) {
  */
 export function shouldApplyAdaptation(recentAdaptations, strategy) {
     const now = Date.now();
-    const cooldownPeriod = 5000; // 5 seconds as requested
+    const cooldownPeriod = 5000;
 
     const effectiveCooldown = strategy === 'SMART_PAUSE' ? 8000 : 5000;
     const recentSameStrategy = recentAdaptations.filter(a =>
@@ -165,12 +156,11 @@ export function shouldApplyAdaptation(recentAdaptations, strategy) {
         return false;
     }
 
-    // Prevent excessive spam (increased for testing)
     const veryRecentAdaptations = recentAdaptations.filter(a =>
         (now - a.timestamp) < 60000
     );
 
-    if (veryRecentAdaptations.length >= 20) { // Limit to 20 per minute for testing
+    if (veryRecentAdaptations.length >= 20) {
         console.log(`[ADAPTATION] Skipping ${strategy} - too many recent adaptations`);
         return false;
     }

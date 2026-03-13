@@ -68,7 +68,7 @@ export interface CognitiveState {
     sessionId: string;
     cognitiveLoad: CognitiveLoadLevel;
     patterns: BehavioralPattern[];
-    confidence: number; // 0-1
+    confidence: number;
     timestamp: number;
     behaviorSummary: {
         pauseFrequency: number;

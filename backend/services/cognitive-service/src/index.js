@@ -8,7 +8,6 @@ const PORT = 3003;
 app.use(cors());
 app.use(express.json());
 
-// Logging middleware
 app.use((req, res, next) => {
     console.log(`[COGNITIVE-SERVICE] ${req.method} ${req.path}`);
     next();

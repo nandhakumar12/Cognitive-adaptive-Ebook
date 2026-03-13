@@ -28,7 +28,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }, []);
 
     async function checkUser() {
-        // Dev Bypass
         if (import.meta.env.VITE_DEV_BYPASS === 'true') {
             console.log('[AuthContext] Dev bypass enabled');
             setUser({

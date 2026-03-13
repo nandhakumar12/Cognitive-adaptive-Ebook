@@ -13,7 +13,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 class EventEmitter {
     private sessionId: string;
     private eventQueue: Partial<BehavioralEvent>[] = [];
-    private batchInterval: number = 2000; // Send batch every 2 seconds
+    private batchInterval: number = 2000;
     private batchTimer: any = null;
 
     constructor() {
@@ -43,12 +43,10 @@ class EventEmitter {
             }
         };
 
-        // Add to queue for batch processing
         this.eventQueue.push(event);
 
         console.log(`[EVENT] ${eventType}`, metadata);
 
-        // For critical events, send immediately
         if (this.isCriticalEvent(eventType)) {
             this.sendImmediate(event);
         }
@@ -59,7 +57,7 @@ class EventEmitter {
             'SESSION_START',
             'SESSION_END',
             'AUDIO_PAUSE',
-            'AUDIO_REPLAY' // IMMEDIATE SEND for Rapid Rewind detection
+            'AUDIO_REPLAY'
         ].includes(eventType);
     }
 
@@ -74,7 +72,6 @@ class EventEmitter {
             });
         } catch (error) {
             console.error('Failed to send event:', error);
-            // Store in queue as fallback
             this.eventQueue.push(event);
         }
     }
@@ -106,7 +103,6 @@ class EventEmitter {
             console.log(`[EVENT BATCH] Sent ${eventsToSend.length} events`);
         } catch (error) {
             console.error('Failed to send batch:', error);
-            // Re-queue events
             this.eventQueue.unshift(...eventsToSend);
         }
     }
@@ -130,14 +126,14 @@ class EventEmitter {
      */
     public async refreshSession() {
         console.log(`[SESSION] Refreshing... Flushing pending events for ${this.sessionId}`);
-        await this.processBatch(); // Ensure pending events are sent
+        await this.processBatch();
 
         if (this.batchTimer) {
             clearInterval(this.batchTimer);
         }
 
         this.sessionId = this.generateSessionId();
-        this.startBatchProcessing(); // Restart the timer for the new session
+        this.startBatchProcessing();
         this.emit('SESSION_START');
         console.log(`[SESSION] Refreshed. New ID: ${this.sessionId}`);
     }
@@ -147,12 +143,11 @@ class EventEmitter {
      */
     public endSession() {
         this.emit('SESSION_END');
-        this.processBatch(); // Send any remaining events
+        this.processBatch();
         if (this.batchTimer) {
             clearInterval(this.batchTimer);
         }
     }
 }
 
-// Singleton instance
 export const eventEmitter = new EventEmitter();

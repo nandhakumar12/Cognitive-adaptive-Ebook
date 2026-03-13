@@ -8,7 +8,6 @@ const PORT = 3004;
 app.use(cors());
 app.use(express.json());
 
-// Logging middleware
 app.use((req, res, next) => {
     console.log(`[ADAPTATION-SERVICE] ${req.method} ${req.path}`);
     next();
@@ -22,10 +21,8 @@ app.post('/decide', (req, res) => {
             return res.status(400).json({ error: 'Missing cognitiveState' });
         }
 
-        // 1. Get raw recommendations
         const rawStrategies = recommendAdaptations(cognitiveState);
 
-        // 2. Filter using cooldown logic
         const recommendedStrategies = rawStrategies.filter(strategy =>
             shouldApplyAdaptation(recentAdaptations || [], strategy)
         );
@@ -36,7 +33,6 @@ app.post('/decide', (req, res) => {
 
         console.log(`Final recommendations for session ${cognitiveState.sessionId}: ${recommendedStrategies.join(', ')}`);
 
-        // 3. Execute (generate adaptation objects)
         const adaptations = executeAdaptations(cognitiveState, recommendedStrategies, context || {});
 
         res.json(adaptations);

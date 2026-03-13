@@ -6,7 +6,6 @@ import axios from 'axios';
 const app = express();
 const PORT = 3002;
 
-// Service URLs
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || 'http://localhost:3005';
 const COGNITIVE_SERVICE_URL = process.env.COGNITIVE_SERVICE_URL || 'http://localhost:3003';
 const ADAPTATION_SERVICE_URL = process.env.ADAPTATION_SERVICE_URL || 'http://localhost:3004';
@@ -14,7 +13,6 @@ const ADAPTATION_SERVICE_URL = process.env.ADAPTATION_SERVICE_URL || 'http://loc
 app.use(cors());
 app.use(express.json());
 
-// Logging middleware
 app.use((req, res, next) => {
     console.log(`[EVENT-SERVICE] ${req.method} ${req.path}`);
     next();
@@ -28,8 +26,6 @@ async function processEvent(event) {
         const { sessionId } = event;
         console.log(`[ORCHESTRATOR] Processing event: ${event.eventType} for session ${sessionId}`);
 
-        // 1. Get recent events from Data Service
-        // RESEARCH NOTE: Scoping by section ensures adaptations are context-aware
         const sectionId = event.metadata?.sectionId;
         const eventsResponse = await axios.get(`${DATA_SERVICE_URL}/sessions/${sessionId}/events?limit=50`);
         const allEvents = eventsResponse.data || [];
@@ -38,7 +34,6 @@ async function processEvent(event) {
             .filter(e => !sectionId || e.metadata?.sectionId === sectionId)
             .slice(-20);
 
-        // 2. Call Cognitive Service to analyze
         console.log(`[ORCHESTRATOR] Requesting cognitive analysis...`);
         const cognitiveResponse = await axios.post(`${COGNITIVE_SERVICE_URL}/analyze`, {
             sessionId,
@@ -46,14 +41,11 @@ async function processEvent(event) {
         });
         const cognitiveState = cognitiveResponse.data;
 
-        // 3. Store cognitive state
         await axios.post(`${DATA_SERVICE_URL}/sessions/${sessionId}/cognitive`, cognitiveState);
         console.log(`[ORCHESTRATOR] Cognitive State: ${cognitiveState.cognitiveLoad}`);
 
-        // 4. Call Adaptation Service for recommendations
         console.log(`[ORCHESTRATOR] Requesting adaptation recommendations...`);
 
-        // Fetch recent adaptations to support cooldown logic
         const historyResponse = await axios.get(`${DATA_SERVICE_URL}/sessions/${sessionId}/adaptations?limit=10`);
         const recentAdaptations = historyResponse.data || [];
 
@@ -68,7 +60,6 @@ async function processEvent(event) {
         });
         const adaptations = adaptationResponse.data;
 
-        // 5. Store and log adaptations
         if (adaptations && adaptations.length > 0) {
             console.log(`[ORCHESTRATOR] Applying ${adaptations.length} adaptation(s)`);
             for (const adaptation of adaptations) {
@@ -83,7 +74,6 @@ async function processEvent(event) {
     }
 }
 
-// --- Endpoints ---
 
 app.post('/ingest', async (req, res) => {
     try {
@@ -101,10 +91,8 @@ app.post('/ingest', async (req, res) => {
             metadata: metadata || {}
         };
 
-        // 1. Store event in Data Service
         await axios.post(`${DATA_SERVICE_URL}/sessions/${sessionId}/events`, event);
 
-        // 2. Update context if needed
         if (metadata && (metadata.currentTime || metadata.speed || metadata.sectionId)) {
             await axios.post(`${DATA_SERVICE_URL}/sessions/${sessionId}/context`, {
                 currentTime: metadata.currentTime,
@@ -113,7 +101,6 @@ app.post('/ingest', async (req, res) => {
             });
         }
 
-        // 3. Trigger async processing (fire and forget)
         processEvent(event).catch(err => console.error(err));
 
         res.json({ success: true, eventId: event.eventId });
@@ -143,10 +130,8 @@ app.post('/batch', async (req, res) => {
                 metadata: eventData.metadata || {}
             };
 
-            // 1. Store event
             await axios.post(`${DATA_SERVICE_URL}/sessions/${sessionId}/events`, event);
 
-            // 2. Trigger sequential processing
             await processEvent(event);
         }
 

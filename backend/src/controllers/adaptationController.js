@@ -42,9 +42,8 @@ adaptationRouter.get('/:sessionId/active', (req, res) => {
         const now = Date.now();
         const adaptations = getRecentAdaptations(sessionId, 10);
 
-        // Filter adaptations that are still within their duration window
         const activeAdaptations = adaptations.filter(a => {
-            const duration = a.parameters.duration || 60000; // Default 60s
+            const duration = a.parameters.duration || 60000;
             return (now - a.timestamp) < duration;
         });
 
@@ -69,7 +68,6 @@ adaptationRouter.get('/stats/:sessionId', (req, res) => {
         const { sessionId } = req.params;
         const session = getSession(sessionId);
 
-        // Calculate statistics
         const strategyCount = {};
         session.adaptations.forEach(a => {
             strategyCount[a.strategy] = (strategyCount[a.strategy] || 0) + 1;

@@ -20,7 +20,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToSignup }) => {
         try {
             const { isSignedIn, nextStep } = await signIn({ username: email, password });
             if (isSignedIn) {
-                window.location.reload(); // Refresh to trigger auth check
+                window.location.reload();
             } else {
                 console.log('Next step:', nextStep);
                 if (nextStep?.signInStep === 'CONFIRM_SIGN_UP') {
@@ -45,7 +45,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToSignup }) => {
                     <label htmlFor="email">Email / Username</label>
                     <input
                         id="email"
-                        type="email" // Changed from text to email for better UX
+                        type="email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         required

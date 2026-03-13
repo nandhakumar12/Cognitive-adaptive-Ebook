@@ -12,7 +12,7 @@ A modern, microservice-based web application with an interactive frontend and di
 
 ### 1. Clone the repository
 ```bash
-git clone <repository-url>
+git clone https://github.com/nandhakumar12/Cognitive-adaptive-Ebook.git
 cd Cognitive-adaptive-Ebook
 ```
 

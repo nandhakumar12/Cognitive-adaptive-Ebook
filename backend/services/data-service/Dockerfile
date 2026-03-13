@@ -10,7 +10,9 @@ WORKDIR /app
 
 COPY package*.json ./
 # --omit=dev is the modern equivalent of --only=production
-RUN npm ci --omit=dev
+RUN npm ci --omit=dev && \
+    npm cache clean --force && \
+    rm -rf ~/.npm
 
 # Remove npm after install to reduce attack surface
 RUN npm uninstall -g npm || true

@@ -13,6 +13,7 @@ services:
       - VITE_COGNITO_CLIENT_ID=1hs80fmchi3rucp67b0devpo0q
     depends_on:
       - gateway
+    restart: unless-stopped
 
   gateway:
     image: ${ECR_REGISTRY}/adaptive-cognitive-gateway:latest
@@ -31,6 +32,7 @@ services:
       - event-service
       - cognitive-service
       - adaptation-service
+    restart: unless-stopped
 
   data-service:
     image: ${ECR_REGISTRY}/adaptive-cognitive-data-service:latest
@@ -38,6 +40,7 @@ services:
       - "3005:3005"
     environment:
       - PORT=3005
+    restart: unless-stopped
 
   event-service:
     image: ${ECR_REGISTRY}/adaptive-cognitive-event-service:latest
@@ -50,6 +53,7 @@ services:
       - PORT=3002
     depends_on:
       - data-service
+    restart: unless-stopped
 
   cognitive-service:
     image: ${ECR_REGISTRY}/adaptive-cognitive-cognitive-service:latest
@@ -57,6 +61,7 @@ services:
       - "3003:3003"
     environment:
       - PORT=3003
+    restart: unless-stopped
 
   adaptation-service:
     image: ${ECR_REGISTRY}/adaptive-cognitive-adaptation-service:latest
@@ -64,3 +69,4 @@ services:
       - "3004:3004"
     environment:
       - PORT=3004
+    restart: unless-stopped

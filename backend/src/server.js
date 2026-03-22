@@ -55,17 +55,10 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-    console.log(`
-╔═══════════════════════════════════════════════════════════╗
-║  Adaptive Cognitive Audio Platform - Backend Server      ║
-║                                                           ║
-╟───────────────────────────────────────────────────────────╢
-║  Port: ${PORT}                                           ║
-║  Environment: ${process.env.NODE_ENV || 'development'}   ║
-║  Auth Mode: ${process.env.COGNITO_USER_POOL_ID ? 'AWS Cognito' : 'Mock/Dev'}      ║
-║  Cognitive Feedback Loop: ACTIVE                          ║
-╚═══════════════════════════════════════════════════════════╝
-  `);
+    console.log(`Server started on port ${PORT}`);
+    console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
+    console.log(`Auth Mode: ${process.env.COGNITO_USER_POOL_ID ? 'AWS Cognito' : 'Mock/Dev'}`);
+    console.log('Cognitive Feedback Loop: ACTIVE');
 });
 
 export default app;

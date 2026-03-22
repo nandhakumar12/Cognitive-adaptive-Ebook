@@ -42,11 +42,11 @@ export function recommendAdaptations(cognitiveState) {
 /**
  * Create adaptation decision based on strategy and cognitive state
  * 
- * @param {Object} cognitiveState - Current inferred cognitive state
- * @param {string} strategy - Adaptation strategy to apply
- * @param {Array} triggeredBy - Behavioral patterns that triggered this
- * @param {Object} context - Additional context (current time, section, etc.)
- * @returns {Object} Adaptation decision object
+ * @param cognitiveState - Current inferred cognitive state
+ * @param strategy - Adaptation strategy to apply
+ * @param triggeredBy - Behavioral patterns that triggered this
+ * @param context - Additional context (current time, section, etc.)
+ * @returns Adaptation decision object
  */
 export function createAdaptation(cognitiveState, strategy, triggeredBy, context = {}) {
     const sessionId = cognitiveState.sessionId;
@@ -100,10 +100,10 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
 /**
  * Execute multiple adaptations for a given cognitive state
  * 
- * @param {Object} cognitiveState - Current inferred cognitive state
- * @param {Array} strategies - Array of adaptation strategies to apply
- * @param {Object} context - Session context
- * @returns {Array} Array of adaptation decisions
+ * @param cognitiveState - Current inferred cognitive state
+ * @param strategies - Array of adaptation strategies to apply
+ * @param context - Session context
+ * @returns Array of adaptation decisions
  */
 export function executeAdaptations(cognitiveState, strategies, context) {
     const adaptations = [];
@@ -137,9 +137,9 @@ export function executeAdaptations(cognitiveState, strategies, context) {
  * Check if an adaptation should be applied based on recent history
  * Prevents over-adaptation (adaptation fatigue)
  * 
- * @param {Array} recentAdaptations - Recent adaptation history
- * @param {string} strategy - Strategy being considered
- * @returns {boolean} Whether to apply the adaptation
+ * @param recentAdaptations - Recent adaptation history
+ * @param strategy - Strategy being considered
+ * @returns Whether to apply the adaptation
  */
 export function shouldApplyAdaptation(recentAdaptations, strategy) {
     const now = Date.now();

@@ -10,8 +10,8 @@
 /**
  * Analyzes behavioral event sequences to infer cognitive load
  * 
- * @param {Array} events - Recent behavioral events from session
- * @returns {Object} Inferred cognitive state
+ * @param events - Recent behavioral events from session
+ * @returns Inferred cognitive state
  */
 export function inferCognitiveState(events, sessionId) {
     if (!events || events.length === 0) {

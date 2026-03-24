@@ -420,12 +420,23 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     );
 
 
+    useEffect(() => {
+        const handleGlobalKeyDown = (e: KeyboardEvent) => {
+            // Only handle if no input/textarea is focused
+            if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName || '')) {
+                return;
+            }
+            handleKeyDown(e as any);
+        };
+
+        window.addEventListener('keydown', handleGlobalKeyDown);
+        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+    }, [handleKeyDown]);
+
     return (
         <section
             className="audio-player"
             aria-label="AudioPlayer controls"
-            onKeyDown={handleKeyDown}
-            tabIndex={0}
         >
             <audio ref={audioRef} src={audioSrc} />
 

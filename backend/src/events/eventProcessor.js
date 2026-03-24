@@ -14,7 +14,7 @@
  */
 
 import { getRecentEvents, updateCognitiveState, addAdaptation, getRecentAdaptations, getSession } from '../models/dataStore.js';
-import { inferCognitiveState, recommendAdaptations } from '../engines/cognitiveEngine.js';
+import { inferCognitiveState, recommendAdaptations } from '../../services/cognitive-service/src/cognitiveEngine.js';
 import { executeAdaptations, shouldApplyAdaptation } from '../services/adaptationService.js';
 
 /**

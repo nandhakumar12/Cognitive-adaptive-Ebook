@@ -438,7 +438,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             className="audio-player"
             aria-label="AudioPlayer controls"
         >
-            <audio ref={audioRef} src={audioSrc} />
+            <audio ref={audioRef} src={audioSrc}>
+                <track kind="captions" />
+            </audio>
 
             {/* Screen reader announcements */}
             <div role="status" aria-live="polite" aria-atomic="true" className="sr-only">

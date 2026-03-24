@@ -62,6 +62,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
     const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const seenAdaptationIds = useRef<Set<string>>(new Set());
+    const chapterStartTimeRef = useRef<number>(Date.now());
     const hasPromptedSpeedReduction = useRef<boolean>(false);
     const isSmartPaused = useRef<boolean>(false);
     const smartPauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -165,7 +166,12 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const applyAdaptations = useCallback(
         (adaptations: AdaptationDecision[]) => {
             adaptations.forEach((adaptation) => {
+                // Ignore adaptations we've already seen or that were generated before this chapter started
                 if (seenAdaptationIds.current.has(adaptation.adaptationId)) return;
+                if (adaptation.timestamp && adaptation.timestamp < chapterStartTimeRef.current) {
+                    seenAdaptationIds.current.add(adaptation.adaptationId);
+                    return;
+                }
 
                 console.log('[ADAPTATION RECEIVED]', adaptation.strategy);
 
@@ -186,6 +192,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         console.log(
             `[AUDIO] Section changed from ${currentSectionIdRef.current} to ${sectionId}. Clearing adaptation cache.`,
         );
+        chapterStartTimeRef.current = Date.now();
         seenAdaptationIds.current.clear();
         hasPromptedSpeedReduction.current = false;
         setPlaybackSpeed(1);
@@ -443,7 +450,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             className="audio-player"
             aria-label="AudioPlayer controls"
         >
-            <audio ref={audioRef} src={audioSrc}>
+            <audio ref={audioRef} src={audioSrc} autoPlay={isPlaying}>
                 <track kind="captions" />
             </audio>
 

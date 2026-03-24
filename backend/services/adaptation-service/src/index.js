@@ -8,8 +8,8 @@ const PORT = 3004;
 // Security: disable framework fingerprinting
 app.disable('x-powered-by');
 
-// Security: restrict CORS to known trusted origins
-const corsOptions = {
+// Security: restrict CORS to known trusted origins for ADAPTATION-SERVICE
+const adaptationCorsOptions = {
     origin: [
         'http://localhost:3000',
         'http://127.0.0.1:3000',
@@ -18,7 +18,7 @@ const corsOptions = {
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
 };
-app.use(cors(corsOptions));
+app.use(cors(adaptationCorsOptions));
 app.use(express.json());
 
 app.use((req, res, next) => {

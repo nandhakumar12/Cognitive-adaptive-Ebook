@@ -8,8 +8,8 @@ const PORT = 3003;
 // Security: disable framework fingerprinting
 app.disable('x-powered-by');
 
-// Security: restrict CORS to known trusted origins
-const corsOptions = {
+// Security: restrict CORS to known trusted origins for COGNITIVE-SERVICE
+const cognitiveCorsOptions = {
     origin: [
         'http://localhost:3000',
         'http://127.0.0.1:3000',
@@ -18,7 +18,7 @@ const corsOptions = {
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
 };
-app.use(cors(corsOptions));
+app.use(cors(cognitiveCorsOptions));
 app.use(express.json());
 
 app.use((req, res, next) => {

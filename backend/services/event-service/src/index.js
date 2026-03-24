@@ -9,8 +9,8 @@ const PORT = 3002;
 // Security: disable framework fingerprinting
 app.disable('x-powered-by');
 
-// Security: restrict CORS to known trusted origins
-const corsOptions = {
+// Security: restrict CORS to known trusted origins for EVENT-SERVICE
+const eventServiceCorsOptions = {
     origin: [
         'http://localhost:3000',
         'http://127.0.0.1:3000',
@@ -19,7 +19,7 @@ const corsOptions = {
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
 };
-app.use(cors(corsOptions));
+app.use(cors(eventServiceCorsOptions));
 app.use(express.json());
 
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || 'http://localhost:3005';

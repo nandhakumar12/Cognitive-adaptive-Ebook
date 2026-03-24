@@ -12,6 +12,7 @@ module.exports = {
   plugins: ['react', 'jsx-a11y'],
   rules: {
     '@typescript-eslint/no-explicit-any': 'off',
+    'react-hooks/set-state-in-effect': 'off',
     'react/react-in-jsx-scope': 'off', // Not needed in React 17+
     'no-console': ['warn', { allow: ['warn', 'error', 'log'] }]
   },

@@ -20,18 +20,18 @@ export function recommendAdaptations(cognitiveState) {
         recommendations.push('SMART_PAUSE');
 
         const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
-        if (pauseCount >= 2 || cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle') || cognitiveState.patterns.includes('repetition_spike')) {
+        if (pauseCount >= 2 || cognitiveState.patterns?.includes('overload') || cognitiveState.patterns?.includes('struggle') || cognitiveState.patterns?.includes('repetition_spike')) {
             recommendations.push('SLOW_NARRATION');
         }
 
-        if (cognitiveState.patterns.includes('overload') || cognitiveState.patterns.includes('struggle')) {
+        if (cognitiveState.patterns?.includes('overload') || cognitiveState.patterns?.includes('struggle')) {
             recommendations.push('SMART_PAUSE');
         }
     }
 
     if (cognitiveState.cognitiveLoad === 'medium') {
         const pauseCount = cognitiveState.behaviorSummary?.pauseCount || 0;
-        if (pauseCount >= 3 || cognitiveState.patterns.includes('fatigue')) {
+        if (pauseCount >= 3 || cognitiveState.patterns?.includes('fatigue')) {
             recommendations.push('SLOW_NARRATION');
         }
     }
@@ -62,13 +62,8 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
             reason: 'High cognitive load detected - adjusting narration speed',
             parameters: (() => {
                 const currentSpeed = context.currentSpeed || 1.0;
-                let targetSpeed = currentSpeed;
-
-                if (currentSpeed > 0.75) {
-                    targetSpeed = 0.75;
-                } else {
-                    targetSpeed = 0.50;
-                }
+                // Ternary for cleaner logic and to avoid useless initial assignment (S1854)
+                const targetSpeed = currentSpeed > 0.75 ? 0.75 : 0.50;
 
                 return {
                     targetSpeed,
@@ -108,7 +103,7 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
 export function executeAdaptations(cognitiveState, strategies, context) {
     const adaptations = [];
 
-    const patterns = (cognitiveState.patterns && cognitiveState.patterns.length > 0)
+    const patterns = cognitiveState.patterns?.length > 0
         ? cognitiveState.patterns
         : ['behavioral-signals'];
 
@@ -143,8 +138,7 @@ export function executeAdaptations(cognitiveState, strategies, context) {
  */
 export function shouldApplyAdaptation(recentAdaptations, strategy) {
     const now = Date.now();
-    const cooldownPeriod = 5000;
-
+    // Removed unused variable cooldownPeriod (S1854)
     const effectiveCooldown = strategy === 'SMART_PAUSE' ? 8000 : 5000;
     const recentSameStrategy = recentAdaptations.filter(a =>
         a.strategy === strategy &&

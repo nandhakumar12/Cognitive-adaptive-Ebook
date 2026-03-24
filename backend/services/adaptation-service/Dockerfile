@@ -13,7 +13,7 @@ RUN npm ci --omit=dev --ignore-scripts && \
     rm -rf ~/.npm && \
     npm uninstall -g npm || true
 
-COPY . .
+COPY src/ ./src/
 
 EXPOSE 3004
 

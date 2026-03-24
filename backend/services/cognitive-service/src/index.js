@@ -36,8 +36,6 @@ app.post('/analyze', (req, res) => {
             return res.status(400).json({ error: 'Missing events array' });
         }
 
-        const sanitizedSessionId = String(sessionId || 'anonymous').replaceAll(/[^a-zA-Z0-9_-]/g, '').slice(0, 50);
-        console.log(`Analyzing ${events.length} events for session ${sanitizedSessionId}`);
         const state = inferCognitiveState(events, sessionId);
 
         res.json(state);

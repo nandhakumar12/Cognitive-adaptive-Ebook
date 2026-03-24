@@ -146,9 +146,6 @@ app.post('/batch', async (req, res) => {
             return res.status(400).json({ error: 'Missing sessionId or events array' });
         }
 
-        const sanitizedSessionId = String(sessionId || 'anonymous').replaceAll(/[^a-zA-Z0-9_-]/g, '').slice(0, 50);
-        console.log(`[EVENT-SERVICE] Processing batch of ${events.length} events for ${sanitizedSessionId}`);
-
         for (const eventData of events) {
             const event = {
                 eventId: uuidv4(),

@@ -84,21 +84,21 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     );
 
 
-    /** Handle SLOW_NARRATION adaptation. Returns true when the id was consumed. */
+    /** Handle SLOW_NARRATION adaptation. */
     const handleSlowNarration = useCallback(
-        (adaptation: AdaptationDecision): boolean => {
+        (adaptation: AdaptationDecision): void => {
             const targetSpeed: number = adaptation.parameters.targetSpeed ?? 0.75;
 
             if (targetSpeed < 0.75) {
                 if (hasPromptedSpeedReduction.current) {
                     console.log('[ADAPTATION] Skipping prompt – already prompted this chapter');
                     seenAdaptationIds.current.add(adaptation.adaptationId);
-                    return true;
+                    return;
                 }
                 setPendingAdaptation(adaptation);
                 hasPromptedSpeedReduction.current = true;
                 seenAdaptationIds.current.add(adaptation.adaptationId);
-                return true;
+                return;
             }
 
             seenAdaptationIds.current.add(adaptation.adaptationId);
@@ -110,18 +110,17 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 `Slowing narration to ${Math.round(targetSpeed * 100)}% for better comprehension`,
                 'SLOW_NARRATION',
             );
-            return true;
         },
         [showAlert],
     );
 
-    /** Handle SMART_PAUSE adaptation. Returns true when the id was consumed. */
+    /** Handle SMART_PAUSE adaptation. */
     const handleSmartPause = useCallback(
-        (adaptation: AdaptationDecision): boolean => {
+        (adaptation: AdaptationDecision): void => {
             if (isSmartPaused.current) {
                 console.log('[ADAPTATION] Skipping SMART_PAUSE – already paused');
                 seenAdaptationIds.current.add(adaptation.adaptationId);
-                return true;
+                return;
             }
 
             const pauseDuration: number = adaptation.parameters.pauseDuration ?? 3000;
@@ -155,7 +154,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             }
 
             seenAdaptationIds.current.add(adaptation.adaptationId);
-            return true;
         },
         [announce, showAlert],
     );

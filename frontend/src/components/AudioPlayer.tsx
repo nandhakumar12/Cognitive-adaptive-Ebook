@@ -55,7 +55,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
-    const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
+    const [lastInteractionTime, setLastInteractionTime] = useState(() => Date.now());
     const [announcement, setAnnouncement] = useState('');
     const [activeAlert, setActiveAlert] = useState<{ message: string; strategy: string } | null>(null);
     const [pendingAdaptation, setPendingAdaptation] = useState<AdaptationDecision | null>(null);

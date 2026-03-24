@@ -22,7 +22,6 @@ interface BookLibraryProps {
 export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggleResearchDashboard }) => {
     const [audiobooks, setAudiobooks] = useState<Audiobook[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [filteredBooks, setFilteredBooks] = useState<Audiobook[]>([]);
     const [isEditing, setIsEditing] = useState(false);
     const [currentBook, setCurrentBook] = useState<Partial<Audiobook> | null>(null);
 
@@ -36,7 +35,6 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
         try {
             const data = await getAllBooks();
             setAudiobooks(data);
-            setFilteredBooks(data);
         } catch (err) {
             console.error('Failed to load books:', err);
         }
@@ -46,19 +44,13 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
         loadBooks();
     }, []);
 
-    useEffect(() => {
-        if (searchQuery.trim() === '') {
-            setFilteredBooks(audiobooks);
-        } else {
-            const query = searchQuery.toLowerCase();
-            const filtered = audiobooks.filter(book =>
-                book.title.toLowerCase().includes(query) ||
-                book.author.toLowerCase().includes(query) ||
-                book.narrator.toLowerCase().includes(query)
-            );
-            setFilteredBooks(filtered);
-        }
-    }, [searchQuery, audiobooks]);
+    const filteredBooks = searchQuery.trim() === ''
+        ? audiobooks
+        : audiobooks.filter(book =>
+            book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            book.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            book.narrator.toLowerCase().includes(searchQuery.toLowerCase())
+        );
 
     const continueListeningBooks = audiobooks
         .filter(book => userProgress[book.id] > 0)

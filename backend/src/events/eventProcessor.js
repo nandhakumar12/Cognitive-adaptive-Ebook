@@ -24,8 +24,10 @@ import { executeAdaptations, shouldApplyAdaptation } from '../services/adaptatio
 export async function processEvent(event) {
     try {
         const { sessionId } = event;
+        const sanitizedType = String(event.eventType).replace(/[\r\n]/g, '');
+        const sanitizedSessionId = String(sessionId).replace(/[\r\n]/g, '');
 
-        console.log(`[COGNITIVE LOOP] Processing event: ${event.eventType} for session ${sessionId}`);
+        console.log(`[COGNITIVE LOOP] Processing event: ${sanitizedType} for session ${sanitizedSessionId}`);
 
         const allRecentEvents = getRecentEvents(sessionId, 50);
         const session = getSession(sessionId);

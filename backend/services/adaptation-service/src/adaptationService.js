@@ -61,9 +61,9 @@ export function createAdaptation(cognitiveState, strategy, triggeredBy, context 
             timestamp,
             reason: 'High cognitive load detected - adjusting narration speed',
             parameters: (() => {
-                const currentSpeed = context.currentSpeed || 1.0;
+                const currentSpeed = context.currentSpeed || 1;
                 // Ternary for cleaner logic and to avoid useless initial assignment (S1854)
-                const targetSpeed = currentSpeed > 0.75 ? 0.75 : 0.50;
+                const targetSpeed = currentSpeed > 0.75 ? 0.75 : 0.5;
 
                 return {
                     targetSpeed,

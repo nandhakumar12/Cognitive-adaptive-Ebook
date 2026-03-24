@@ -23,7 +23,9 @@ app.use(cors({
 }));
 
 app.use((req, res, next) => {
-    console.log(`[GATEWAY] ${req.method} ${req.path}`);
+    const method = req.method.replace(/[\r\n]/g, '');
+    const path = req.path.replace(/[\r\n]/g, '');
+    console.log(`[GATEWAY] ${method} ${path}`);
     next();
 });
 

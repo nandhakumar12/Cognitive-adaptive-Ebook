@@ -28,7 +28,9 @@ app.use(cors({
 app.use(express.json());
 
 app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+    const method = req.method.replace(/[\r\n]/g, '');
+    const path = req.path.replace(/[\r\n]/g, '');
+    console.log(`[${new Date().toISOString()}] ${method} ${path}`);
     next();
 });
 

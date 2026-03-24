@@ -29,7 +29,8 @@ export async function getSession(sessionId, userId = null) {
                 await updateSessionUser(sessionId, userId);
                 Item.userId = userId;
             }
-            console.log(`[DATA] Fetched session ${sessionId} - Events: ${Item.events.length}`);
+            const sanitizedSessionId = String(sessionId).replace(/[\r\n]/g, '');
+            console.log(`[DATA] Fetched session ${sanitizedSessionId} - Events: ${Item.events.length}`);
             return Item;
         }
 

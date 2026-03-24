@@ -10,8 +10,8 @@ app.use(express.json());
 
 app.use((req, res, next) => {
     // Sanitize user-controlled input to prevent log injection (S5145)
-    const method = req.method.replace(/[\r\n]/g, '');
-    const path = req.path.replace(/[\r\n]/g, '');
+    const method = req.method.replaceAll(/[\r\n]/g, '');
+    const path = req.path.replaceAll(/[\r\n]/g, '');
     console.log(`[ADAPTATION-SERVICE] ${method} ${path}`);
     next();
 });
@@ -35,7 +35,7 @@ app.post('/decide', (req, res) => {
         }
 
         // Sanitize sessionId before logging (S5145)
-        const sanitizedSessionId = String(cognitiveState.sessionId).replace(/[\r\n]/g, '');
+        const sanitizedSessionId = String(cognitiveState.sessionId).replaceAll(/[\r\n]/g, '');
         console.log(`Final recommendations for session ${sanitizedSessionId}: ${recommendedStrategies.join(', ')}`);
 
         const adaptations = executeAdaptations(cognitiveState, recommendedStrategies, context || {});

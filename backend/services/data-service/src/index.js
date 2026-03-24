@@ -25,7 +25,9 @@ app.use(cors());
 app.use(express.json());
 
 app.use((req, res, next) => {
-    console.log(`[DATA-SERVICE] ${req.method} ${req.path}`);
+    const method = req.method.replace(/[\r\n]/g, '');
+    const path = req.path.replace(/[\r\n]/g, '');
+    console.log(`[DATA-SERVICE] ${method} ${path}`);
     next();
 });
 
@@ -111,10 +113,11 @@ app.get('/books/:id', async (req, res) => {
 
 app.post('/books', async (req, res) => {
     try {
-        console.log(`[DATA-SERVICE] POST /books - Body:`, JSON.stringify(req.body));
-        console.log(`[DATA-SERVICE] Attempting to save book: ${req.body?.title} (ID: ${req.body?.id})`);
+        const sanitizedTitle = String(req.body?.title || '').replace(/[\r\n]/g, '');
+        const sanitizedId = String(req.body?.id || '').replace(/[\r\n]/g, '');
+        console.log(`[DATA-SERVICE] POST /books - Attempting to save book: ${sanitizedTitle} (ID: ${sanitizedId})`);
         const book = await createOrUpdateBook(req.body);
-        console.log(`[DATA-SERVICE] Successfully saved book: ${req.body?.id}`);
+        console.log(`[DATA-SERVICE] Successfully saved book: ${sanitizedId}`);
         res.json(book);
     } catch (err) {
         console.error(`[DATA-SERVICE] ERROR saving book:`, err);

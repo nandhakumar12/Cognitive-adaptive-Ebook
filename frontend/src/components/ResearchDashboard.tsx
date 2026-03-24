@@ -104,7 +104,7 @@ export const ResearchDashboard: React.FC = () => {
                     <div className="load-display" style={{ padding: '20px', textAlign: 'center' }}>
                         <p style={{ margin: '10px 0' }}>⏳ Waiting for cognitive data...</p>
                         <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0 }}>
-                            Connecting to Backend at: <strong>{import.meta.env.VITE_API_URL || `${window.location.origin}`}</strong>
+                            Connecting to Backend at: <strong>{import.meta.env.VITE_API_URL || `${globalThis.location.origin}`}</strong>
                         </p>
                     </div>
                 )}

@@ -162,7 +162,7 @@ function calculateConfidence(eventCount, patterns) {
         confidence += 0.1;
     }
 
-    return Math.min(confidence, 1.0);
+    return Math.min(confidence, 1);
 }
 
 /**

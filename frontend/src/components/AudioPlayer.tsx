@@ -188,9 +188,9 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
         );
         seenAdaptationIds.current.clear();
         hasPromptedSpeedReduction.current = false;
-        setPlaybackSpeed(1.0);
+        setPlaybackSpeed(1);
         if (audioRef.current) {
-            audioRef.current.playbackRate = 1.0;
+            audioRef.current.playbackRate = 1;
         }
         isSmartPaused.current = false;
         if (smartPauseTimeoutRef.current) clearTimeout(smartPauseTimeoutRef.current);
@@ -339,8 +339,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             if (!audio) return;
 
             const previousSpeed = playbackSpeed;
-            if (newSpeed > 2.0) {
-                newSpeed = 2.0;
+            if (newSpeed > 2) {
+                newSpeed = 2;
             } else if (newSpeed < 0.5) {
                 newSpeed = 0.5;
             }
@@ -411,7 +411,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                     break;
                 case 'ArrowUp':
                     e.preventDefault();
-                    handleSpeedChange(Math.min(2.0, playbackSpeed + 0.25));
+                    handleSpeedChange(Math.min(2, playbackSpeed + 0.25));
                     break;
                 case 'ArrowDown':
                     e.preventDefault();
@@ -556,14 +556,14 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                     <option value="1">1.0x (Normal)</option>
                     <option value="1.25">1.25x</option>
                     <option value="1.5">1.5x (Fast)</option>
-                    <option value="2.0">2.0x (Very Fast)</option>
+                    <option value="2">2.0x (Very Fast)</option>
 
                     {/*
                         DYNAMIC ADAPTATION OPTION
                         If the current speed isn't a preset (e.g. 0.56x), add it here
                         so the dropdown shows the correct selected state.
                     */}
-                    {![0.5, 0.75, 1.0, 1.25, 1.5, 2.0].includes(playbackSpeed) && (
+                    {![0.5, 0.75, 1, 1.25, 1.5, 2].includes(playbackSpeed) && (
                         <option value={playbackSpeed}>{playbackSpeed.toFixed(2)}x (Adaptive)</option>
                     )}
                 </select>

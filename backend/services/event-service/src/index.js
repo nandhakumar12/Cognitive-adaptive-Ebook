@@ -41,8 +41,8 @@ app.use((req, res, next) => {
 async function processEvent(event) {
     try {
         const { sessionId, eventType } = event;
-        const sanitizedSessionId = String(sessionId || 'anonymous').replace(/[^a-zA-Z0-9_\-]/g, '').slice(0, 50);
-        const sanitizedType = String(eventType || 'UNKNOWN').replace(/[^a-zA-Z0-9_\-]/g, '').slice(0, 50);
+        const sanitizedSessionId = String(sessionId || 'anonymous').replaceAll(/[^a-zA-Z0-9_-]/g, '').slice(0, 50);
+        const sanitizedType = String(eventType || 'UNKNOWN').replaceAll(/[^a-zA-Z0-9_-]/g, '').slice(0, 50);
         console.log(`[ORCHESTRATOR] Processing event: ${sanitizedType} for session ${sanitizedSessionId}`);
 
         const sectionId = event.metadata?.sectionId;
@@ -146,7 +146,7 @@ app.post('/batch', async (req, res) => {
             return res.status(400).json({ error: 'Missing sessionId or events array' });
         }
 
-        const sanitizedSessionId = String(sessionId || 'anonymous').replace(/[^a-zA-Z0-9_\-]/g, '').slice(0, 50);
+        const sanitizedSessionId = String(sessionId || 'anonymous').replaceAll(/[^a-zA-Z0-9_-]/g, '').slice(0, 50);
         console.log(`[EVENT-SERVICE] Processing batch of ${events.length} events for ${sanitizedSessionId}`);
 
         for (const eventData of events) {

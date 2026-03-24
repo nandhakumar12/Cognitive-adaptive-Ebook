@@ -26,7 +26,7 @@ class EventEmitter {
      */
     private generateSessionId(): string {
         const array = new Uint32Array(1);
-        window.crypto.getRandomValues(array);
+        globalThis.crypto.getRandomValues(array);
         return `session_${Date.now()}_${array[0].toString(36)}`;
     }
 

@@ -29,7 +29,8 @@ app.post('/analyze', (req, res) => {
 
         res.json(state);
     } catch (error) {
-        console.error('Analysis error:', error);
+        const errorMessage = (error.message || 'Analysis failed').replaceAll(/[\r\n]/g, '');
+        console.error('Analysis error:', errorMessage);
         res.status(500).json({ error: 'Analysis failed' });
     }
 });

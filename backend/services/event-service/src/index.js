@@ -25,9 +25,10 @@ app.use((req, res, next) => {
  */
 async function processEvent(event) {
     try {
-        const { sessionId } = event;
+        const { sessionId, eventType } = event;
         const sanitizedSessionId = String(sessionId).replaceAll(/[\r\n]/g, '');
-        console.log(`[ORCHESTRATOR] Processing event: ${event.eventType} for session ${sanitizedSessionId}`);
+        const sanitizedType = String(eventType || 'UNKNOWN').replaceAll(/[\r\n]/g, '');
+        console.log(`[ORCHESTRATOR] Processing event: ${sanitizedType} for session ${sanitizedSessionId}`);
 
         const sectionId = event.metadata?.sectionId;
         const eventsResponse = await axios.get(`${DATA_SERVICE_URL}/sessions/${encodeURIComponent(sessionId)}/events?limit=50`);
@@ -80,7 +81,8 @@ async function processEvent(event) {
         }
 
     } catch (error) {
-        console.error('[ORCHESTRATOR] Error processing event:', error.message);
+        const errorMessage = (error.message || 'Unknown error').replaceAll(/[\r\n]/g, '');
+        console.error('[ORCHESTRATOR] Error processing event:', errorMessage);
     }
 }
 

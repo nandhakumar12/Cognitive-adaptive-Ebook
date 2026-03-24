@@ -55,14 +55,14 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
     const [playbackSpeed, setPlaybackSpeed] = useState(1);
-    const [lastInteractionTime, setLastInteractionTime] = useState(() => Date.now());
+    const [lastInteractionTime, setLastInteractionTime] = useState<number>(0);
     const [announcement, setAnnouncement] = useState('');
     const [activeAlert, setActiveAlert] = useState<{ message: string; strategy: string } | null>(null);
     const [pendingAdaptation, setPendingAdaptation] = useState<AdaptationDecision | null>(null);
 
     const idleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const seenAdaptationIds = useRef<Set<string>>(new Set());
-    const chapterStartTimeRef = useRef<number>(Date.now());
+    const chapterStartTimeRef = useRef<number>(0);
     const hasPromptedSpeedReduction = useRef<boolean>(false);
     const isSmartPaused = useRef<boolean>(false);
     const smartPauseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -214,6 +214,12 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
         return () => clearInterval(adaptationInterval);
     }, [applyAdaptations]);
+
+    // Initialize the idle timer interaction base without violating React render purity
+    useEffect(() => {
+        setLastInteractionTime(Date.now());
+        chapterStartTimeRef.current = Date.now();
+    }, []);
 
 
     const handleConfirmAdaptation = useCallback(

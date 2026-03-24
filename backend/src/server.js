@@ -51,7 +51,7 @@ app.use('/api/events', verifyToken, eventRouter);
 app.use('/api/cognitive', verifyToken, cognitiveRouter);
 app.use('/api/adaptations', verifyToken, adaptationRouter);
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
     console.error('Error:', err);
     res.status(500).json({
         error: 'Internal server error',

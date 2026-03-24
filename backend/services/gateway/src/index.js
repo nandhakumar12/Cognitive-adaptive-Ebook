@@ -9,9 +9,8 @@ const PORT = process.env.PORT || 3001;
 app.disable('x-powered-by');
 
 const EVENT_SERVICE_URL = process.env.EVENT_SERVICE_URL || 'http://localhost:3002';
-const COGNITIVE_SERVICE_URL = process.env.COGNITIVE_SERVICE_URL || 'http://localhost:3003';
-const ADAPTATION_SERVICE_URL = process.env.ADAPTATION_SERVICE_URL || 'http://localhost:3004';
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || 'http://localhost:3005';
+
 
 import { createProxyMiddleware } from 'http-proxy-middleware';
 
@@ -94,7 +93,7 @@ app.use('/api/books', proxy(DATA_SERVICE_URL, {
     }
 }));
 
-app.use((err, req, res, next) => {
+app.use((err, req, res, _next) => {
     console.error('[GATEWAY ERROR]', err);
     res.status(500).json({ error: 'Gateway Proxy Error', details: err.message });
 });

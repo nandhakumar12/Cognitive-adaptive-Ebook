@@ -98,7 +98,7 @@ function calculateBehaviorMetrics(events) {
  * - Fatigue: Increasing idle time + speed reduction
  * - Engagement: Consistent playback + normal speed
  */
-function detectBehavioralPatterns(metrics, events) {
+function detectBehavioralPatterns(metrics, _events) {
     const patterns = [];
 
     if ((metrics.navigationReversals >= 1 && metrics.replayCount >= 1) || metrics.replayCount >= 3) {

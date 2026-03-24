@@ -69,6 +69,8 @@ function calculateBehaviorMetrics(events) {
         (e.eventType === 'AUDIO_REPLAY')
     );
 
+    const speedEvents = events.filter(e => e.eventType === 'PLAYBACK_SPEED_CHANGE');
+
     const avgSpeed = speedEvents.length > 0
         ? speedEvents.reduce((sum, e) => sum + (e.metadata.speed || 1), 0) / speedEvents.length
         : 1;
@@ -97,7 +99,7 @@ function calculateBehaviorMetrics(events) {
  * - Fatigue: Increasing idle time + speed reduction
  * - Engagement: Consistent playback + normal speed
  */
-function detectBehavioralPatterns(metrics, events) {
+function detectBehavioralPatterns(metrics, _events) {
     const patterns = [];
 
     if ((metrics.navigationReversals >= 1 && metrics.replayCount >= 1) || metrics.replayCount >= 3) {

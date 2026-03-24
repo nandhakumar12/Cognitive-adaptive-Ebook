@@ -1,0 +1,14 @@
+.git
+.gitignore
+*.md
+node_modules
+npm-debug.log*
+.env
+.env.*
+coverage
+test
+tests
+*.test.js
+*.spec.js
+.DS_Store
+Thumbs.db

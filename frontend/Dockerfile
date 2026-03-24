@@ -6,15 +6,15 @@ RUN apk update && \
     rm -rf /var/cache/apk/*
 
 WORKDIR /app
+RUN chown node:node /app
 
-COPY package*.json ./
+USER node
+COPY --chown=node:node package*.json ./
 RUN npm install --ignore-scripts && \
     npm cache clean --force
 
-COPY . .
+COPY --chown=node:node . .
 
 EXPOSE 3000
-
-USER node
 
 CMD ["npm", "run", "dev", "--", "--host"]

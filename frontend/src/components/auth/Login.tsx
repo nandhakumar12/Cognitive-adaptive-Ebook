@@ -20,7 +20,7 @@ export const Login: React.FC<LoginProps> = ({ onSwitchToSignup }) => {
         try {
             const { isSignedIn, nextStep } = await signIn({ username: email, password });
             if (isSignedIn) {
-                window.location.reload();
+                globalThis.location.reload();
             } else {
                 console.log('Next step:', nextStep);
                 if (nextStep?.signInStep === 'CONFIRM_SIGN_UP') {

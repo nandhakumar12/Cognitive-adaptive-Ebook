@@ -46,7 +46,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             setUser(currentUser);
             setToken(session.tokens?.idToken?.toString() || null);
         } catch (error) {
-            console.log('[Auth] No user signed in');
+            console.log('[Auth] No user signed in or error fetching session:', error);
             setUser(null);
             setToken(null);
         } finally {

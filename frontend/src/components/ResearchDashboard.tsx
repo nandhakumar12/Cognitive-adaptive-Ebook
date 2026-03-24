@@ -92,7 +92,7 @@ export const ResearchDashboard: React.FC = () => {
                             <ul>
                                 {cognitiveState.patterns && cognitiveState.patterns.length > 0 ? (
                                     cognitiveState.patterns.map((pattern) => (
-                                        <li key={pattern}>{pattern.replace(/_/g, ' ')}</li>
+                                        <li key={pattern}>{pattern.replaceAll(/_/g, ' ')}</li>
                                     ))
                                 ) : (
                                     <li>No patterns (optimal engagement)</li>
@@ -125,7 +125,7 @@ export const ResearchDashboard: React.FC = () => {
                         </div>
                         <div className="metric">
                             <span className="metric-label">Avg Speed</span>
-                            <span className="metric-value">{(cognitiveState.behaviorSummary.avgSpeed || 1.0).toFixed(2)}x</span>
+                            <span className="metric-value">{(cognitiveState.behaviorSummary.avgSpeed || 1).toFixed(2)}x</span>
                         </div>
                         <div className="metric">
                             <span className="metric-label">Nav Reversals</span>
@@ -146,7 +146,7 @@ export const ResearchDashboard: React.FC = () => {
                                     {new Date(adaptation.timestamp).toLocaleTimeString()}
                                 </span>
                                 <div className="adaptation-details">
-                                    <strong>{(adaptation.strategy || '').replace(/_/g, ' ')}</strong>
+                                    <strong>{(adaptation.strategy || '').replaceAll(/_/g, ' ')}</strong>
                                     <p>{adaptation.reason || 'No reason provided'}</p>
                                     <small>Triggered by: {adaptation.triggeredBy && adaptation.triggeredBy.length > 0 ? adaptation.triggeredBy.join(', ') : 'behavioral signals'}</small>
                                 </div>

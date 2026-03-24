@@ -14,8 +14,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use((req, res, next) => {
-    const method = req.method.replace(/[\r\n]/g, '');
-    const path = req.path.replace(/[\r\n]/g, '');
+    const method = req.method.replaceAll(/[\r\n]/g, '');
+    const path = req.path.replaceAll(/[\r\n]/g, '');
     console.log(`[EVENT-SERVICE] ${method} ${path}`);
     next();
 });
@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 async function processEvent(event) {
     try {
         const { sessionId } = event;
-        const sanitizedSessionId = String(sessionId).replace(/[\r\n]/g, '');
+        const sanitizedSessionId = String(sessionId).replaceAll(/[\r\n]/g, '');
         console.log(`[ORCHESTRATOR] Processing event: ${event.eventType} for session ${sanitizedSessionId}`);
 
         const sectionId = event.metadata?.sectionId;
@@ -129,7 +129,7 @@ app.post('/batch', async (req, res) => {
             return res.status(400).json({ error: 'Missing sessionId or events array' });
         }
 
-        const sanitizedSessionId = String(sessionId).replace(/[\r\n]/g, '');
+        const sanitizedSessionId = String(sessionId).replaceAll(/[\r\n]/g, '');
         console.log(`[EVENT-SERVICE] Processing batch of ${events.length} events for ${sanitizedSessionId}`);
 
         for (const eventData of events) {

@@ -22,7 +22,7 @@ export function getSession(sessionId, userId = null) {
             startTime: Date.now(),
             currentSection: 'intro',
             currentTime: 0,
-            playbackSpeed: 1.0,
+            playbackSpeed: 1,
             events: [],
             cognitiveStates: [],
             adaptations: []

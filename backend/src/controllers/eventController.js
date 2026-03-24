@@ -89,7 +89,7 @@ eventRouter.post('/batch', async (req, res) => {
         });
 
         if (processedEvents.length > 0) {
-            const lastEvent = processedEvents[processedEvents.length - 1];
+            const lastEvent = processedEvents.at(-1);
             processEvent(lastEvent).catch(err => {
                 console.error('Batch event processing error:', err);
             });

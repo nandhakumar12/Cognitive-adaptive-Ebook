@@ -24,8 +24,8 @@ import { executeAdaptations, shouldApplyAdaptation } from '../services/adaptatio
 export async function processEvent(event) {
     try {
         const { sessionId } = event;
-        const sanitizedType = String(event.eventType).replace(/[\r\n]/g, '');
-        const sanitizedSessionId = String(sessionId).replace(/[\r\n]/g, '');
+        const sanitizedType = String(event.eventType).replaceAll(/[\r\n]/g, '');
+        const sanitizedSessionId = String(sessionId).replaceAll(/[\r\n]/g, '');
 
         console.log(`[COGNITIVE LOOP] Processing event: ${sanitizedType} for session ${sanitizedSessionId}`);
 

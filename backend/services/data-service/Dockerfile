@@ -1,8 +1,9 @@
 FROM node:22-alpine
 
-RUN apk update && apk upgrade --no-cache && rm -rf /var/cache/apk/*
-
-RUN npm install -g npm@latest
+RUN apk update && \
+    apk upgrade --no-cache && \
+    npm install -g npm@latest && \
+    rm -rf /var/cache/apk/*
 
 WORKDIR /app
 

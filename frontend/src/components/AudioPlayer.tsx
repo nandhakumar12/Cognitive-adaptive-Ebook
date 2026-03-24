@@ -54,7 +54,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     const [isPlaying, setIsPlaying] = useState(false);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
-    const [playbackSpeed, setPlaybackSpeed] = useState(1.0);
+    const [playbackSpeed, setPlaybackSpeed] = useState(1);
     const [lastInteractionTime, setLastInteractionTime] = useState(Date.now());
     const [announcement, setAnnouncement] = useState('');
     const [activeAlert, setActiveAlert] = useState<{ message: string; strategy: string } | null>(null);
@@ -339,6 +339,11 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             if (!audio) return;
 
             const previousSpeed = playbackSpeed;
+            if (newSpeed > 2.0) {
+                newSpeed = 2.0;
+            } else if (newSpeed < 0.5) {
+                newSpeed = 0.5;
+            }
             setPlaybackSpeed(newSpeed);
             audio.playbackRate = newSpeed;
 
@@ -423,14 +428,14 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
     useEffect(() => {
         const handleGlobalKeyDown = (e: KeyboardEvent) => {
             // Only handle if no input/textarea is focused
-            if (['INPUT', 'TEXTAREA'].includes(document.activeElement?.tagName || '')) {
+            if (['INPUT', 'TEXTAREA'].includes(globalThis.document.activeElement?.tagName || '')) {
                 return;
             }
             handleKeyDown(e as any);
         };
 
-        window.addEventListener('keydown', handleGlobalKeyDown);
-        return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+        globalThis.addEventListener('keydown', handleGlobalKeyDown);
+        return () => globalThis.removeEventListener('keydown', handleGlobalKeyDown);
     }, [handleKeyDown]);
 
     return (
@@ -548,7 +553,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 >
                     <option value="0.5">0.5x (Slow)</option>
                     <option value="0.75">0.75x</option>
-                    <option value="1.0">1.0x (Normal)</option>
+                    <option value="1">1.0x (Normal)</option>
                     <option value="1.25">1.25x</option>
                     <option value="1.5">1.5x (Fast)</option>
                     <option value="2.0">2.0x (Very Fast)</option>

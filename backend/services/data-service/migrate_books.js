@@ -25,12 +25,12 @@ async function migrate() {
                 body: JSON.stringify(book)
             });
 
-            if (!response.ok) {
+            if (response.ok) {
+                console.log(`Successfully migrated: ${book.title}`);
+            } else {
                 const text = await response.text();
                 console.error(`Failed to migrate ${book.title}. Status: ${response.status} ${response.statusText}`);
                 console.error(`Response content (check for HTML/Errors): ${text.substring(0, 200)}...`);
-            } else {
-                console.log(`Successfully migrated: ${book.title}`);
             }
         }
 

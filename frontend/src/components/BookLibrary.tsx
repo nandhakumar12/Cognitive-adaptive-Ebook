@@ -91,11 +91,12 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
     };
 
     const handleDeleteBook = async (id: string) => {
-        if (!window.confirm('Are you sure you want to delete this book?')) return;
+        if (!globalThis.confirm('Are you sure you want to delete this book?')) return;
         try {
             await deleteBook(id);
             loadBooks();
         } catch (err) {
+            console.error('Failed to delete book:', err);
             alert('Failed to delete book');
         }
     };

@@ -24,7 +24,7 @@ export function inferCognitiveState(events, sessionId) {
             behaviorSummary: {
                 pauseFrequency: 0,
                 replayCount: 0,
-                avgSpeed: 1.0,
+                avgSpeed: 1,
                 idleTime: 0,
                 navigationReversals: 0
             }
@@ -70,8 +70,8 @@ function calculateBehaviorMetrics(events) {
     );
 
     const avgSpeed = speedEvents.length > 0
-        ? speedEvents.reduce((sum, e) => sum + (e.metadata.speed || 1.0), 0) / speedEvents.length
-        : 1.0;
+        ? speedEvents.reduce((sum, e) => sum + (e.metadata.speed || 1), 0) / speedEvents.length
+        : 1;
 
     const totalIdleTime = idleEvents.reduce((sum, e) => sum + (e.metadata.idleDuration || 0), 0);
 
@@ -174,8 +174,7 @@ export function recommendAdaptations(cognitiveState) {
 
     if (cognitiveState.cognitiveLoad === 'high') {
         if (cognitiveState.patterns.includes('overload')) {
-            recommendations.push('SMART_PAUSE');
-            recommendations.push('SLOW_NARRATION');
+            recommendations.push('SMART_PAUSE', 'SLOW_NARRATION');
         }
     }
 

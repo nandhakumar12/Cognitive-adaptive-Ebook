@@ -29,7 +29,7 @@ export async function getSession(sessionId, userId = null) {
                 await updateSessionUser(sessionId, userId);
                 Item.userId = userId;
             }
-            const sanitizedSessionId = String(sessionId).replace(/[\r\n]/g, '');
+            const sanitizedSessionId = String(sessionId).replaceAll(/[\r\n]/g, '');
             console.log(`[DATA] Fetched session ${sanitizedSessionId} - Events: ${Item.events.length}`);
             return Item;
         }
@@ -40,7 +40,7 @@ export async function getSession(sessionId, userId = null) {
             startTime: Date.now(),
             currentSection: 'intro',
             currentTime: 0,
-            playbackSpeed: 1.0,
+            playbackSpeed: 1,
             events: [],
             cognitiveStates: [],
             adaptations: []
@@ -160,7 +160,6 @@ export async function getRecentAdaptations(sessionId, limit = 10) {
 export async function updateSessionContext(sessionId, context) {
     let updateExp = "set ";
     const expAttrValues = {};
-    const expAttrNames = {};
     let first = true;
 
     if (context.currentTime !== undefined) {

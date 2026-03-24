@@ -32,10 +32,9 @@ export function createAdaptation(sessionId, strategy, triggeredBy, context = {})
             reason: 'High cognitive load detected - adjusting narration speed',
             parameters: (() => {
                 const pauseCount = context.metrics?.pauseCount || 0;
-                let targetSpeed = context.currentSpeed || 1.0;
-
+                let targetSpeed = context.currentSpeed || 1;
                 if (pauseCount >= 6) {
-                    targetSpeed = 0.50;
+                    targetSpeed = 0.5;
                 } else if (pauseCount >= 4) {
                     targetSpeed = 0.56;
                 } else if (pauseCount >= 2) {

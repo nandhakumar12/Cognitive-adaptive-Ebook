@@ -5,7 +5,20 @@ import { recommendAdaptations, executeAdaptations, shouldApplyAdaptation } from 
 const app = express();
 const PORT = 3004;
 
-app.use(cors());
+// Security: disable framework fingerprinting
+app.disable('x-powered-by');
+
+// Security: restrict CORS to known trusted origins
+const corsOptions = {
+    origin: [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        process.env.FRONTEND_URL || 'http://localhost:3000'
+    ],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use((req, res, next) => {

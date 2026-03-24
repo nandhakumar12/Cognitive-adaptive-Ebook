@@ -5,6 +5,9 @@ import proxy from 'express-http-proxy';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Security: disable framework fingerprinting
+app.disable('x-powered-by');
+
 const EVENT_SERVICE_URL = process.env.EVENT_SERVICE_URL || 'http://localhost:3002';
 const COGNITIVE_SERVICE_URL = process.env.COGNITIVE_SERVICE_URL || 'http://localhost:3003';
 const ADAPTATION_SERVICE_URL = process.env.ADAPTATION_SERVICE_URL || 'http://localhost:3004';

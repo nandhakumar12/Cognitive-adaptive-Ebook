@@ -19,6 +19,9 @@ import { verifyToken } from './middleware/authMiddleware.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Security: disable framework fingerprinting
+app.disable('x-powered-by');
+
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'http://localhost:3000',
     credentials: true,

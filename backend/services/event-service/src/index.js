@@ -6,12 +6,27 @@ import axios from 'axios';
 const app = express();
 const PORT = 3002;
 
+// Security: disable framework fingerprinting
+app.disable('x-powered-by');
+
+// Security: restrict CORS to known trusted origins
+const corsOptions = {
+    origin: [
+        'http://localhost:3000',
+        'http://127.0.0.1:3000',
+        process.env.FRONTEND_URL || 'http://localhost:3000'
+    ],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
+app.use(express.json());
+
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || 'http://localhost:3005';
 const COGNITIVE_SERVICE_URL = process.env.COGNITIVE_SERVICE_URL || 'http://localhost:3003';
 const ADAPTATION_SERVICE_URL = process.env.ADAPTATION_SERVICE_URL || 'http://localhost:3004';
 
-app.use(cors());
-app.use(express.json());
+
 
 app.use((req, res, next) => {
     const method = String(req.method || 'UNKNOWN').trim().replaceAll(/[\r\n]/g, '').slice(0, 10);

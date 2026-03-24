@@ -11,11 +11,7 @@ COPY package*.json ./
 RUN npm install --ignore-scripts && \
     npm cache clean --force
 
-COPY src/ ./src/
-COPY public/ ./public/
-COPY index.html ./
-COPY tsconfig*.json ./
-COPY vite.config.ts ./
+COPY . .
 
 EXPOSE 3000
 

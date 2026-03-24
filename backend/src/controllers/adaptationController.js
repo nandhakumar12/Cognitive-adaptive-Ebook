@@ -16,7 +16,7 @@ export const adaptationRouter = express.Router();
 adaptationRouter.get('/:sessionId', (req, res) => {
     try {
         const { sessionId } = req.params;
-        const limit = parseInt(req.query.limit) || 20;
+        const limit = Number.parseInt(req.query.limit, 10) || 20;
 
         const adaptations = getRecentAdaptations(sessionId, limit);
 
@@ -96,6 +96,6 @@ function calculateAdaptationRate(session) {
     const sessionMinutes = sessionDuration / 60000;
 
     return sessionMinutes > 0
-        ? (session.adaptations.length / sessionMinutes).toFixed(2)
+        ? Number.parseFloat((session.adaptations.length / sessionMinutes).toFixed(2))
         : 0;
 }

@@ -111,8 +111,7 @@ export function executeAdaptations(cognitiveState, strategies, context) {
  */
 export function shouldApplyAdaptation(recentAdaptations, strategy) {
     const now = Date.now();
-    const cooldownPeriod = 5000;
-
+    // Removed unused variable cooldownPeriod (S1854)
     const effectiveCooldown = strategy === 'SMART_PAUSE' ? 8000 : 5000;
     const recentSameStrategy = recentAdaptations.filter(a =>
         a.strategy === strategy &&

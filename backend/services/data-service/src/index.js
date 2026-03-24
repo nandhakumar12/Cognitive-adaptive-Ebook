@@ -52,7 +52,7 @@ app.post('/sessions/:sessionId/events', async (req, res) => {
 });
 
 app.get('/sessions/:sessionId/events', async (req, res) => {
-    const limit = parseInt(req.query.limit) || 20;
+    const limit = Number.parseInt(req.query.limit, 10) || 20;
     const events = await getRecentEvents(req.params.sessionId, limit);
     res.json(events);
 });
@@ -75,7 +75,7 @@ app.post('/sessions/:sessionId/adaptations', async (req, res) => {
 });
 
 app.get('/sessions/:sessionId/adaptations', async (req, res) => {
-    const limit = parseInt(req.query.limit) || 10;
+    const limit = Number.parseInt(req.query.limit, 10) || 10;
     const adaptations = await getRecentAdaptations(req.params.sessionId, limit);
     res.json(adaptations);
 });
@@ -88,7 +88,7 @@ app.get('/sessions/:sessionId/adaptations/active', async (req, res) => {
 
 app.post('/users/:userId/progress', async (req, res) => {
     const { bookId, progress } = req.body;
-    await saveUserProgress(req.params.userId, bookId, progress);
+    await saveUserProgress(req.params.userId, progress, undefined, bookId);
     res.json({ success: true });
 });
 

@@ -251,18 +251,10 @@ function App() {
                                     <h2>Chapters</h2>
                                     <div className="chapters-list">
                                         {selectedBook.chapters.map((chapter, index) => (
-                                            <div
+                                            <button
                                                 key={chapter.id}
                                                 className={`chapter-item ${index === currentChapterIndex ? 'active' : ''}`}
                                                 onClick={() => handleChapterClick(index, chapter.startTime, chapter.audioUrl)}
-                                                role="button"
-                                                tabIndex={0}
-                                                onKeyPress={(e) => {
-                                                    if (e.key === 'Enter' || e.key === ' ') {
-                                                        e.preventDefault();
-                                                        handleChapterClick(index, chapter.startTime, chapter.audioUrl);
-                                                    }
-                                                }}
                                                 aria-label={`Jump to ${chapter.title}`}
                                             >
                                                 <span className="chapter-number">{index + 1}</span>
@@ -270,7 +262,7 @@ function App() {
                                                 <span className="chapter-duration">
                                                     {discoveredDurations[`${selectedBook.id}-${chapter.id}`] || chapter.duration}
                                                 </span>
-                                            </div>
+                                            </button>
                                         ))}
                                     </div>
                                 </div>

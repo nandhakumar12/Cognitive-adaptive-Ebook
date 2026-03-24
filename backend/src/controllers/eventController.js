@@ -113,7 +113,7 @@ eventRouter.post('/batch', async (req, res) => {
 eventRouter.get('/:sessionId', (req, res) => {
     try {
         const { sessionId } = req.params;
-        const limit = parseInt(req.query.limit) || 50;
+        const limit = Number.parseInt(req.query.limit, 10) || 50;
 
         const session = getSession(sessionId);
         const events = session.events.slice(-limit);

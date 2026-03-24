@@ -1,4 +1,4 @@
-import React, { createContext, useState, useEffect, useContext } from 'react';
+import React, { createContext, useState, useEffect, useContext, useMemo } from 'react';
 import { getCurrentUser, signOut, fetchAuthSession } from 'aws-amplify/auth';
 import type { AuthUser } from 'aws-amplify/auth';
 
@@ -64,14 +64,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     }
 
+    const contextValue = useMemo(() => ({
+        user,
+        isLoading,
+        logout,
+        isAuthenticated: !!user,
+        token
+    }), [user, isLoading, token]);
+
     return (
-        <AuthContext.Provider value={{
-            user,
-            isLoading,
-            logout,
-            isAuthenticated: !!user,
-            token
-        }}>
+        <AuthContext.Provider value={contextValue}>
             {children}
         </AuthContext.Provider>
     );

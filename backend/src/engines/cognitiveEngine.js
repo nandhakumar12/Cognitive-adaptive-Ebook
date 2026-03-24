@@ -100,9 +100,7 @@ function calculateBehaviorMetrics(events) {
 function detectBehavioralPatterns(metrics, events) {
     const patterns = [];
 
-    if (metrics.navigationReversals >= 1 && metrics.replayCount >= 1) {
-        patterns.push('confusion');
-    } else if (metrics.replayCount >= 3) {
+    if ((metrics.navigationReversals >= 1 && metrics.replayCount >= 1) || metrics.replayCount >= 3) {
         patterns.push('confusion');
     }
 

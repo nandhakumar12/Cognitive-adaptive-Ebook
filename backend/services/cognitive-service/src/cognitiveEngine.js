@@ -57,17 +57,17 @@ function calculateBehaviorMetrics(events) {
     const timeWindow = events[events.length - 1].timestamp - events[0].timestamp;
     const timeWindowMinutes = timeWindow / 60000 || 1;
 
-    const pauseEvents = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'AUDIO_PAUSE');
-    const speedEvents = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'AUDIO_SPEED_CHANGE');
-    const navReversals = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'NAVIGATION_REVERSAL');
-    const idleEvents = events.filter(e => e.eventType && e.eventType.toUpperCase() === 'USER_IDLE');
+    const pauseEvents = events.filter(e => e.eventType?.toUpperCase() === 'AUDIO_PAUSE');
+    const speedEvents = events.filter(e => e.eventType?.toUpperCase() === 'AUDIO_SPEED_CHANGE');
+    const navReversals = events.filter(e => e.eventType?.toUpperCase() === 'NAVIGATION_REVERSAL');
+    const idleEvents = events.filter(e => e.eventType?.toUpperCase() === 'USER_IDLE');
 
     const forwardSeekEvents = events.filter(e =>
-        e.eventType && e.eventType.toUpperCase() === 'AUDIO_SEEK' && e.metadata && e.metadata.seekDuration > 0
+        e.eventType?.toUpperCase() === 'AUDIO_SEEK' && e.metadata?.seekDuration > 0
     );
     const backwardSeekEvents = events.filter(e =>
-        (e.eventType && e.eventType.toUpperCase() === 'AUDIO_SEEK' && e.metadata && e.metadata.seekDuration < 0) ||
-        (e.eventType && e.eventType.toUpperCase() === 'AUDIO_REPLAY')
+        (e.eventType?.toUpperCase() === 'AUDIO_SEEK' && e.metadata?.seekDuration < 0) ||
+        (e.eventType?.toUpperCase() === 'AUDIO_REPLAY')
     );
 
     const avgSpeed = speedEvents.length > 0
@@ -101,9 +101,7 @@ function calculateBehaviorMetrics(events) {
 function detectBehavioralPatterns(metrics, events) {
     const patterns = [];
 
-    if (metrics.navigationReversals >= 1 && metrics.replayCount >= 1) {
-        patterns.push('confusion');
-    } else if (metrics.replayCount >= 3) {
+    if ((metrics.navigationReversals >= 1 && metrics.replayCount >= 1) || metrics.replayCount >= 3) {
         patterns.push('confusion');
     }
 

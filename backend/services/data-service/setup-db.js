@@ -40,4 +40,4 @@ async function createTables() {
     console.log("Done.");
 }
 
-createTables();
+await createTables();

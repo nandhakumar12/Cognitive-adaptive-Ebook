@@ -192,7 +192,7 @@ export async function updateSessionContext(sessionId, context) {
     const session = await getSession(sessionId);
 
     if (session.userId && context.currentSection) {
-        await saveUserProgress(session.userId, "book-default", context.currentSection, context.currentTime);
+        await saveUserProgress(session.userId, context.currentSection, context.currentTime, "book-default");
     }
 
     return session;
@@ -212,7 +212,7 @@ export async function getAllSessions() {
 /**
  * Save User Progress
  */
-export async function saveUserProgress(userId, bookId = "default", sectionId, progressTime) {
+export async function saveUserProgress(userId, sectionId, progressTime, bookId = "default") {
     const params = {
         TableName: USER_PROGRESS_TABLE,
         Item: {

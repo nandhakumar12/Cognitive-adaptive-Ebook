@@ -101,7 +101,7 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
     };
 
     return (
-        <div className="book-library" role="main">
+        <main className="book-library">
             {/* Header */}
             <header className="library-header">
                 <div className="library-logo">
@@ -141,8 +141,9 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
                         <h2>{currentBook?.id ? 'Edit Book' : 'Add New Book'}</h2>
                         <form onSubmit={handleSaveBook}>
                             <div className="form-group">
-                                <label>Title</label>
+                                <label htmlFor="book-title">Title</label>
                                 <input
+                                    id="book-title"
                                     type="text"
                                     required
                                     value={currentBook?.title || ''}
@@ -150,8 +151,9 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Author</label>
+                                <label htmlFor="book-author">Author</label>
                                 <input
+                                    id="book-author"
                                     type="text"
                                     required
                                     value={currentBook?.author || ''}
@@ -159,8 +161,9 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Cover URL (S3)</label>
+                                <label htmlFor="book-cover">Cover URL (S3)</label>
                                 <input
+                                    id="book-cover"
                                     type="text"
                                     required
                                     value={currentBook?.coverUrl || ''}
@@ -168,8 +171,9 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
                                 />
                             </div>
                             <div className="form-group">
-                                <label>Audio URL (S3)</label>
+                                <label htmlFor="book-audio">Audio URL (S3)</label>
                                 <input
+                                    id="book-audio"
                                     type="text"
                                     required
                                     value={currentBook?.audioUrl || ''}
@@ -257,6 +261,6 @@ export const BookLibrary: React.FC<BookLibraryProps> = ({ onSelectBook, onToggle
                     📊 Research Dashboard
                 </button>
             </div>
-        </div>
+        </main>
     );
 };

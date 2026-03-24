@@ -66,8 +66,9 @@ export const SignUp: React.FC<SignUpProps> = ({ onSwitchToLogin }) => {
 
                 <form onSubmit={handleConfirm}>
                     <div className="form-group">
-                        <label>Verification Code</label>
+                        <label htmlFor="verify-code">Verification Code</label>
                         <input
+                            id="verify-code"
                             type="text"
                             value={verificationCode}
                             onChange={(e) => setVerificationCode(e.target.value)}

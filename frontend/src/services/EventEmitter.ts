@@ -13,7 +13,7 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || '';
 class EventEmitter {
     private sessionId: string;
     private eventQueue: Partial<BehavioralEvent>[] = [];
-    private batchInterval: number = 2000;
+    private readonly batchInterval: number = 2000;
     private batchTimer: any = null;
 
     constructor() {

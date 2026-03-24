@@ -63,11 +63,11 @@ export const ResearchDashboard: React.FC = () => {
     };
 
     return (
-        <div className="research-dashboard" role="complementary" aria-label="Research observability dashboard">
+        <aside className="research-dashboard" aria-label="Research observability dashboard">
             {/* Cognitive Load Indicator */}
             <div className="cognitive-load-panel">
                 <h4>Cognitive Load Status</h4>
-                {cognitiveState && cognitiveState.cognitiveLoad ? (
+            {cognitiveState?.cognitiveLoad ? (
                     <div className="load-display">
                         <div
                             className="load-indicator"
@@ -91,8 +91,8 @@ export const ResearchDashboard: React.FC = () => {
                             <p><strong>Patterns Detected:</strong></p>
                             <ul>
                                 {cognitiveState.patterns && cognitiveState.patterns.length > 0 ? (
-                                    cognitiveState.patterns.map((pattern, i) => (
-                                        <li key={i}>{pattern.replace(/_/g, ' ')}</li>
+                                    cognitiveState.patterns.map((pattern) => (
+                                        <li key={pattern}>{pattern.replace(/_/g, ' ')}</li>
                                     ))
                                 ) : (
                                     <li>No patterns (optimal engagement)</li>
@@ -111,7 +111,7 @@ export const ResearchDashboard: React.FC = () => {
             </div>
 
             {/* Behavioral Metrics */}
-            {cognitiveState && cognitiveState.behaviorSummary ? (
+            {cognitiveState?.behaviorSummary ? (
                 <div className="metrics-panel">
                     <h4>Behavioral Metrics</h4>
                     <div className="metrics-grid">
@@ -140,8 +140,8 @@ export const ResearchDashboard: React.FC = () => {
                 <h4>Adaptation Actions ({adaptations.length})</h4>
                 <div className="timeline">
                     {adaptations.length > 0 ? (
-                        adaptations.slice().reverse().map((adaptation, i) => (
-                            <div key={i} className="timeline-item">
+                        adaptations.slice().reverse().map((adaptation) => (
+                            <div key={adaptation.adaptationId} className="timeline-item">
                                 <span className="timestamp">
                                     {new Date(adaptation.timestamp).toLocaleTimeString()}
                                 </span>
@@ -163,8 +163,8 @@ export const ResearchDashboard: React.FC = () => {
                 <h4>Recent Events ({events.length})</h4>
                 <div className="event-log">
                     {events.length > 0 ? (
-                        events.slice().reverse().slice(0, 10).map((event, i) => (
-                            <div key={i} className="event-item">
+                        events.slice().reverse().slice(0, 10).map((event) => (
+                            <div key={event.eventId} className="event-item">
                                 <span className="event-type">{event.eventType || 'UNKNOWN'}</span>
                                 <span className="event-time">
                                     {new Date(event.timestamp).toLocaleTimeString()}
@@ -176,6 +176,6 @@ export const ResearchDashboard: React.FC = () => {
                     )}
                 </div>
             </div>
-        </div>
+        </aside>
     );
 };

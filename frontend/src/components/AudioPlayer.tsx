@@ -421,9 +421,8 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
 
 
     return (
-        <div
+        <section
             className="audio-player"
-            role="region"
             aria-label="AudioPlayer controls"
             onKeyDown={handleKeyDown}
             tabIndex={0}
@@ -531,7 +530,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 <select
                     id="speed-select"
                     value={playbackSpeed}
-                    onChange={(e) => handleSpeedChange(parseFloat(e.target.value))}
+                    onChange={(e) => handleSpeedChange(Number.parseFloat(e.target.value))}
                     aria-label="Select playback speed"
                 >
                     <option value="0.5">0.5x (Slow)</option>
@@ -555,6 +554,6 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
             <div className="keyboard-hints" aria-label="Keyboard shortcuts">
                 <p>Keyboard shortcuts: Space/K = Play/Pause • ← = -10s • → = +10s • ↑↓ = Speed</p>
             </div>
-        </div>
+        </section>
     );
 };

@@ -22,4 +22,4 @@ async function checkHealth() {
     }
 }
 
-checkHealth();
+await checkHealth();

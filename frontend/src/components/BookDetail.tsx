@@ -27,7 +27,7 @@ export const BookDetail: React.FC<BookDetailProps> = ({
     onBack
 }) => {
     return (
-        <div className="book-detail" role="main">
+        <main className="book-detail">
             <button
                 className="back-button"
                 onClick={onBack}
@@ -87,8 +87,8 @@ export const BookDetail: React.FC<BookDetailProps> = ({
                     </button>
 
                     <div className="book-detail-genres">
-                        {book.genres.map((genre, index) => (
-                            <span key={index} className="genre-tag">{genre}</span>
+                        {book.genres.map((genre) => (
+                            <span key={genre} className="genre-tag">{genre}</span>
                         ))}
                     </div>
                 </div>
@@ -103,11 +103,10 @@ export const BookDetail: React.FC<BookDetailProps> = ({
                 <h2>Chapters ({book.chapters.length})</h2>
                 <div className="chapters-list">
                     {book.chapters.map((chapter, index) => (
-                        <div
+                        <button
                             key={chapter.id}
                             className="chapter-item"
-                            role="button"
-                            tabIndex={0}
+                            onClick={() => onPlay()}
                             aria-label={`Chapter ${index + 1}: ${chapter.title}, duration ${chapter.duration}`}
                         >
                             <div className="chapter-number">{index + 1}</div>
@@ -115,10 +114,10 @@ export const BookDetail: React.FC<BookDetailProps> = ({
                                 <h3 className="chapter-title">{chapter.title}</h3>
                                 <span className="chapter-duration">{chapter.duration}</span>
                             </div>
-                        </div>
+                        </button>
                     ))}
                 </div>
             </div>
-        </div>
+        </main>
     );
 };

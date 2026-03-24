@@ -9,8 +9,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use((req, res, next) => {
-    const method = req.method.replaceAll(/[\r\n]/g, '');
-    const path = req.path.replaceAll(/[\r\n]/g, '');
+    const method = String(req.method || 'UNKNOWN').trim().replaceAll(/[\r\n]/g, '').slice(0, 10);
+    const path = String(req.path || '').trim().replaceAll(/[\r\n]/g, '').slice(0, 100);
     console.log(`[COGNITIVE-SERVICE] ${method} ${path}`);
     next();
 });
@@ -23,7 +23,7 @@ app.post('/analyze', (req, res) => {
             return res.status(400).json({ error: 'Missing events array' });
         }
 
-        const sanitizedSessionId = String(sessionId).replaceAll(/[\r\n]/g, '');
+        const sanitizedSessionId = String(sessionId || 'anonymous').trim().replaceAll(/[\r\n]/g, '').slice(0, 50);
         console.log(`Analyzing ${events.length} events for session ${sanitizedSessionId}`);
         const state = inferCognitiveState(events, sessionId);
 

@@ -14,8 +14,8 @@ app.use(cors());
 app.use(express.json());
 
 app.use((req, res, next) => {
-    const method = req.method.replaceAll(/[\r\n]/g, '');
-    const path = req.path.replaceAll(/[\r\n]/g, '');
+    const method = String(req.method || 'UNKNOWN').trim().replaceAll(/[\r\n]/g, '').slice(0, 10);
+    const path = String(req.path || '').trim().replaceAll(/[\r\n]/g, '').slice(0, 100);
     console.log(`[EVENT-SERVICE] ${method} ${path}`);
     next();
 });
@@ -26,8 +26,8 @@ app.use((req, res, next) => {
 async function processEvent(event) {
     try {
         const { sessionId, eventType } = event;
-        const sanitizedSessionId = String(sessionId).replaceAll(/[\r\n]/g, '');
-        const sanitizedType = String(eventType || 'UNKNOWN').replaceAll(/[\r\n]/g, '');
+        const sanitizedSessionId = String(sessionId || 'anonymous').trim().replaceAll(/[\r\n]/g, '').slice(0, 50);
+        const sanitizedType = String(eventType || 'UNKNOWN').trim().replaceAll(/[\r\n]/g, '').slice(0, 50);
         console.log(`[ORCHESTRATOR] Processing event: ${sanitizedType} for session ${sanitizedSessionId}`);
 
         const sectionId = event.metadata?.sectionId;
@@ -131,7 +131,7 @@ app.post('/batch', async (req, res) => {
             return res.status(400).json({ error: 'Missing sessionId or events array' });
         }
 
-        const sanitizedSessionId = String(sessionId).replaceAll(/[\r\n]/g, '');
+        const sanitizedSessionId = String(sessionId || 'anonymous').trim().replaceAll(/[\r\n]/g, '').slice(0, 50);
         console.log(`[EVENT-SERVICE] Processing batch of ${events.length} events for ${sanitizedSessionId}`);
 
         for (const eventData of events) {

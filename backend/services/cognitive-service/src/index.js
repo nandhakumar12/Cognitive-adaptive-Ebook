@@ -1,9 +1,13 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { inferCognitiveState } from './cognitiveEngine.js';
 
 const app = express();
 const PORT = 3003;
+
+// Base Security: Secure headers with Helmet
+app.use(helmet());
 
 // Security: disable framework fingerprinting
 app.disable('x-powered-by');

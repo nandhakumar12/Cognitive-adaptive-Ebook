@@ -2,9 +2,13 @@ import express from 'express';
 import cors from 'cors';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
+import helmet from 'helmet';
 
 const app = express();
 const PORT = 3002;
+
+// Base Security: Secure headers with Helmet
+app.use(helmet());
 
 // Security: disable framework fingerprinting
 app.disable('x-powered-by');

@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import {
     getSession,
     addEvent,
@@ -20,6 +21,9 @@ import {
 
 const app = express();
 const PORT = 3005;
+
+// Base Security: Secure headers with Helmet
+app.use(helmet());
 
 // Security: disable framework fingerprinting
 app.disable('x-powered-by');

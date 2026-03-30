@@ -1,9 +1,13 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import { recommendAdaptations, executeAdaptations, shouldApplyAdaptation } from './adaptationService.js';
 
 const app = express();
 const PORT = 3004;
+
+// Base Security: Secure headers with Helmet
+app.use(helmet());
 
 // Security: disable framework fingerprinting
 app.disable('x-powered-by');

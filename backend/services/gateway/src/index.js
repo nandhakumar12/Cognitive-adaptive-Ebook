@@ -1,12 +1,27 @@
 import express from 'express';
 import cors from 'cors';
 import proxy from 'express-http-proxy';
+import helmet from 'helmet';
+import { rateLimit } from 'express-rate-limit';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
+// Base Security: Secure headers with Helmet
+app.use(helmet());
+
 // Security: disable framework fingerprinting
 app.disable('x-powered-by');
+
+// DDoS Protection: Rate limiting
+const limiter = rateLimit({
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Limit each IP to 100 requests per windowMs
+    message: { error: 'Too many requests, please try again later.' },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+app.use('/api/', limiter);
 
 const EVENT_SERVICE_URL = process.env.EVENT_SERVICE_URL || 'http://localhost:3002';
 const DATA_SERVICE_URL = process.env.DATA_SERVICE_URL || 'http://localhost:3005';
@@ -18,8 +33,9 @@ app.use(cors({
     origin: [
         'http://localhost:3000',
         'http://127.0.0.1:3000',
-        process.env.FRONTEND_URL || 'http://localhost:3000'
-    ],
+        'https://www.nandhakumar.works',
+        process.env.FRONTEND_URL
+    ].filter(Boolean),
     credentials: true,
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
